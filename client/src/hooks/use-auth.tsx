@@ -44,7 +44,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const loginMutation = useMutation({
     mutationFn: async (credentials: LoginData) => {
       const res = await apiRequest("POST", "/api/login", credentials);
-      return await res.json();
+      try {
+        return await res.json();
+      } catch (error) {
+        console.error("Error parsing login response:", error);
+        throw new Error("Failed to process login response. Please try again.");
+      }
     },
     onSuccess: (user: User) => {
       queryClient.setQueryData(["/api/user"], user);
@@ -65,7 +70,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const registerMutation = useMutation({
     mutationFn: async (credentials: RegisterData) => {
       const res = await apiRequest("POST", "/api/register", credentials);
-      return await res.json();
+      try {
+        return await res.json();
+      } catch (error) {
+        console.error("Error parsing registration response:", error);
+        throw new Error("Failed to process registration response. Please try again.");
+      }
     },
     onSuccess: (user: User) => {
       queryClient.setQueryData(["/api/user"], user);
