@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { User, Menu, X } from "lucide-react";
+import trilogyLogo from "@/assets/trilogy-logo.svg";
 
 export default function Header() {
   const { user, logoutMutation } = useAuth();
@@ -25,9 +26,12 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <div className="flex-shrink-0 flex items-center">
+            <div className="flex-shrink-0 flex items-center gap-2">
               <Link href="/">
-                <span className="text-2xl font-bold text-primary cursor-pointer">SecureMedia</span>
+                <div className="flex items-center gap-2 cursor-pointer">
+                  <img src={trilogyLogo} alt="Trilogy Digital Media Logo" className="h-8 w-8" />
+                  <span className="text-xl font-bold text-primary">Trilogy Digital Media</span>
+                </div>
               </Link>
             </div>
 
