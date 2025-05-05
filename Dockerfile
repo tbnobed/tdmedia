@@ -2,8 +2,8 @@ FROM node:20-alpine
 
 WORKDIR /app
 
-# Install dependencies for building and running
-RUN apk add --no-cache python3 make g++ postgresql-client
+# Install dependencies for building, running, and troubleshooting
+RUN apk add --no-cache python3 make g++ postgresql-client curl wget netcat-openbsd procps bash
 
 # Install dependencies first (leverage Docker cache)
 COPY package*.json ./

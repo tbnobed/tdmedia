@@ -122,6 +122,53 @@ echo "Ensuring media directory exists and is writable..."
 mkdir -p /app/media
 chmod 777 /app/media
 
+# Add a simple health check endpoint in case the app is still starting
+mkdir -p dist/public/health
+cat > dist/public/health/index.html << EOF
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Health Check</title>
+</head>
+<body>
+  <h1>OK</h1>
+</body>
+</html>
+EOF
+
+# Create a test page for basic connectivity checks
+mkdir -p dist/public/test-page
+cat > dist/public/test-page/index.html << EOF
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Page</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
+    h1 { color: #333; }
+    .info { background: #f4f4f4; padding: 20px; border-radius: 5px; margin-bottom: 20px; }
+    .success { color: green; }
+  </style>
+</head>
+<body>
+  <h1>Trilogy Digital Media - Test Page</h1>
+  <div class="info">
+    <p class="success">✓ Server is running</p>
+    <p class="success">✓ Static file serving is working</p>
+    <p>This is a test page to verify that the basic server functionality is working.</p>
+    <p>Current time: <span id="server-time"></span></p>
+  </div>
+  <script>
+    document.getElementById('server-time').textContent = new Date().toLocaleString();
+  </script>
+</body>
+</html>
+EOF
+
 # Create a minimal fallback index.html for debugging purposes
 cat > dist/public/index.html << EOF
 <!DOCTYPE html>
