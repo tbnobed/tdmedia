@@ -33,7 +33,7 @@ services:
     networks:
       - trilogy_network
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:5000/api/healthcheck"]
+      test: ["CMD", "wget", "-qO-", "http://localhost:5000/health"]
       interval: 30s
       timeout: 10s
       retries: 3

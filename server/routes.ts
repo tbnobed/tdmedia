@@ -622,6 +622,127 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to update contact" });
     }
   });
+  
+  // Health check endpoint for Docker
+  app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+  });
+  
+  // Diagnostic endpoints for Docker
+  app.get('/api/debug/info', (req, res) => {
+    // Collect various system information
+    const diagnosticInfo = {
+      environment: {
+        node_env: process.env.NODE_ENV,
+        docker_env: process.env.DOCKER_ENV,
+        port: process.env.PORT,
+      },
+      filesystem: {
+        currentDirectory: __dirname,
+        staticPublicPath: path.resolve(__dirname, '../public'),
+        assetsExists: fs.existsSync(path.resolve(__dirname, '../public/assets')),
+      },
+      database: {
+        connectionConfigured: !!process.env.DATABASE_URL,
+        // Don't include the actual connection string for security
+        connection_type: process.env.DOCKER_ENV ? 'standard_pg' : 'neon_serverless'
+      },
+      assetInfo: {}
+    };
+    
+    // Check for asset manifest
+    const manifestPath = path.resolve(__dirname, '../public/assets/manifest.json');
+    if (fs.existsSync(manifestPath)) {
+      try {
+        diagnosticInfo.assetInfo = {
+          manifestExists: true,
+          manifest: JSON.parse(fs.readFileSync(manifestPath, 'utf8'))
+        };
+      } catch (e: any) {
+        diagnosticInfo.assetInfo = { 
+          manifestExists: true,
+          error: `Error parsing manifest: ${e?.message || 'Unknown error'}` 
+        };
+      }
+    } else {
+      diagnosticInfo.assetInfo = { manifestExists: false };
+      
+      // List available assets
+      const assetsDir = path.resolve(__dirname, '../public/assets');
+      if (fs.existsSync(assetsDir)) {
+        try {
+          const files = fs.readdirSync(assetsDir);
+          diagnosticInfo.assetInfo = {
+            ...diagnosticInfo.assetInfo,
+            availableAssets: files
+          };
+        } catch (e: any) {
+          diagnosticInfo.assetInfo = {
+            ...diagnosticInfo.assetInfo,
+            error: `Error reading assets dir: ${e?.message || 'Unknown error'}`
+          };
+        }
+      }
+    }
+    
+    res.status(200).json(diagnosticInfo);
+  });
+  
+  // Simple test page to verify HTML serving
+  app.get('/test-page', (req, res) => {
+    res.send(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Trilogy Digital Media - Test Page</title>
+          <style>
+            body { font-family: sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+            .card { border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin-bottom: 20px; }
+            h1 { color: #333; }
+            pre { background: #f5f5f5; padding: 10px; border-radius: 5px; overflow: auto; }
+          </style>
+        </head>
+        <body>
+          <h1>Trilogy Digital Media - Test Page</h1>
+          <div class="card">
+            <h2>Server Information</h2>
+            <ul>
+              <li>Node Environment: ${process.env.NODE_ENV || 'Not set'}</li>
+              <li>Docker Environment: ${process.env.DOCKER_ENV ? 'Yes' : 'No'}</li>
+              <li>Server Time: ${new Date().toISOString()}</li>
+            </ul>
+          </div>
+          
+          <div class="card">
+            <h2>File System Check</h2>
+            <ul>
+              <li>Current Directory: ${__dirname}</li>
+              <li>Static Path: ${path.resolve(__dirname, '../public')}</li>
+              <li>Assets Directory Exists: ${fs.existsSync(path.resolve(__dirname, '../public/assets')) ? 'Yes' : 'No'}</li>
+            </ul>
+          </div>
+          
+          <div class="card">
+            <h2>Test API Request</h2>
+            <button id="testApi">Test API Connection</button>
+            <pre id="apiResult">Click the button to test the API...</pre>
+          </div>
+          
+          <script>
+            document.getElementById('testApi').addEventListener('click', async () => {
+              try {
+                const response = await fetch('/api/debug/info');
+                const data = await response.json();
+                document.getElementById('apiResult').textContent = JSON.stringify(data, null, 2);
+              } catch (error) {
+                document.getElementById('apiResult').textContent = 'Error: ' + error.message;
+              }
+            });
+          </script>
+        </body>
+      </html>
+    `);
+  });
 
   const httpServer = createServer(app);
 
