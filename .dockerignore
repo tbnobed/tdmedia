@@ -1,0 +1,39 @@
+# Version control
+.git
+.gitignore
+
+# Node.js dependencies and build artifacts
+node_modules
+npm-debug.log
+dist
+build
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Docker files
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Miscellaneous
+*.log
+*.swp
+.DS_Store
+.idea
+.vscode
+README.md
+LICENSE
+*.md
+
+# Test files
+__tests__
+*.test.js
+*.spec.js
+coverage
+
+# Temporary files
+tmp
+temp

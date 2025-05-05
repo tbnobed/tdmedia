@@ -7,10 +7,24 @@ import { z } from "zod";
 import fs from "fs";
 import path from "path";
 import { createHmac } from "crypto";
+import { db } from "@db";
+import { sql } from "drizzle-orm";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup authentication routes
   setupAuth(app);
+  
+  // Health check endpoint for Docker
+  app.get("/api/healthcheck", async (req, res) => {
+    try {
+      // Check database connection
+      await db.execute(sql`SELECT 1`);
+      res.status(200).json({ status: "ok", message: "Service is healthy" });
+    } catch (error) {
+      console.error("Health check failed:", error);
+      res.status(500).json({ status: "error", message: "Service unhealthy" });
+    }
+  });
 
   // Admin middleware - Check if user is admin
   const isAdmin = (req: Request, res: Response, next: Function) => {

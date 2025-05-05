@@ -6,34 +6,65 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "5000:5000"
+      - "${PORT:-5000}:5000"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     environment:
-      - NODE_ENV=production
-      - DATABASE_URL=postgresql://trilogy_user:trilogy_password@postgres:5432/trilogy_db
+      # Database configuration
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-trilogy_user}:${POSTGRES_PASSWORD:-trilogy_password}@postgres:5432/${POSTGRES_DB:-trilogy_db}
+      
+      # Application configuration
+      - NODE_ENV=${NODE_ENV:-production}
+      - PORT=5000
       - SESSION_SECRET=${SESSION_SECRET:-trilogy_session_secret}
+      
+      # Admin user configuration
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@example.com}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-adminpassword}
+      - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
+      
+      # Client user configuration
+      - CLIENT_EMAIL=${CLIENT_EMAIL:-client@example.com}
+      - CLIENT_PASSWORD=${CLIENT_PASSWORD:-demopassword}
+      - CLIENT_USERNAME=${CLIENT_USERNAME:-client}
     volumes:
       - media_data:/app/media
     restart: unless-stopped
+    networks:
+      - trilogy_network
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:5000/api/healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
 
   postgres:
     image: postgres:15-alpine
     environment:
-      - POSTGRES_USER=trilogy_user
-      - POSTGRES_PASSWORD=trilogy_password
-      - POSTGRES_DB=trilogy_db
+      - POSTGRES_USER=${POSTGRES_USER:-trilogy_user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-trilogy_password}
+      - POSTGRES_DB=${POSTGRES_DB:-trilogy_db}
     volumes:
       - db_data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U trilogy_user -d trilogy_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-trilogy_user} -d ${POSTGRES_DB:-trilogy_db}"]
       interval: 5s
       timeout: 5s
       retries: 5
     restart: unless-stopped
+    networks:
+      - trilogy_network
+
+networks:
+  trilogy_network:
+    driver: bridge
 
 volumes:
   db_data:
+    name: trilogy_db_data
   media_data:
+    name: trilogy_media_data

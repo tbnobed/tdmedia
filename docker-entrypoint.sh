@@ -37,6 +37,11 @@ initialize_db() {
 create_admin_user() {
   echo "Checking for admin user..."
   
+  # Set default admin values if environment variables are not set
+  ADMIN_EMAIL=${ADMIN_EMAIL:-admin@example.com}
+  ADMIN_PASSWORD=${ADMIN_PASSWORD:-adminpassword}
+  ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
+  
   # Create a temporary script to check and create admin if needed
   cat > /tmp/check-admin.js << EOF
 import { db } from './dist/db/index.js';
@@ -46,18 +51,23 @@ import { hashPassword } from './dist/server/auth.js';
 
 async function ensureAdminExists() {
   try {
+    // Get admin details from environment variables
+    const adminEmail = process.env.ADMIN_EMAIL || 'admin@example.com';
+    const adminPassword = process.env.ADMIN_PASSWORD || 'adminpassword';
+    const adminUsername = process.env.ADMIN_USERNAME || 'admin';
+    
     // Check if admin user exists
     const admin = await db.query.users.findFirst({
-      where: eq(users.email, 'admin@example.com')
+      where: eq(users.email, adminEmail)
     });
     
     if (!admin) {
       console.log('Creating admin user...');
-      const hashedPassword = await hashPassword('adminpassword');
+      const hashedPassword = await hashPassword(adminPassword);
       
       await db.insert(users).values({
-        username: 'admin',
-        email: 'admin@example.com',
+        username: adminUsername,
+        email: adminEmail,
         password: hashedPassword,
         isAdmin: true
       });
@@ -91,6 +101,11 @@ EOF
 create_client_user() {
   echo "Checking for client user..."
   
+  # Set default client values if environment variables are not set
+  CLIENT_EMAIL=${CLIENT_EMAIL:-client@example.com}
+  CLIENT_PASSWORD=${CLIENT_PASSWORD:-demopassword}
+  CLIENT_USERNAME=${CLIENT_USERNAME:-client}
+  
   # Create a temporary script to check and create client if needed
   cat > /tmp/check-client.js << EOF
 import { db } from './dist/db/index.js';
@@ -100,18 +115,23 @@ import { hashPassword } from './dist/server/auth.js';
 
 async function ensureClientExists() {
   try {
+    // Get client details from environment variables
+    const clientEmail = process.env.CLIENT_EMAIL || 'client@example.com';
+    const clientPassword = process.env.CLIENT_PASSWORD || 'demopassword';
+    const clientUsername = process.env.CLIENT_USERNAME || 'client';
+    
     // Check if client user exists
     const client = await db.query.users.findFirst({
-      where: eq(users.email, 'client@example.com')
+      where: eq(users.email, clientEmail)
     });
     
     if (!client) {
       console.log('Creating client user...');
-      const hashedPassword = await hashPassword('demopassword');
+      const hashedPassword = await hashPassword(clientPassword);
       
       await db.insert(users).values({
-        username: 'client',
-        email: 'client@example.com',
+        username: clientUsername,
+        email: clientEmail,
         password: hashedPassword,
         isAdmin: false
       });
