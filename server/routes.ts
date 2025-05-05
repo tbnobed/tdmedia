@@ -26,6 +26,134 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Serve a simple test page for debugging Docker deployment
+  app.get("/test-page", (req, res) => {
+    res.send(`
+      <!DOCTYPE html>
+      <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Trilogy Digital Media - Test Page</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              line-height: 1.6;
+              max-width: 800px;
+              margin: 0 auto;
+              padding: 20px;
+            }
+            .card {
+              background: #f5f5f5;
+              border-radius: 5px;
+              padding: 15px;
+              margin-bottom: 20px;
+              box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            h1 {
+              color: #2c3e50;
+            }
+            button {
+              background: #3498db;
+              color: white;
+              border: none;
+              padding: 8px 15px;
+              border-radius: 4px;
+              cursor: pointer;
+            }
+            button:hover {
+              background: #2980b9;
+            }
+            #results {
+              white-space: pre-wrap;
+              background: #eee;
+              padding: 10px;
+              border-radius: 4px;
+            }
+          </style>
+        </head>
+        <body>
+          <h1>Trilogy Digital Media - Test Page</h1>
+          <div class="card">
+            <h2>Server Connection Test</h2>
+            <p>This page verifies basic connectivity to the server.</p>
+            <p>Current Time: ${new Date().toLocaleString()}</p>
+            <p>Environment: ${process.env.NODE_ENV || "Not set"}</p>
+          </div>
+          
+          <div class="card">
+            <h2>API Test</h2>
+            <button id="testApi">Test API Connection</button>
+            <div id="results"></div>
+          </div>
+          
+          <script>
+            document.getElementById('testApi').addEventListener('click', async () => {
+              const results = document.getElementById('results');
+              results.textContent = 'Testing connection...';
+              
+              try {
+                const response = await fetch('/api/debug/info');
+                const data = await response.json();
+                results.textContent = 'Success! Server response:\\n' + JSON.stringify(data, null, 2);
+              } catch (error) {
+                results.textContent = 'Error: ' + error.message;
+              }
+            });
+          </script>
+        </body>
+      </html>
+    `);
+  });
+
+  // Debug endpoint to get basic app info without authentication
+  app.get("/api/debug/info", async (req, res) => {
+    try {
+      // Collect system information
+      const info = {
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV || 'unknown',
+        database: {
+          connected: false,
+          tables: []
+        },
+        system: {
+          node: process.version,
+          memory: process.memoryUsage(),
+          uptime: process.uptime()
+        }
+      };
+      
+      // Check database
+      try {
+        await db.execute(sql`SELECT 1`);
+        info.database.connected = true;
+        
+        // Get table counts
+        const categoriesCount = await db.execute(sql`SELECT COUNT(*) FROM categories`);
+        const mediaCount = await db.execute(sql`SELECT COUNT(*) FROM media`);
+        const usersCount = await db.execute(sql`SELECT COUNT(*) FROM users`);
+        
+        info.database.tables = [
+          { name: 'categories', count: categoriesCount.rows[0].count },
+          { name: 'media', count: mediaCount.rows[0].count },
+          { name: 'users', count: usersCount.rows[0].count }
+        ];
+      } catch (dbError) {
+        console.error("Debug database check failed:", dbError);
+      }
+      
+      res.status(200).json(info);
+    } catch (error) {
+      console.error("Debug info error:", error);
+      res.status(500).json({ 
+        status: "error", 
+        message: "Failed to get debug info",
+        error: String(error)
+      });
+    }
+  });
+
   // Admin middleware - Check if user is admin
   const isAdmin = (req: Request, res: Response, next: Function) => {
     if (!req.isAuthenticated()) {
