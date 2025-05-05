@@ -18,15 +18,21 @@ RUN npm run build
 # Create directory for media files
 RUN mkdir -p /app/media
 
+# Create public assets directory
+RUN mkdir -p dist/public/assets
+
 # Copy static files to the dist directory
 RUN cp -f client/public/docker-config.js dist/public/config.js || echo "No docker config found, skipping"
 
+# Move build assets to the assets directory for discovery
+RUN find dist/client/assets -type f -name "*.js" -o -name "*.css" -exec cp {} dist/public/assets/ \; || echo "No built assets found"
+
 # Ensure the index.html file is properly copied
-RUN mkdir -p dist/public
 RUN cp -f client/index.html dist/public/index.html || echo "No index.html found, skipping"
 
 # Add debugging log for the build process
 RUN echo "Contents of dist/public directory:" && ls -la dist/public/
+RUN echo "Contents of dist/public/assets directory:" && ls -la dist/public/assets/ || echo "Assets directory empty or not found"
 
 # Create the entrypoint script
 COPY docker-entrypoint.sh /app/docker-entrypoint.sh

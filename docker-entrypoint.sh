@@ -53,10 +53,45 @@ window.TRILOGY_CONFIG = {
 };
 EOF
 
+# Ensure assets directory exists
+mkdir -p dist/public/assets
+
+# Check the compiled client assets
+echo "Checking compiled client assets..."
+if [ -d "dist/client/assets" ]; then
+  echo "Found compiled client assets:"
+  ls -la dist/client/assets/
+  
+  # Copy all compiled assets to the public assets directory for access via HTTP
+  echo "Copying compiled assets to public assets directory..."
+  cp -r dist/client/assets/* dist/public/assets/
+  
+  # Add asset manifest for easy discovery
+  echo "Creating asset manifest..."
+  echo "{\"assets\":[" > dist/public/assets/manifest.json
+  find dist/public/assets -type f -name "*.js" -o -name "*.css" | sed 's|dist/public||g' | sort | sed 's/^/  "/;s/$/",/' | sed '$ s/,$//' >> dist/public/assets/manifest.json
+  echo "]}" >> dist/public/assets/manifest.json
+  
+  # Verify asset manifest
+  echo "Asset manifest created:"
+  cat dist/public/assets/manifest.json
+else
+  echo "WARNING: dist/client/assets directory not found!"
+  
+  # Look for assets elsewhere
+  echo "Looking for client assets elsewhere..."
+  find dist -name "*.js" | grep -v "node_modules"
+fi
+
 # Check and list all the assets in the dist directory
 echo "Checking all assets in dist directory..."
 echo "Content of dist directory:"
 find dist -type f | grep -v "node_modules" | sort
+
+# Ensure the media upload directory exists and is writable
+echo "Ensuring media directory exists and is writable..."
+mkdir -p /app/media
+chmod 777 /app/media
 
 # Create a minimal fallback index.html for debugging purposes
 cat > dist/public/index.html << EOF
@@ -71,32 +106,58 @@ cat > dist/public/index.html << EOF
     <script>
       // Dynamically load CSS file
       function loadCss() {
-        // Look for CSS files in assets directory
-        fetch('/assets/')
+        // First try to load from asset manifest
+        fetch('/assets/manifest.json')
           .then(response => {
-            if (!response.ok) throw new Error('Failed to load assets directory');
-            return response.text();
+            if (response.ok) return response.json();
+            throw new Error('Asset manifest not found');
           })
-          .then(html => {
-            // Simple regex to find CSS files
-            const cssFiles = html.match(/href="([^"]+\.css)"/g) || [];
-            if (cssFiles.length > 0) {
-              // Extract the first CSS filename
-              const cssFile = cssFiles[0].match(/href="([^"]+)"/)[1];
-              console.log('Found CSS file:', cssFile);
-              
-              // Create and append the CSS link
-              const link = document.createElement('link');
-              link.rel = 'stylesheet';
-              link.href = cssFile;
-              document.head.appendChild(link);
-            } else {
-              console.warn('No CSS files found in assets directory');
+          .then(manifest => {
+            if (manifest && manifest.assets && manifest.assets.length > 0) {
+              // Find CSS file in manifest
+              const cssAsset = manifest.assets.find(asset => asset.endsWith('.css'));
+              if (cssAsset) {
+                console.log('Found CSS file in manifest:', cssAsset);
+                loadStylesheet(cssAsset);
+                return;
+              }
             }
+            throw new Error('No CSS assets found in manifest');
           })
           .catch(err => {
-            console.error('Error loading CSS:', err);
+            console.warn('Could not load CSS from manifest:', err.message);
+            console.log('Falling back to directory scanning for CSS...');
+            
+            // Fallback: Look for CSS files in assets directory
+            fetch('/assets/')
+              .then(response => {
+                if (!response.ok) throw new Error('Failed to load assets directory');
+                return response.text();
+              })
+              .then(html => {
+                // Simple regex to find CSS files
+                const cssFiles = html.match(/href="([^"]+\.css)"/g) || [];
+                if (cssFiles.length > 0) {
+                  // Extract the first CSS filename
+                  const cssFile = cssFiles[0].match(/href="([^"]+)"/)[1];
+                  console.log('Found CSS file:', cssFile);
+                  loadStylesheet(cssFile);
+                } else {
+                  console.warn('No CSS files found in assets directory');
+                }
+              })
+              .catch(err => {
+                console.error('Error loading CSS:', err);
+              });
           });
+        
+        function loadStylesheet(href) {
+          // Create and append the CSS link
+          const link = document.createElement('link');
+          link.rel = 'stylesheet';
+          link.href = href;
+          document.head.appendChild(link);
+        }
       }
       
       // Try to load CSS when the page loads
@@ -165,44 +226,70 @@ cat > dist/public/index.html << EOF
             
             // Function to find and load the main JS file
             function loadMainScript() {
-              // Try to find the main JS file in the assets directory
-              fetch('/assets/')
+              // First try to load from asset manifest
+              fetch('/assets/manifest.json')
                 .then(response => {
-                  if (!response.ok) throw new Error('Failed to load assets directory');
-                  return response.text();
+                  if (response.ok) return response.json();
+                  throw new Error('Asset manifest not found');
                 })
-                .then(html => {
-                  // Look for JS files in the assets directory
-                  const jsFiles = html.match(/href="([^"]+\.js)"/g) || [];
-                  if (jsFiles.length > 0) {
-                    // Extract the first JS filename
-                    const jsFile = jsFiles[0].match(/href="([^"]+)"/)[1];
-                    console.log('Found JS file:', jsFile);
-                    
-                    // Create and append the script
-                    const script = document.createElement('script');
-                    script.src = jsFile;
-                    script.type = 'module';
-                    script.onerror = function(e) {
-                      console.error('Failed to load main script:', e);
-                      document.querySelector('.loading-container p').textContent = 
-                        'Error loading application. Please check console for details.';
-                    };
-                    script.onload = function() {
-                      console.log('Main script loaded successfully');
-                    };
-                    document.body.appendChild(script);
-                  } else {
-                    console.error('No JS files found in assets directory');
-                    document.querySelector('.loading-container p').textContent = 
-                      'Error: No JavaScript files found in assets directory.';
+                .then(manifest => {
+                  if (manifest && manifest.assets && manifest.assets.length > 0) {
+                    // Find JS file in manifest
+                    const jsAsset = manifest.assets.find(asset => asset.endsWith('.js'));
+                    if (jsAsset) {
+                      console.log('Found JS file in manifest:', jsAsset);
+                      loadScript(jsAsset);
+                      return;
+                    }
                   }
+                  throw new Error('No JS assets found in manifest');
                 })
                 .catch(err => {
-                  console.error('Error loading JS:', err);
-                  document.querySelector('.loading-container p').textContent = 
-                    'Error loading assets: ' + err.message;
+                  console.warn('Could not load from manifest:', err.message);
+                  console.log('Falling back to directory scanning...');
+                  
+                  // Fallback: Try to find the main JS file in the assets directory
+                  fetch('/assets/')
+                    .then(response => {
+                      if (!response.ok) throw new Error('Failed to load assets directory');
+                      return response.text();
+                    })
+                    .then(html => {
+                      // Look for JS files in the assets directory
+                      const jsFiles = html.match(/href="([^"]+\.js)"/g) || [];
+                      if (jsFiles.length > 0) {
+                        // Extract the first JS filename
+                        const jsFile = jsFiles[0].match(/href="([^"]+)"/)[1];
+                        console.log('Found JS file:', jsFile);
+                        loadScript(jsFile);
+                      } else {
+                        console.error('No JS files found in assets directory');
+                        document.querySelector('.loading-container p').textContent = 
+                          'Error: No JavaScript files found in assets directory.';
+                      }
+                    })
+                    .catch(err => {
+                      console.error('Error loading JS:', err);
+                      document.querySelector('.loading-container p').textContent = 
+                        'Error loading assets: ' + err.message;
+                    });
                 });
+              
+              function loadScript(src) {
+                // Create and append the script
+                const script = document.createElement('script');
+                script.src = src;
+                script.type = 'module';
+                script.onerror = function(e) {
+                  console.error('Failed to load main script:', e);
+                  document.querySelector('.loading-container p').textContent = 
+                    'Error loading application. Please check console for details.';
+                };
+                script.onload = function() {
+                  console.log('Main script loaded successfully');
+                };
+                document.body.appendChild(script);
+              }
             }
             
             // Try to load the main script
