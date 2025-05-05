@@ -631,22 +631,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Define a route to manually handle specific asset requests
   app.get('/assets/:filename', (req, res) => {
     const filename = req.params.filename;
+    const cwd = process.cwd();
     
     // Check multiple possible locations for the asset
     const possiblePaths = [
-      path.resolve(process.cwd(), 'dist/public/assets', filename),
-      path.resolve(process.cwd(), 'dist/client/assets', filename),
-      path.resolve(process.cwd(), 'dist/assets', filename),
-      path.resolve(process.cwd(), 'public/assets', filename),
-      path.resolve(__dirname, '../public/assets', filename)
+      path.join(cwd, 'dist/public/assets', filename),
+      path.join(cwd, 'dist/client/assets', filename),
+      path.join(cwd, 'dist/assets', filename),
+      path.join(cwd, 'public/assets', filename)
     ];
     
     // Try to find the file in any of the possible locations
     for (const filePath of possiblePaths) {
-      if (fs.existsSync(filePath)) {
-        console.log(`Serving asset from: ${filePath}`);
-        return res.sendFile(filePath);
+      try {
+        if (fs.existsSync(filePath)) {
+          console.log(`Serving asset from: ${filePath}`);
+          return res.sendFile(filePath);
+        }
+      } catch (err) {
+        console.error(`Error checking path ${filePath}:`, err);
       }
+    }
+    
+    // Try one last path based on import.meta (for ESM)
+    try {
+      const publicDir = path.join(cwd, 'public');
+      const assetPath = path.join(publicDir, 'assets', filename);
+      
+      if (fs.existsSync(assetPath)) {
+        console.log(`Serving asset from: ${assetPath}`);
+        return res.sendFile(assetPath);
+      }
+    } catch (err) {
+      console.error('Error on final path check:', err);
     }
     
     // If file wasn't found, return 404
@@ -688,7 +705,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // List all possible locations
-      let possibleLocations = [];
+      interface LocationInfo {
+        path: string;
+        exists: boolean;
+      }
+      let possibleLocations: LocationInfo[] = [];
       [
         'dist/public/assets',
         'dist/client/assets',
@@ -730,7 +751,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       html += '</ul></body></html>';
       res.send(html);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error reading assets directory:', err);
       res.status(500).send(`Error reading assets directory: ${err.message}`);
     }
@@ -760,11 +781,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
           } else {
             result += `${relativePath}\n`;
           }
-        } catch (err) {
+        } catch (err: any) {
           result += `${relativePath} [error: ${err.message}]\n`;
         }
       });
-    } catch (err) {
+    } catch (err: any) {
       result += `Error listing directory ${dir}: ${err.message}\n`;
     }
     
