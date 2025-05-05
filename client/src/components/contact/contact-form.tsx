@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -99,7 +99,7 @@ export default function ContactForm({ isOpen, onClose, media }: ContactFormProps
   };
   
   // Reset form when dialog opens
-  React.useEffect(() => {
+  useEffect(() => {
     if (isOpen) {
       form.reset({
         name: user?.username || "",

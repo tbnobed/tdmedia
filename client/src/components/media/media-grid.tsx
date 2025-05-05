@@ -2,8 +2,17 @@ import { Media } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { getMediaTypeColor, getMediaTypeIcon, getMediaMetadata, getMediaActionText, getMediaActionIcon } from "@/lib/media-utils";
-import { LucideIcon } from "lucide-react";
-import * as LucideIcons from "lucide-react";
+import { 
+  FileQuestion, 
+  FileText, 
+  Image, 
+  Presentation, 
+  PlayCircle, 
+  File,
+  Play,
+  Eye,
+  ArrowRight
+} from "lucide-react";
 
 interface MediaGridProps {
   media: Media[];
@@ -16,7 +25,7 @@ export default function MediaGrid({ media, onOpenMedia }: MediaGridProps) {
       {media.length === 0 ? (
         <div className="col-span-full flex flex-col items-center justify-center py-12">
           <div className="bg-gray-100 rounded-full p-4 mb-4">
-            <LucideIcons.FileQuestion className="h-8 w-8 text-gray-400" />
+            <FileQuestion className="h-8 w-8 text-gray-400" />
           </div>
           <h3 className="text-lg font-medium text-gray-900">No media found</h3>
           <p className="mt-1 text-sm text-gray-500">Try adjusting your search or filter criteria</p>
@@ -24,14 +33,26 @@ export default function MediaGrid({ media, onOpenMedia }: MediaGridProps) {
       ) : (
         media.map((item) => {
           const typeColor = getMediaTypeColor(item.type);
-          const IconComponent = LucideIcons[getMediaTypeIcon(item.type) as keyof typeof LucideIcons] as LucideIcon;
-          const ActionIcon = LucideIcons[getMediaActionIcon(item.type) as keyof typeof LucideIcons] as LucideIcon;
+          
+          // Get the appropriate icon components based on media type
+          let TypeIcon = FileText;
+          if (item.type === 'video') TypeIcon = PlayCircle;
+          else if (item.type === 'image') TypeIcon = Image;
+          else if (item.type === 'presentation') TypeIcon = Presentation;
+          else if (item.type === 'document') TypeIcon = FileText;
+          else TypeIcon = File;
+          
+          // Get the appropriate action icon based on media type
+          let ActionIcon = Eye;
+          if (item.type === 'video') ActionIcon = Play;
+          else if (['document', 'image', 'presentation'].includes(item.type)) ActionIcon = Eye;
+          else ActionIcon = ArrowRight;
           
           return (
             <Card key={item.id} className="overflow-hidden flex flex-col">
               <div className="relative aspect-video bg-gray-100 overflow-hidden">
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <IconComponent className="h-10 w-10 text-gray-400" />
+                  <TypeIcon className="h-10 w-10 text-gray-400" />
                 </div>
                 {item.thumbnailUrl && (
                   <img 
