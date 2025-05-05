@@ -10,13 +10,13 @@
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;  /* #3B82F6 - blue-500 */
+    --primary: 142.1 70% 45%;  /* #2B9B5D - Trilogy green */
     --primary-foreground: 210 40% 98%;
-    --secondary: 220 14.3% 46.9%;  /* #6B7280 - gray-500 */
+    --secondary: 115 65% 60%;  /* #8AE160 - Trilogy light green */
     --secondary-foreground: 222.2 47.4% 11.2%;
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 262.1 83.3% 57.8%;   /* #8B5CF6 - purple-500 */
+    --accent: 142.1 80% 40%;   /* #29914F - Trilogy dark green */
     --accent-foreground: 222.2 47.4% 11.2%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
@@ -46,13 +46,13 @@
     --card-foreground: 210 40% 98%;
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
+    --primary: 142.1 55% 32%;  /* Darker Trilogy green for dark mode */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 115 45% 48%;  /* Darker Trilogy light green for dark mode */
     --secondary-foreground: 210 40% 98%;
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
-    --accent: 262.1 83.3% 57.8%;
+    --accent: 142.1 60% 25%;   /* Very dark Trilogy green for dark mode */
     --accent-foreground: 210 40% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
@@ -91,7 +91,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" opacity="0.2"><text x="50%" y="50%" font-family="Arial" font-size="24" font-weight="bold" text-anchor="middle" fill="white" transform="rotate(-45, 100, 100)">PREVIEW ONLY</text></svg>');
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" opacity="0.2"><text x="50%" y="45%" font-family="Arial" font-size="20" font-weight="bold" text-anchor="middle" fill="white" transform="rotate(-45, 120, 120)">TRILOGY DIGITAL</text><text x="50%" y="60%" font-family="Arial" font-size="20" font-weight="bold" text-anchor="middle" fill="white" transform="rotate(-45, 120, 120)">PREVIEW ONLY</text></svg>');
     background-repeat: repeat;
     pointer-events: none;
     z-index: 10;
