@@ -56,32 +56,61 @@ EOF
 # Ensure assets directory exists
 mkdir -p dist/public/assets
 
-# Check the compiled client assets
-echo "Checking compiled client assets..."
-if [ -d "dist/client/assets" ]; then
-  echo "Found compiled client assets:"
-  ls -la dist/client/assets/
+# Check for compiled client assets with improved handling
+echo "Checking for compiled client assets..."
+mkdir -p dist/public/assets
+
+# Create manifest of all found assets
+echo "Creating asset manifest..."
+echo "{\"assets\":[" > dist/public/assets/manifest.json
+
+# Find all JS and CSS files in the dist directory
+FOUND_ASSETS=0
+echo "Looking for assets throughout the dist directory..."
+
+# First check for Vite-generated hash-named assets
+if find dist -name "*.js" -o -name "*.css" | grep -v "node_modules" | grep -q '[a-zA-Z0-9]\-[a-zA-Z0-9]\+\.'; then
+  echo "Found Vite-generated assets with hash names"
+  FOUND_ASSETS=1
   
-  # Copy all compiled assets to the public assets directory for access via HTTP
-  echo "Copying compiled assets to public assets directory..."
-  cp -r dist/client/assets/* dist/public/assets/
+  # Copy all found assets to the public/assets directory
+  for ASSET in $(find dist -name "*.js" -o -name "*.css" | grep -v "node_modules" | grep '[a-zA-Z0-9]\-[a-zA-Z0-9]\+\.'); do
+    FILENAME=$(basename "$ASSET")
+    echo "Copying $ASSET to dist/public/assets/"
+    cp -f "$ASSET" "dist/public/assets/$FILENAME"
+  done
   
-  # Add asset manifest for easy discovery
-  echo "Creating asset manifest..."
-  echo "{\"assets\":[" > dist/public/assets/manifest.json
-  find dist/public/assets -type f -name "*.js" -o -name "*.css" | sed 's|dist/public||g' | sort | sed 's/^/  "/;s/$/",/' | sed '$ s/,$//' >> dist/public/assets/manifest.json
-  echo "]}" >> dist/public/assets/manifest.json
-  
-  # Verify asset manifest
-  echo "Asset manifest created:"
-  cat dist/public/assets/manifest.json
-else
-  echo "WARNING: dist/client/assets directory not found!"
-  
-  # Look for assets elsewhere
-  echo "Looking for client assets elsewhere..."
-  find dist -name "*.js" | grep -v "node_modules"
+  # Find any SVG files
+  for SVG in $(find dist -name "*.svg" | grep -v "node_modules"); do
+    FILENAME=$(basename "$SVG")
+    echo "Copying SVG: $SVG to dist/public/assets/"
+    cp -f "$SVG" "dist/public/assets/$FILENAME"
+  done
 fi
+
+# Add the assets to the manifest
+find dist/public/assets -type f | sed 's|dist/public||g' | sort | sed 's/^/  "/;s/$/",/' | sed '$ s/,$//' >> dist/public/assets/manifest.json
+echo "]}" >> dist/public/assets/manifest.json
+
+# Verify the manifest
+echo "Asset manifest created:"
+cat dist/public/assets/manifest.json
+
+# Ensure our fallback assets are present
+echo "Ensuring fallback assets are present..."
+if [ ! -s "dist/public/assets/index.js" ]; then
+  echo "// Fallback JavaScript file" > dist/public/assets/index.js
+  echo "console.log('Loading fallback JavaScript');" >> dist/public/assets/index.js
+fi
+
+if [ ! -s "dist/public/assets/index.css" ]; then
+  echo "/* Fallback CSS */" > dist/public/assets/index.css
+  echo "body { font-family: sans-serif; }" >> dist/public/assets/index.css
+fi
+
+# Show the final assets directory contents
+echo "Final assets directory contents:"
+ls -la dist/public/assets/
 
 # Check and list all the assets in the dist directory
 echo "Checking all assets in dist directory..."
