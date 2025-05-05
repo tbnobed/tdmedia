@@ -35,6 +35,9 @@ RUN chmod +x /app/docker-entrypoint.sh
 # Expose the application port
 EXPOSE 5000
 
+# Set environment variables for production
+ENV NODE_ENV=production
+
 # Set entrypoint script
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
 

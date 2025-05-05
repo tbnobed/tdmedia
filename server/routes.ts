@@ -32,7 +32,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return res.status(401).json({ message: "Unauthorized" });
     }
     
-    if (!req.user.isAdmin) {
+    // Type safety check for admin property
+    if (!req.user || !(req.user as any).isAdmin) {
       return res.status(403).json({ message: "Forbidden - Admin access required" });
     }
     
@@ -194,8 +195,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // In a real implementation, this would stream the actual file with watermarking
       // For now, we'll secure the URL by adding a signature
       const timestamp = Date.now();
+      // Type safety for user ID
+      const userId = req.user ? (req.user as any).id : 0;
       const signature = createHmac('sha256', process.env.SESSION_SECRET || 'secure-media-secret')
-        .update(`${id}-${timestamp}-${req.user.id}`)
+        .update(`${id}-${timestamp}-${userId}`)
         .digest('hex');
         
       const streamUrl = `/api/raw-stream/${id}?signature=${signature}&timestamp=${timestamp}`;
@@ -208,6 +211,97 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error preparing stream:", error);
       res.status(500).json({ message: "Failed to prepare media stream" });
+    }
+  });
+  
+  // Raw streaming endpoint with signature verification
+  app.get("/api/raw-stream/:id", isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const signature = req.query.signature as string;
+      const timestamp = parseInt(req.query.timestamp as string);
+      
+      // Verify the signature to prevent unauthorized access
+      // Type safety for user ID
+      const userId = req.user ? (req.user as any).id : 0;
+      const expectedSignature = createHmac('sha256', process.env.SESSION_SECRET || 'secure-media-secret')
+        .update(`${id}-${timestamp}-${userId}`)
+        .digest('hex');
+        
+      if (signature !== expectedSignature) {
+        return res.status(403).json({ message: "Invalid signature" });
+      }
+      
+      // Check if the link has expired (10 minutes)
+      const now = Date.now();
+      if (now - timestamp > 10 * 60 * 1000) {
+        return res.status(410).json({ message: "Stream link expired" });
+      }
+      
+      const mediaItem = await storage.getMediaById(id);
+      if (!mediaItem) {
+        return res.status(404).json({ message: "Media not found" });
+      }
+      
+      // For demonstration, we're returning a placeholder response
+      // In a real application, this would stream the actual file with watermarking
+      res.send(`
+        <html>
+          <head>
+            <title>Trilogy Digital Media - ${mediaItem.title}</title>
+            <style>
+              body { 
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 0;
+                background-color: #f0f0f0;
+              }
+              .container {
+                max-width: 800px;
+                margin: 0 auto;
+                padding: 20px;
+              }
+              .watermark {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                color: rgba(255,255,255,0.3);
+                font-size: 30px;
+                z-index: 100;
+                font-weight: bold;
+                pointer-events: none;
+              }
+              .media-container {
+                position: relative;
+                width: 100%;
+                height: 400px;
+                background-color: #000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                overflow: hidden;
+              }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <h1>${mediaItem.title}</h1>
+              <div class="media-container">
+                <div class="watermark">TRILOGY DIGITAL</div>
+                <div style="color: white; text-align: center;">
+                  ${mediaItem.type.toUpperCase()} CONTENT<br>
+                  [Secured streaming preview]
+                </div>
+              </div>
+              <p><strong>Description:</strong> ${mediaItem.description}</p>
+            </div>
+          </body>
+        </html>
+      `);
+    } catch (error) {
+      console.error("Error streaming media:", error);
+      res.status(500).json({ message: "Failed to stream media" });
     }
   });
 
