@@ -7,8 +7,70 @@ import { z } from "zod";
 import fs from "fs";
 import path from "path";
 import { createHmac } from "crypto";
+import multer from "multer";
 import { db } from "@db";
 import { sql } from "drizzle-orm";
+
+// Configure multer for file uploads
+const uploadDir = path.join(process.cwd(), 'media');
+
+// Create the upload directory if it doesn't exist
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+// Configure storage for uploaded files
+const storage_config = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, uploadDir);
+  },
+  filename: function (req, file, cb) {
+    // Create a unique filename with original extension
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const ext = path.extname(file.originalname);
+    cb(null, uniqueSuffix + ext);
+  }
+});
+
+// Set up file filter for allowed media types
+const fileFilter = (req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+  // Define allowed file types
+  const allowedTypes: Record<string, boolean> = {
+    // Image files
+    'image/jpeg': true,
+    'image/png': true,
+    'image/gif': true,
+    'image/webp': true,
+    // Document files
+    'application/pdf': true,
+    'application/msword': true,
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': true,
+    'application/vnd.ms-excel': true,
+    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': true,
+    // Presentation files
+    'application/vnd.ms-powerpoint': true,
+    'application/vnd.openxmlformats-officedocument.presentationml.presentation': true,
+    // Video files
+    'video/mp4': true,
+    'video/webm': true,
+    'video/quicktime': true
+  };
+
+  if (file.mimetype in allowedTypes) {
+    cb(null, true);
+  } else {
+    cb(new Error('Unsupported file type. Allowed types: images, documents, presentations, and videos.'));
+  }
+};
+
+// Configure upload middleware
+const upload = multer({
+  storage: storage_config,
+  limits: {
+    fileSize: 50 * 1024 * 1024, // 50MB file size limit
+  },
+  fileFilter: fileFilter
+});
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup authentication routes
@@ -312,6 +374,45 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Media file upload endpoint
+  app.post("/api/upload", isAdmin, upload.single('file'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+      
+      // Get file information
+      const { filename, originalname, mimetype, size, path: filePath } = req.file;
+      
+      // Determine media type based on mimetype
+      let mediaType = 'document'; // Default type
+      if (mimetype.startsWith('image/')) {
+        mediaType = 'image';
+      } else if (mimetype.startsWith('video/')) {
+        mediaType = 'video';
+      } else if (mimetype.includes('presentation') || mimetype.includes('powerpoint')) {
+        mediaType = 'presentation';
+      }
+      
+      // Create a relative path to the file from media directory root
+      const relativePath = filename;
+      
+      // Return file details for use in the next step (creating media record)
+      res.status(200).json({
+        filename,
+        originalname,
+        mimetype,
+        size,
+        mediaType,
+        filePath: relativePath
+      });
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      res.status(500).json({ message: "File upload failed", error: String(error) });
+    }
+  });
+
+  // Create media item (separate from file upload to handle validation properly)
   app.post("/api/media", isAdmin, async (req, res) => {
     try {
       const validatedData = insertMediaSchema.parse(req.body);
