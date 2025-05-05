@@ -37,6 +37,7 @@ EXPOSE 5000
 
 # Set environment variables for production
 ENV NODE_ENV=production
+ENV DOCKER_ENV=true
 
 # Set entrypoint script
 ENTRYPOINT ["/app/docker-entrypoint.sh"]

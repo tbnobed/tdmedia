@@ -14,6 +14,48 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Setup authentication routes
   setupAuth(app);
   
+  // Asset listing endpoint for frontend initialization
+  app.get("/assets/", (req, res) => {
+    try {
+      // Get the current file's directory
+      const currentDir = path.dirname(new URL(import.meta.url).pathname);
+      const assetsDir = path.resolve(currentDir, "../public/assets");
+      
+      if (fs.existsSync(assetsDir)) {
+        // Read the assets directory
+        const files = fs.readdirSync(assetsDir);
+        
+        // Create a simple HTML listing of the files
+        const fileLinks = files.map(file => {
+          return `<li><a href="/assets/${file}">${file}</a></li>`;
+        }).join('\n');
+        
+        const html = `
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>Assets Directory</title>
+            </head>
+            <body>
+              <h1>Assets Directory</h1>
+              <ul>
+                ${fileLinks}
+              </ul>
+            </body>
+          </html>
+        `;
+        
+        res.send(html);
+      } else {
+        console.error("Assets directory not found at", assetsDir);
+        res.status(404).send("Assets directory not found");
+      }
+    } catch (error) {
+      console.error("Error listing assets:", error);
+      res.status(500).send("Error listing assets directory");
+    }
+  });
+
   // Health check endpoint for Docker
   app.get("/api/healthcheck", async (req, res) => {
     try {
@@ -115,7 +157,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         environment: process.env.NODE_ENV || 'unknown',
         database: {
           connected: false,
-          tables: []
+          tables: [] as Array<{ name: string; count: string | number }>
         },
         system: {
           node: process.version,
@@ -134,10 +176,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         const mediaCount = await db.execute(sql`SELECT COUNT(*) FROM media`);
         const usersCount = await db.execute(sql`SELECT COUNT(*) FROM users`);
         
+        // Extract counts and convert to strings to ensure type safety
+        const catCount = categoriesCount.rows[0]?.count ? String(categoriesCount.rows[0].count) : "0";
+        const medCount = mediaCount.rows[0]?.count ? String(mediaCount.rows[0].count) : "0";
+        const userCount = usersCount.rows[0]?.count ? String(usersCount.rows[0].count) : "0";
+        
         info.database.tables = [
-          { name: 'categories', count: categoriesCount.rows[0].count },
-          { name: 'media', count: mediaCount.rows[0].count },
-          { name: 'users', count: usersCount.rows[0].count }
+          { name: 'categories', count: catCount },
+          { name: 'media', count: medCount },
+          { name: 'users', count: userCount }
         ];
       } catch (dbError) {
         console.error("Debug database check failed:", dbError);

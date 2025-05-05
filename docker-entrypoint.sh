@@ -53,17 +53,10 @@ window.TRILOGY_CONFIG = {
 };
 EOF
 
-# Check the frontend JavaScript file
-echo "Checking JavaScript bundle..."
-if [ -f "dist/public/assets/index-BVBPAGsk.js" ]; then
-  echo "JavaScript bundle exists and appears to be correct."
-  # Count the number of lines in the JS bundle (just a basic check)
-  wc -l dist/public/assets/index-BVBPAGsk.js
-else
-  echo "WARNING: JavaScript bundle not found or has a different filename!"
-  echo "Available assets:"
-  ls -la dist/public/assets/
-fi
+# Check and list all the assets in the dist directory
+echo "Checking all assets in dist directory..."
+echo "Content of dist directory:"
+find dist -type f | grep -v "node_modules" | sort
 
 # Create a minimal fallback index.html for debugging purposes
 cat > dist/public/index.html << EOF
@@ -74,7 +67,41 @@ cat > dist/public/index.html << EOF
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
     <title>Trilogy Digital Media</title>
     <script src="/config.js"></script>
-    <link rel="stylesheet" href="/assets/index-xkJYECO1.css">
+    <!-- We'll dynamically load the CSS file based on what we find -->
+    <script>
+      // Dynamically load CSS file
+      function loadCss() {
+        // Look for CSS files in assets directory
+        fetch('/assets/')
+          .then(response => {
+            if (!response.ok) throw new Error('Failed to load assets directory');
+            return response.text();
+          })
+          .then(html => {
+            // Simple regex to find CSS files
+            const cssFiles = html.match(/href="([^"]+\.css)"/g) || [];
+            if (cssFiles.length > 0) {
+              // Extract the first CSS filename
+              const cssFile = cssFiles[0].match(/href="([^"]+)"/)[1];
+              console.log('Found CSS file:', cssFile);
+              
+              // Create and append the CSS link
+              const link = document.createElement('link');
+              link.rel = 'stylesheet';
+              link.href = cssFile;
+              document.head.appendChild(link);
+            } else {
+              console.warn('No CSS files found in assets directory');
+            }
+          })
+          .catch(err => {
+            console.error('Error loading CSS:', err);
+          });
+      }
+      
+      // Try to load CSS when the page loads
+      document.addEventListener('DOMContentLoaded', loadCss);
+    </script>
     <style>
       body { 
         font-family: Arial, sans-serif;
@@ -136,20 +163,51 @@ cat > dist/public/index.html << EOF
             // Debug info
             console.log('Attempting to load application in Docker environment');
             
-            // Try to load the main script dynamically
+            // Function to find and load the main JS file
+            function loadMainScript() {
+              // Try to find the main JS file in the assets directory
+              fetch('/assets/')
+                .then(response => {
+                  if (!response.ok) throw new Error('Failed to load assets directory');
+                  return response.text();
+                })
+                .then(html => {
+                  // Look for JS files in the assets directory
+                  const jsFiles = html.match(/href="([^"]+\.js)"/g) || [];
+                  if (jsFiles.length > 0) {
+                    // Extract the first JS filename
+                    const jsFile = jsFiles[0].match(/href="([^"]+)"/)[1];
+                    console.log('Found JS file:', jsFile);
+                    
+                    // Create and append the script
+                    const script = document.createElement('script');
+                    script.src = jsFile;
+                    script.type = 'module';
+                    script.onerror = function(e) {
+                      console.error('Failed to load main script:', e);
+                      document.querySelector('.loading-container p').textContent = 
+                        'Error loading application. Please check console for details.';
+                    };
+                    script.onload = function() {
+                      console.log('Main script loaded successfully');
+                    };
+                    document.body.appendChild(script);
+                  } else {
+                    console.error('No JS files found in assets directory');
+                    document.querySelector('.loading-container p').textContent = 
+                      'Error: No JavaScript files found in assets directory.';
+                  }
+                })
+                .catch(err => {
+                  console.error('Error loading JS:', err);
+                  document.querySelector('.loading-container p').textContent = 
+                    'Error loading assets: ' + err.message;
+                });
+            }
+            
+            // Try to load the main script
             try {
-              const script = document.createElement('script');
-              script.src = '/assets/index-BVBPAGsk.js';
-              script.type = 'module';
-              script.onerror = function(e) {
-                console.error('Failed to load main script:', e);
-                document.querySelector('.loading-container p').textContent = 
-                  'Error loading application. Please check console for details.';
-              };
-              script.onload = function() {
-                console.log('Main script loaded successfully');
-              };
-              document.body.appendChild(script);
+              loadMainScript();
             } catch (e) {
               console.error('Error while setting up script loader:', e);
               document.querySelector('.loading-container p').textContent = 
