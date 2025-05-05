@@ -26,7 +26,8 @@ echo "Database schema initialized successfully!"
 
 # Setup default users
 echo "Setting up default users..."
-node scripts/setup-users.js
+chmod +x docker-setup-users.js
+node docker-setup-users.js
 
 # Start the application
 echo "Starting the application..."
