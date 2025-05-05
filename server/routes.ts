@@ -76,6 +76,98 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Setup authentication routes
   setupAuth(app);
   
+  // Add debug endpoints for Docker deployment troubleshooting
+  app.get('/test-page', (req, res) => {
+    res.send(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Trilogy Digital Media - Test Page</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 40px; }
+          h1 { color: #3366cc; }
+          .status { display: inline-block; padding: 5px 10px; border-radius: 4px; margin-right: 10px; }
+          .success { background-color: #dff0d8; color: #3c763d; }
+          .info { background-color: #d9edf7; color: #31708f; }
+          pre { background-color: #f5f5f5; padding: 10px; border-radius: 4px; overflow-x: auto; }
+        </style>
+      </head>
+      <body>
+        <h1>Trilogy Digital Media - Test Page</h1>
+        <p><span class="status success">✓</span> Server is running correctly</p>
+        <p><b>Current time:</b> ${new Date().toISOString()}</p>
+        <p><b>Environment:</b> ${process.env.NODE_ENV || 'Not set'}</p>
+        <p><b>Docker:</b> ${process.env.DOCKER_ENV ? 'Yes' : 'No'}</p>
+        <p>To test the API, try the following URLs:</p>
+        <ul>
+          <li><a href="/api/categories" target="_blank">/api/categories</a> - Get all categories</li>
+          <li><a href="/api/debug/info" target="_blank">/api/debug/info</a> - Get server information</li>
+        </ul>
+      </body>
+      </html>
+    `);
+  });
+  
+  // Add a debug info endpoint for Docker troubleshooting
+  app.get('/api/debug/info', async (req, res) => {
+    try {
+      // Basic server info
+      const serverInfo = {
+        timestamp: new Date().toISOString(),
+        nodejs: process.version,
+        hostname: require('os').hostname(),
+        platform: process.platform,
+        memory: process.memoryUsage(),
+        uptime: process.uptime(),
+        env: {
+          NODE_ENV: process.env.NODE_ENV || 'Not set',
+          DOCKER_ENV: process.env.DOCKER_ENV || 'Not set',
+          PORT: process.env.PORT || '5000',
+          // Don't include sensitive info like database credentials
+        },
+        postgres: 'Checking connection...'
+      };
+      
+      // Test database connection without exposing credentials
+      try {
+        const { pool } = await import('../db');
+        const dbResult = await pool.query('SELECT current_timestamp as time');
+        serverInfo.postgres = `Connected (${dbResult.rowCount} rows returned)`;
+      } catch (dbError: any) {
+        serverInfo.postgres = `Error: ${dbError.message}`;
+      }
+      
+      // File system info
+      try {
+        const fs = require('fs');
+        const existingDirectories = [
+          '/app/media',
+          '/app/dist',
+          '/app/dist/public',
+          '/app/dist/public/assets'
+        ].map(dir => {
+          return {
+            path: dir,
+            exists: fs.existsSync(dir)
+          };
+        });
+        
+        serverInfo.directories = existingDirectories;
+      } catch (fsError: any) {
+        serverInfo.directories = `Error: ${fsError.message}`;
+      }
+      
+      res.json(serverInfo);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+  
+  // Basic health check endpoint (for Docker health checks)
+  app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
+  });
+  
   // Asset listing endpoint for frontend initialization
   app.get("/assets/", (req, res) => {
     try {
