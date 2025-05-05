@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Media, Category } from "@shared/schema";
+import { Media } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -28,18 +28,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Pencil, Trash2, Plus, Search, FileText, Video, Image, Presentation, Upload } from "lucide-react";
+import { Pencil, Trash2, Plus, Search, FileText, Video, Image, Presentation } from "lucide-react";
 import AddMediaForm from "./add-media-form";
 import EditMediaForm from "./edit-media-form";
-import UploadMediaForm from "./upload-media-form";
 
 export default function MediaManagement() {
   const { toast } = useToast();
@@ -200,51 +193,14 @@ export default function MediaManagement() {
 
       {/* Add Media Dialog */}
       <Dialog open={addDialogOpen} onOpenChange={setAddDialogOpen}>
-        <DialogContent className="sm:max-w-2xl">
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Add New Media</DialogTitle>
             <DialogDescription>
-              Add a new media item to the Trilogy Digital Media library.
+              Add a new media item to the library. Fill out the details below.
             </DialogDescription>
           </DialogHeader>
-          
-          <Tabs defaultValue="upload" className="w-full">
-            <TabsList className="grid grid-cols-2 w-full mb-4">
-              <TabsTrigger value="upload">
-                <Upload className="mr-2 h-4 w-4" />
-                Upload Media File
-              </TabsTrigger>
-              <TabsTrigger value="manual">
-                <Plus className="mr-2 h-4 w-4" />
-                Manual Entry
-              </TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="upload">
-              {/* Fetch categories using React Query */}
-              <div>
-                {/* Use React Query to fetch categories */}
-                {(() => {
-                  const { data: categoriesData } = useQuery<Category[]>({
-                    queryKey: ["/api/categories"],
-                  });
-                  
-                  const categories = categoriesData || [];
-                  
-                  return (
-                    <UploadMediaForm 
-                      categories={categories} 
-                      onComplete={() => setAddDialogOpen(false)} 
-                    />
-                  );
-                })()}
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="manual">
-              <AddMediaForm onComplete={() => setAddDialogOpen(false)} />
-            </TabsContent>
-          </Tabs>
+          <AddMediaForm onComplete={() => setAddDialogOpen(false)} />
         </DialogContent>
       </Dialog>
 

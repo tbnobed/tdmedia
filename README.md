@@ -39,7 +39,6 @@ The following environment variables can be set in the `.env` file:
 #### Application Configuration
 - `NODE_ENV`: Environment mode (default: production)
 - `PORT`: Application port (default: 5000)
-- `API_URL`: Base URL for API endpoints (default: /api)
 - `SESSION_SECRET`: Secret for session encryption (default: trilogy_session_secret)
 
 #### Default Users
@@ -101,57 +100,6 @@ The application provides a health check endpoint at `/api/healthcheck` that can 
   ```bash
   docker compose down -v
   ```
-
-## Troubleshooting
-
-### API Connection Issues
-
-If you encounter API connection errors like `ECONNREFUSED` in the browser console:
-
-1. **Check Docker Network**: Make sure all containers are running and on the same network
-   ```bash
-   docker compose ps
-   ```
-
-2. **Check Logs**: View the application logs to identify any server-side issues
-   ```bash
-   docker compose logs -f app
-   ```
-
-3. **Database Connectivity**: Ensure the database is running and accessible
-   ```bash
-   docker compose logs -f postgres
-   ```
-
-4. **API URL Configuration**: Be careful with the API_URL environment variable setting
-   - For Docker deployment: Keep it empty (`API_URL=`), as the app is served from the same origin
-   - For development: `/api` might be needed depending on your setup
-   - For proxied environments: Full URL might be needed (e.g., `https://yourdomain.com/api`)
-
-5. **Check for Double API Paths**: If you see log entries with `/api/api/user` instead of `/api/user`, this indicates a path configuration issue:
-   - Make sure API_URL is empty in your Docker environment variables
-   - Ensure the frontend config.js has `apiBaseUrl: ''` for Docker deployment
-
-6. **Rebuild Application**: If you've made config changes, rebuild the application
-   ```bash
-   docker compose build
-   docker compose up -d
-   ```
-
-7. **Clearing Browser Cache**: Sometimes browser caching can cause issues after updates
-   - Clear your browser cache or use incognito/private mode
-
-### PostgreSQL Issues
-
-If the database doesn't start properly:
-
-1. Check for port conflicts with existing PostgreSQL installations
-2. Examine the PostgreSQL logs with `docker compose logs postgres`
-3. If data is corrupted, you might need to reset the volume (caution: data will be lost):
-   ```bash
-   docker compose down -v
-   docker compose up -d
-   ```
 
 ## Application Features
 

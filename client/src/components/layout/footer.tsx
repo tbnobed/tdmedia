@@ -12,14 +12,20 @@ export default function Footer() {
               <span className="font-semibold text-gray-700">Trilogy Digital Media</span>
             </div>
             <div className="flex justify-center md:justify-start space-x-6">
-              <Link href="/terms" className="text-gray-400 hover:text-gray-500">
-                Terms of Service
+              <Link href="/terms">
+                <a className="text-gray-400 hover:text-gray-500">
+                  Terms of Service
+                </a>
               </Link>
-              <Link href="/privacy" className="text-gray-400 hover:text-gray-500">
-                Privacy Policy
+              <Link href="/privacy">
+                <a className="text-gray-400 hover:text-gray-500">
+                  Privacy Policy
+                </a>
               </Link>
-              <Link href="/contact" className="text-gray-400 hover:text-gray-500">
-                Contact
+              <Link href="/contact">
+                <a className="text-gray-400 hover:text-gray-500">
+                  Contact
+                </a>
               </Link>
             </div>
           </div>

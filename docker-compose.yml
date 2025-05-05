@@ -4,9 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "0.0.0.0:${PORT:-5000}:5000"
-    environment:
-      - HOST=0.0.0.0
+      - "${PORT:-5000}:5000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -17,7 +15,6 @@ services:
       # Application configuration
       - NODE_ENV=${NODE_ENV:-production}
       - PORT=5000
-      - API_URL=
       - SESSION_SECRET=${SESSION_SECRET:-trilogy_session_secret}
       
       # Admin user configuration
@@ -35,11 +32,11 @@ services:
     networks:
       - trilogy_network
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:5000/health || wget -qO- http://localhost:5000/test-page"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
+      test: ["CMD", "wget", "-qO-", "http://localhost:5000/api/healthcheck"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
 
   postgres:
     image: postgres:15-alpine
