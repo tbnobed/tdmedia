@@ -1,6 +1,15 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import path from 'path';
+import fs from 'fs';
+
+// Log the database connection type (useful for Docker debugging)
+if (process.env.DOCKER_ENV) {
+  console.log('Using standard PostgreSQL client (Docker environment)');
+} else {
+  console.log('Using Neon serverless PostgreSQL client');
+}
 
 const app = express();
 app.use(express.json());
@@ -23,6 +32,53 @@ app.use((req, res, next) => {
   }
   
   next();
+});
+
+// Improved static file handling for Docker environment
+app.get('/favicon.ico', (req, res) => {
+  const possiblePaths = [
+    path.join(process.cwd(), 'public', 'favicon.ico'),
+    path.join(process.cwd(), 'client', 'public', 'favicon.ico'),
+    path.join(process.cwd(), 'dist', 'public', 'favicon.ico')
+  ];
+  
+  for (const filePath of possiblePaths) {
+    if (fs.existsSync(filePath)) {
+      return res.sendFile(filePath);
+    }
+  }
+  
+  res.status(404).send('Favicon not found');
+});
+
+// Custom config.js handler to ensure it's always available
+app.get('/config.js', (req, res) => {
+  // Try to find config.js in various locations
+  const configPaths = [
+    path.join(process.cwd(), 'dist', 'public', 'config.js'),
+    path.join(process.cwd(), 'public', 'config.js'),
+    path.join(process.cwd(), 'client', 'public', 'config.js'),
+    path.join(process.cwd(), 'client', 'public', 'docker-config.js')
+  ];
+  
+  for (const configPath of configPaths) {
+    if (fs.existsSync(configPath)) {
+      return res.sendFile(configPath);
+    }
+  }
+  
+  // If no config file found, generate a minimal one
+  res.setHeader('Content-Type', 'application/javascript');
+  res.send(`// Generated fallback config.js
+window.TRILOGY_CONFIG = {
+  apiBaseUrl: '',
+  version: '1.0.0',
+  features: {
+    analytics: false,
+    darkMode: false
+  }
+};
+console.log('TRILOGY_CONFIG loaded successfully:', window.TRILOGY_CONFIG);`);
 });
 
 app.use((req, res, next) => {

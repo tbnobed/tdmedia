@@ -24,20 +24,33 @@ RUN mkdir -p dist/public/assets
 # Copy static files to the dist directory
 RUN cp -f client/public/docker-config.js dist/public/config.js || echo "No docker config found, skipping"
 
-# Try to copy built assets from various possible locations
-RUN echo "Attempting to find and copy built assets..."
-RUN find dist -type f -name "*.js" -o -name "*.css" | xargs -I{} cp {} dist/public/assets/ || echo "No assets found with find"
-
-# Create a direct copy of client assets as fallback
+# Set up public assets directory with improved structure
+RUN mkdir -p dist/public/assets
 RUN mkdir -p dist/client/assets
+
+# Organize all assets with a robust approach
+RUN echo "Setting up assets for Docker deployment..."
+
+# Copy all client public files (including config)
 RUN cp -r client/public/* dist/public/ || echo "No client public files found"
 
-# Create empty assets for each type as a final fallback
-RUN echo "// Generated fallback JS for Docker deployment" > dist/public/assets/index.js
-RUN echo "/* Generated fallback CSS for Docker deployment */" > dist/public/assets/index.css
+# Copy from possible build directories, capture any output for debugging
+RUN echo "Copying from possible build directories..." && \
+    (find dist/client -type f -name "*.js" -o -name "*.css" | xargs -r -I{} cp {} dist/public/assets/ 2>/dev/null || echo "No build files found in dist/client") && \
+    (find dist/assets -type f -name "*.js" -o -name "*.css" | xargs -r -I{} cp {} dist/public/assets/ 2>/dev/null || echo "No build files found in dist/assets")
 
-# Create asset manifest for easier discovery
-RUN echo '{"assets":["/assets/index.js","/assets/index.css"]}' > dist/public/assets/manifest.json
+# Copy our custom fallback assets
+COPY public/assets/index.js dist/public/assets/index.js
+COPY public/assets/index.css dist/public/assets/index.css
+COPY public/assets/manifest.json dist/public/assets/manifest.json
+
+# Generate comprehensive asset manifest based on actual files
+RUN echo "Generating asset manifest..." && \
+    echo '{' > dist/public/assets/manifest.json && \
+    echo '  "assets": [' >> dist/public/assets/manifest.json && \
+    find dist/public/assets -type f | sort | sed 's|dist/public||g' | sed 's/^/    "/;s/$/",/' | sed '$ s/,$//' >> dist/public/assets/manifest.json && \
+    echo '  ]' >> dist/public/assets/manifest.json && \
+    echo '}' >> dist/public/assets/manifest.json
 
 # Ensure the index.html file is properly copied
 RUN cp -f client/index.html dist/public/index.html || echo "No index.html found, skipping"
