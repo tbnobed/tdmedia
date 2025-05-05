@@ -123,17 +123,22 @@ If you encounter API connection errors like `ECONNREFUSED` in the browser consol
    docker compose logs -f postgres
    ```
 
-4. **API URL Configuration**: The API_URL environment variable should match how users access your server
-   - For local development: `/api` (default)
+4. **API URL Configuration**: Be careful with the API_URL environment variable setting
+   - For Docker deployment: Keep it empty (`API_URL=`), as the app is served from the same origin
+   - For development: `/api` might be needed depending on your setup
    - For proxied environments: Full URL might be needed (e.g., `https://yourdomain.com/api`)
 
-5. **Rebuild Application**: If you've made config changes, rebuild the application
+5. **Check for Double API Paths**: If you see log entries with `/api/api/user` instead of `/api/user`, this indicates a path configuration issue:
+   - Make sure API_URL is empty in your Docker environment variables
+   - Ensure the frontend config.js has `apiBaseUrl: ''` for Docker deployment
+
+6. **Rebuild Application**: If you've made config changes, rebuild the application
    ```bash
    docker compose build
    docker compose up -d
    ```
 
-6. **Clearing Browser Cache**: Sometimes browser caching can cause issues after updates
+7. **Clearing Browser Cache**: Sometimes browser caching can cause issues after updates
    - Clear your browser cache or use incognito/private mode
 
 ### PostgreSQL Issues

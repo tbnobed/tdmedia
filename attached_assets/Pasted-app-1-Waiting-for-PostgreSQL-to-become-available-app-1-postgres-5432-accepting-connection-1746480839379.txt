@@ -1,0 +1,160 @@
+app-1  | Waiting for PostgreSQL to become available...
+app-1  | postgres:5432 - accepting connections
+app-1  | PostgreSQL is ready!
+app-1  | Initializing database schema...
+app-1  |
+app-1  | > rest-express@1.0.0 db:push
+app-1  | > drizzle-kit push --force --config=./drizzle.config.ts
+app-1  |
+app-1  | Reading config file '/app/drizzle.config.ts'
+app-1  | Using 'pg' driver for database querying
+app-1  | [⣷] Pulling schema from database...
+[✓] Pulling schema from database...
+app-1  |
+app-1  |  Warning  You are about to execute current statements:
+app-1  |
+app-1  | CREATE TYPE "public"."media_type" AS ENUM('video', 'document', 'image', 'presentation');
+app-1  | CREATE TABLE IF NOT EXISTS "categories" (
+app-1  |        "id" serial PRIMARY KEY NOT NULL,
+app-1  |        "name" text NOT NULL,
+app-1  |        "description" text,
+app-1  |        "created_at" timestamp DEFAULT now() NOT NULL,
+app-1  |        CONSTRAINT "categories_name_unique" UNIQUE("name")
+app-1  | );
+app-1  |
+app-1  | CREATE TABLE IF NOT EXISTS "contacts" (
+app-1  |        "id" serial PRIMARY KEY NOT NULL,
+app-1  |        "name" text NOT NULL,
+app-1  |        "email" text NOT NULL,
+app-1  |        "company" text,
+app-1  |        "message" text NOT NULL,
+app-1  |        "media_id" integer,
+app-1  |        "created_at" timestamp DEFAULT now() NOT NULL,
+app-1  |        "is_read" boolean DEFAULT false NOT NULL
+app-1  | );
+app-1  |
+app-1  | CREATE TABLE IF NOT EXISTS "media" (
+app-1       |   "id" serial PRIMARY KEY NOT NULL,
+app-1       |   "title" text NOT NULL,
+app-1       |   "description" text,
+app-1       |   "type" "media_type" NOT NULL,
+app-1       |   "category_id" integer NOT NULL,
+postgres-1  | The files belonging to this database system will be owned by user "postgres".
+postgres-1  | This user must also own the server process.
+postgres-1  |
+postgres-1  | The database cluster will be initialized with locale "en_US.utf8".
+postgres-1  | The default database encoding has accordingly been set to "UTF8".
+postgres-1  | The default text search configuration will be set to "english".
+postgres-1  |
+postgres-1  | Data page checksums are disabled.
+postgres-1  |
+postgres-1  | fixing permissions on existing directory /var/lib/postgresql/data ... ok
+postgres-1  | creating subdirectories ... ok
+postgres-1  | selecting dynamic shared memory implementation ... posix
+postgres-1  | selecting default max_connections ... 100
+postgres-1  | selecting default shared_buffers ... 128MB
+postgres-1  | selecting default time zone ... UTC
+app-1       |   "file_url" text NOT NULL,
+app-1       |   "thumbnail_url" text,
+app-1       |   "duration" text,
+app-1       |   "size" text,
+app-1       |   "created_at" timestamp DEFAULT now() NOT NULL,
+postgres-1  | creating configuration files ... ok
+postgres-1  | running bootstrap script ... ok
+postgres-1  | sh: locale: not found
+postgres-1  | 2025-05-05 21:32:17.583 UTC [35] WARNING:  no usable system locales were found
+postgres-1  | performing post-bootstrap initialization ... ok
+postgres-1  | initdb: warning: enabling "trust" authentication for local connections
+postgres-1  | initdb: hint: You can change this by editing pg_hba.conf or using the option -A, or --auth-local and --auth-host, the next time you run initdb.
+postgres-1  | syncing data to disk ... ok
+postgres-1  |
+postgres-1  |
+app-1       |   "updated_at" timestamp DEFAULT now() NOT NULL
+app-1       | );
+app-1       |
+app-1       | CREATE TABLE IF NOT EXISTS "users" (
+app-1       |   "id" serial PRIMARY KEY NOT NULL,
+app-1       |   "username" text NOT NULL,
+app-1       |   "email" text NOT NULL,
+app-1       |   "password" text NOT NULL,
+postgres-1  | Success. You can now start the database server using:
+postgres-1  |
+postgres-1  |     pg_ctl -D /var/lib/postgresql/data -l logfile start
+postgres-1  |
+postgres-1  | waiting for server to start....2025-05-05 21:32:18.811 UTC [41] LOG:  starting PostgreSQL 15.12 on x86_64-pc-linux-musl, compiled by gcc (Alpine 14.2.0) 14.2.0, 64-bit
+postgres-1  | 2025-05-05 21:32:18.813 UTC [41] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+postgres-1  | 2025-05-05 21:32:18.820 UTC [44] LOG:  database system was shut down at 2025-05-05 21:32:18 UTC
+postgres-1  | 2025-05-05 21:32:18.827 UTC [41] LOG:  database system is ready to accept connections
+postgres-1  |  done
+postgres-1  | server started
+app-1       |   "is_admin" boolean DEFAULT false NOT NULL,
+app-1       |   "created_at" timestamp DEFAULT now() NOT NULL,
+app-1       |   CONSTRAINT "users_username_unique" UNIQUE("username"),
+app-1       |   CONSTRAINT "users_email_unique" UNIQUE("email")
+app-1       | );
+app-1       |
+app-1       | DO $$ BEGIN
+app-1       |  ALTER TABLE "contacts" ADD CONSTRAINT "contacts_media_id_media_id_fk" FOREIGN KEY ("media_id") REFERENCES "public"."media"("id") ON DELETE no action ON UPDATE no action;
+app-1       | EXCEPTION
+app-1       |  WHEN duplicate_object THEN null;
+postgres-1  | CREATE DATABASE
+app-1       | END $$;
+app-1       |
+postgres-1  |
+postgres-1  |
+postgres-1  | /usr/local/bin/docker-entrypoint.sh: ignoring /docker-entrypoint-initdb.d/*
+postgres-1  |
+app-1       | DO $$ BEGIN
+app-1       |  ALTER TABLE "media" ADD CONSTRAINT "media_category_id_categories_id_fk" FOREIGN KEY ("category_id") REFERENCES "public"."categories"("id") ON DELETE no action ON UPDATE no action;
+app-1       | EXCEPTION
+app-1       |  WHEN duplicate_object THEN null;
+app-1       | END $$;
+app-1       |
+app-1       |
+app-1       | [✓] Changes applied
+postgres-1  | waiting for server to shut down....2025-05-05 21:32:19.009 UTC [41] LOG:  received fast shutdown request
+postgres-1  | 2025-05-05 21:32:19.010 UTC [41] LOG:  aborting any active transactions
+postgres-1  | 2025-05-05 21:32:19.014 UTC [41] LOG:  background worker "logical replication launcher" (PID 47) exited with exit code 1
+postgres-1  | 2025-05-05 21:32:19.014 UTC [42] LOG:  shutting down
+postgres-1  | 2025-05-05 21:32:19.015 UTC [42] LOG:  checkpoint starting: shutdown immediate
+app-1       | Database schema initialized successfully!
+app-1       | Setting up default users...
+app-1       | Checking for admin user...
+app-1       | Creating admin user...
+app-1       | Admin user created successfully
+app-1       | Checking for client user...
+app-1       | Creating client user...
+postgres-1  | 2025-05-05 21:32:19.079 UTC [42] LOG:  checkpoint complete: wrote 920 buffers (5.6%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.036 s, sync=0.025 s, total=0.065 s; sync files=301, longest=0.002 s, average=0.001 s; distance=4233 kB, estimate=4233 kB
+postgres-1  | 2025-05-05 21:32:19.088 UTC [41] LOG:  database system is shut down
+postgres-1  |  done
+postgres-1  | server stopped
+postgres-1  |
+postgres-1  | PostgreSQL init process complete; ready for start up.
+postgres-1  |
+app-1       | Client user created successfully
+app-1       | User setup completed successfully
+app-1       | Generating dynamic config.js...
+app-1       | Starting the application...
+app-1       |
+app-1       | > rest-express@1.0.0 start
+app-1       | > NODE_ENV=production node dist/index.js
+app-1       |
+app-1       | 9:32:25 PM [express] serving on port 5000
+postgres-1  | 2025-05-05 21:32:19.143 UTC [1] LOG:  starting PostgreSQL 15.12 on x86_64-pc-linux-musl, compiled by gcc (Alpine 14.2.0) 14.2.0, 64-bit
+postgres-1  | 2025-05-05 21:32:19.143 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+postgres-1  | 2025-05-05 21:32:19.143 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+postgres-1  | 2025-05-05 21:32:19.146 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+postgres-1  | 2025-05-05 21:32:19.150 UTC [57] LOG:  database system was shut down at 2025-05-05 21:32:19 UTC
+postgres-1  | 2025-05-05 21:32:19.157 UTC [1] LOG:  database system is ready to accept connections
+app-1       | 9:32:25 PM [express] GET /api/api/user 200 in 3ms
+app-1       | 9:32:26 PM [express] GET /api/api/categories 200 in 4ms
+app-1       | 9:32:26 PM [express] GET /api/api/media 200 in 5ms
+app-1       | 9:32:29 PM [express] GET /api/api/user 304 in 2ms
+app-1       | 9:32:29 PM [express] GET /api/api/categories 304 in 3ms
+app-1       | 9:32:29 PM [express] GET /api/api/media 304 in 4ms
+app-1       | 9:33:00 PM [express] GET /api/api/user 304 in 2ms
+app-1       | 9:33:00 PM [express] GET /api/api/categories 304 in 3ms
+app-1       | 9:33:00 PM [express] GET /api/api/media 304 in 3ms
+app-1       | 9:33:14 PM [express] GET /api/api/user 304 in 2ms
+app-1       | 9:33:14 PM [express] GET /api/api/categories 304 in 2ms
+app-1       | 9:33:14 PM [express] GET /api/api/media 304 in 2ms

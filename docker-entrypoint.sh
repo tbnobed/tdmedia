@@ -1,6 +1,9 @@
 #!/bin/sh
 set -e
 
+# Enable more verbose debugging
+set -x
+
 echo "Waiting for PostgreSQL to become available..."
 
 # Wait for PostgreSQL to be available
@@ -29,13 +32,17 @@ echo "Setting up default users..."
 chmod +x docker-setup-users.cjs
 node docker-setup-users.cjs
 
+# Examine the build directory
+echo "Examining the build directory structure..."
+find dist/ -type f | sort
+
 # Generate dynamic config.js
 echo "Generating dynamic config.js..."
 cat > dist/public/config.js << EOF
 // Docker-generated configuration for Trilogy Digital Media
 window.TRILOGY_CONFIG = {
-  // API URL from environment
-  apiBaseUrl: '${API_URL:-/api}',
+  // API URL from environment - empty string because we're serving from the same origin
+  apiBaseUrl: '',
   
   // Other configuration options
   version: '1.0.0',
@@ -45,6 +52,11 @@ window.TRILOGY_CONFIG = {
   }
 };
 EOF
+
+# Verify the config.js file was created
+echo "Verifying config.js was created:"
+ls -la dist/public/
+cat dist/public/config.js
 
 # Start the application
 echo "Starting the application..."
