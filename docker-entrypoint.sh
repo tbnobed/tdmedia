@@ -29,6 +29,23 @@ echo "Setting up default users..."
 chmod +x docker-setup-users.cjs
 node docker-setup-users.cjs
 
+# Generate dynamic config.js
+echo "Generating dynamic config.js..."
+cat > dist/public/config.js << EOF
+// Docker-generated configuration for Trilogy Digital Media
+window.TRILOGY_CONFIG = {
+  // API URL from environment
+  apiBaseUrl: '${API_URL:-/api}',
+  
+  // Other configuration options
+  version: '1.0.0',
+  features: {
+    analytics: false,
+    darkMode: false
+  }
+};
+EOF
+
 # Start the application
 echo "Starting the application..."
 exec "$@"

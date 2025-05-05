@@ -1,6 +1,6 @@
-// Default configuration for Trilogy Digital Media
+// Docker-specific configuration for Trilogy Digital Media
 window.TRILOGY_CONFIG = {
-  // Development environment API URL
+  // No base URL needed when served from the same origin
   apiBaseUrl: '',
   
   // Other configuration options

@@ -18,8 +18,8 @@ RUN npm run build
 # Create directory for media files
 RUN mkdir -p /app/media
 
-# Copy config.js to the dist directory to ensure it's available in production
-RUN cp -f client/public/config.js dist/public/ || true
+# Copy docker-specific config to the dist directory
+RUN cp -f client/public/docker-config.js dist/public/config.js || echo "No docker config found, skipping"
 
 # Create the entrypoint script
 COPY docker-entrypoint.sh /app/docker-entrypoint.sh
