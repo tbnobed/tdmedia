@@ -36,27 +36,23 @@ export default function Header() {
             </div>
 
             <nav className="hidden sm:ml-6 sm:flex sm:space-x-8">
-              <Link href="/">
-                <a className={`${location === '/' ? 'border-primary text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}>
-                  Library
-                </a>
+              <Link href="/" 
+                className={`${location === '/' ? 'border-primary text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}>
+                Library
               </Link>
-              <Link href="/categories">
-                <a className={`${location === '/categories' ? 'border-primary text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}>
-                  Categories
-                </a>
+              <Link href="/categories"
+                className={`${location === '/categories' ? 'border-primary text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}>
+                Categories
               </Link>
               {user?.isAdmin && (
-                <Link href="/admin">
-                  <a className={`${location === '/admin' ? 'border-primary text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}>
-                    Admin
-                  </a>
+                <Link href="/admin"
+                  className={`${location === '/admin' ? 'border-primary text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}>
+                  Admin
                 </Link>
               )}
-              <Link href="/contact">
-                <a className={`${location === '/contact' ? 'border-primary text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}>
-                  Contact Us
-                </a>
+              <Link href="/contact"
+                className={`${location === '/contact' ? 'border-primary text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}>
+                Contact Us
               </Link>
             </nav>
           </div>
@@ -111,39 +107,31 @@ export default function Header() {
       {mobileMenuOpen && (
         <div className="sm:hidden">
           <div className="pt-2 pb-3 space-y-1">
-            <Link href="/">
-              <a 
-                className={`${location === '/' ? 'bg-primary-50 border-primary text-primary' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Library
-              </a>
+            <Link href="/"
+              className={`${location === '/' ? 'bg-primary-50 border-primary text-primary' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Library
             </Link>
-            <Link href="/categories">
-              <a 
-                className={`${location === '/categories' ? 'bg-primary-50 border-primary text-primary' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Categories
-              </a>
+            <Link href="/categories"
+              className={`${location === '/categories' ? 'bg-primary-50 border-primary text-primary' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Categories
             </Link>
             {user?.isAdmin && (
-              <Link href="/admin">
-                <a 
-                  className={`${location === '/admin' ? 'bg-primary-50 border-primary text-primary' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Admin
-                </a>
-              </Link>
-            )}
-            <Link href="/contact">
-              <a 
-                className={`${location === '/contact' ? 'bg-primary-50 border-primary text-primary' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}
+              <Link href="/admin"
+                className={`${location === '/admin' ? 'bg-primary-50 border-primary text-primary' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Contact Us
-              </a>
+                Admin
+              </Link>
+            )}
+            <Link href="/contact"
+              className={`${location === '/contact' ? 'bg-primary-50 border-primary text-primary' : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700'} block pl-3 pr-4 py-2 border-l-4 text-base font-medium`}
+              onClick={() => setMobileMenuOpen(false)}
+            >
+              Contact Us
             </Link>
           </div>
 
