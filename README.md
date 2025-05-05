@@ -39,6 +39,7 @@ The following environment variables can be set in the `.env` file:
 #### Application Configuration
 - `NODE_ENV`: Environment mode (default: production)
 - `PORT`: Application port (default: 5000)
+- `API_URL`: Base URL for API endpoints (default: /api)
 - `SESSION_SECRET`: Secret for session encryption (default: trilogy_session_secret)
 
 #### Default Users
@@ -100,6 +101,52 @@ The application provides a health check endpoint at `/api/healthcheck` that can 
   ```bash
   docker compose down -v
   ```
+
+## Troubleshooting
+
+### API Connection Issues
+
+If you encounter API connection errors like `ECONNREFUSED` in the browser console:
+
+1. **Check Docker Network**: Make sure all containers are running and on the same network
+   ```bash
+   docker compose ps
+   ```
+
+2. **Check Logs**: View the application logs to identify any server-side issues
+   ```bash
+   docker compose logs -f app
+   ```
+
+3. **Database Connectivity**: Ensure the database is running and accessible
+   ```bash
+   docker compose logs -f postgres
+   ```
+
+4. **API URL Configuration**: The API_URL environment variable should match how users access your server
+   - For local development: `/api` (default)
+   - For proxied environments: Full URL might be needed (e.g., `https://yourdomain.com/api`)
+
+5. **Rebuild Application**: If you've made config changes, rebuild the application
+   ```bash
+   docker compose build
+   docker compose up -d
+   ```
+
+6. **Clearing Browser Cache**: Sometimes browser caching can cause issues after updates
+   - Clear your browser cache or use incognito/private mode
+
+### PostgreSQL Issues
+
+If the database doesn't start properly:
+
+1. Check for port conflicts with existing PostgreSQL installations
+2. Examine the PostgreSQL logs with `docker compose logs postgres`
+3. If data is corrupted, you might need to reset the volume (caution: data will be lost):
+   ```bash
+   docker compose down -v
+   docker compose up -d
+   ```
 
 ## Application Features
 
