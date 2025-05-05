@@ -1,7 +1,7 @@
 import { Media } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { getMediaTypeColor, getMediaTypeIcon, getMediaMetadata, getMediaActionText, getMediaActionIcon } from "@/lib/media-utils";
+import { getMediaTypeColor, getMediaMetadata, getMediaActionText } from "@/lib/media-utils";
 import { 
   FileQuestion, 
   FileText, 
