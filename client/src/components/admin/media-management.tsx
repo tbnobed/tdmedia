@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Media } from "@shared/schema";
+import { Media, Category } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -225,9 +225,11 @@ export default function MediaManagement() {
               <div>
                 {/* Use React Query to fetch categories */}
                 {(() => {
-                  const { data: categories = [] } = useQuery({
+                  const { data: categoriesData } = useQuery<Category[]>({
                     queryKey: ["/api/categories"],
                   });
+                  
+                  const categories = categoriesData || [];
                   
                   return (
                     <UploadMediaForm 

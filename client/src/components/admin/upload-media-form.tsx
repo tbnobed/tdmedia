@@ -43,7 +43,7 @@ export default function UploadMediaForm({ categories, onComplete }: UploadMediaF
       description: '',
       type: 'document',
       categoryId: undefined,
-      url: '',
+      fileUrl: '',
     }
   });
   
@@ -115,7 +115,7 @@ export default function UploadMediaForm({ categories, onComplete }: UploadMediaF
         description: values.description,
         type: values.type,
         categoryId: values.categoryId,
-        url: fileData.filePath // Use the path returned from the server
+        fileUrl: fileData.filePath // Use the path returned from the server
       });
     } catch (error) {
       // Error already handled by mutations
