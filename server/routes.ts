@@ -628,6 +628,149 @@ export async function registerRoutes(app: Express): Promise<Server> {
     res.status(200).json({ status: 'ok', timestamp: new Date().toISOString() });
   });
   
+  // Define a route to manually handle specific asset requests
+  app.get('/assets/:filename', (req, res) => {
+    const filename = req.params.filename;
+    
+    // Check multiple possible locations for the asset
+    const possiblePaths = [
+      path.resolve(process.cwd(), 'dist/public/assets', filename),
+      path.resolve(process.cwd(), 'dist/client/assets', filename),
+      path.resolve(process.cwd(), 'dist/assets', filename),
+      path.resolve(process.cwd(), 'public/assets', filename),
+      path.resolve(__dirname, '../public/assets', filename)
+    ];
+    
+    // Try to find the file in any of the possible locations
+    for (const filePath of possiblePaths) {
+      if (fs.existsSync(filePath)) {
+        console.log(`Serving asset from: ${filePath}`);
+        return res.sendFile(filePath);
+      }
+    }
+    
+    // If file wasn't found, return 404
+    console.log(`Asset not found: ${filename}`);
+    res.status(404).send(`Asset not found: ${filename}`);
+  });
+  
+  // Assets directory listing endpoint for Docker
+  app.get('/assets', (req, res) => {
+    const assetsPath = path.resolve(process.cwd(), 'dist/public/assets');
+    
+    // Log the assets path for debugging
+    console.log('Checking for assets in:', assetsPath);
+    
+    if (!fs.existsSync(assetsPath)) {
+      // Try alternative path
+      const altPath = path.resolve(process.cwd(), 'dist/client/assets');
+      console.log('Trying alternative assets path:', altPath);
+      
+      if (fs.existsSync(altPath)) {
+        // List and redirect to first asset found
+        try {
+          const files = fs.readdirSync(altPath);
+          console.log('Found assets in alternative path:', files);
+          
+          let html = '<html><head><title>Assets Directory</title></head><body>';
+          html += '<h1>Assets Directory (Alternative Path)</h1><ul>';
+          
+          files.forEach(file => {
+            const href = `/assets/${file}`;
+            html += `<li><a href="${href}">${file}</a></li>`;
+          });
+          
+          html += '</ul></body></html>';
+          return res.send(html);
+        } catch (err) {
+          console.error('Error reading alternative assets directory:', err);
+        }
+      }
+      
+      // List all possible locations
+      let possibleLocations = [];
+      [
+        'dist/public/assets',
+        'dist/client/assets',
+        'dist/assets',
+        'public/assets',
+        'client/assets'
+      ].forEach(dir => {
+        const fullPath = path.resolve(process.cwd(), dir);
+        const exists = fs.existsSync(fullPath);
+        possibleLocations.push({ path: fullPath, exists });
+      });
+      
+      return res.status(404).send(`
+        <html>
+          <head><title>Assets Not Found</title></head>
+          <body>
+            <h1>Assets directory not found</h1>
+            <p>Could not find assets directory at: ${assetsPath}</p>
+            <h2>Checked Locations:</h2>
+            <pre>${JSON.stringify(possibleLocations, null, 2)}</pre>
+            <h2>Current Directory Structure:</h2>
+            <pre>${listDirectoryTree(process.cwd(), 3)}</pre>
+          </body>
+        </html>
+      `);
+    }
+    
+    try {
+      const files = fs.readdirSync(assetsPath);
+      console.log('Found assets:', files);
+      
+      let html = '<html><head><title>Assets Directory</title></head><body>';
+      html += '<h1>Assets Directory</h1><ul>';
+      
+      files.forEach(file => {
+        const href = `/assets/${file}`;
+        html += `<li><a href="${href}">${file}</a></li>`;
+      });
+      
+      html += '</ul></body></html>';
+      res.send(html);
+    } catch (err) {
+      console.error('Error reading assets directory:', err);
+      res.status(500).send(`Error reading assets directory: ${err.message}`);
+    }
+  });
+  
+  // Helper function to list directory structure
+  function listDirectoryTree(dir: string, depth: number): string {
+    if (depth <= 0) return '';
+    
+    let result = '';
+    try {
+      const files = fs.readdirSync(dir);
+      files.forEach(file => {
+        const fullPath = path.join(dir, file);
+        const relativePath = path.relative(process.cwd(), fullPath);
+        
+        try {
+          const stat = fs.statSync(fullPath);
+          if (stat.isDirectory()) {
+            result += `${relativePath}/\n`;
+            if (depth > 1) {
+              result += listDirectoryTree(fullPath, depth - 1)
+                .split('\n')
+                .map(line => line ? '  ' + line : line)
+                .join('\n');
+            }
+          } else {
+            result += `${relativePath}\n`;
+          }
+        } catch (err) {
+          result += `${relativePath} [error: ${err.message}]\n`;
+        }
+      });
+    } catch (err) {
+      result += `Error listing directory ${dir}: ${err.message}\n`;
+    }
+    
+    return result;
+  }
+  
   // Diagnostic endpoints for Docker
   app.get('/api/debug/info', (req, res) => {
     // Collect various system information

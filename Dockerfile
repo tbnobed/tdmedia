@@ -24,8 +24,20 @@ RUN mkdir -p dist/public/assets
 # Copy static files to the dist directory
 RUN cp -f client/public/docker-config.js dist/public/config.js || echo "No docker config found, skipping"
 
-# Move build assets to the assets directory for discovery
-RUN find dist/client/assets -type f -name "*.js" -o -name "*.css" -exec cp {} dist/public/assets/ \; || echo "No built assets found"
+# Try to copy built assets from various possible locations
+RUN echo "Attempting to find and copy built assets..."
+RUN find dist -type f -name "*.js" -o -name "*.css" | xargs -I{} cp {} dist/public/assets/ || echo "No assets found with find"
+
+# Create a direct copy of client assets as fallback
+RUN mkdir -p dist/client/assets
+RUN cp -r client/public/* dist/public/ || echo "No client public files found"
+
+# Create empty assets for each type as a final fallback
+RUN echo "// Generated fallback JS for Docker deployment" > dist/public/assets/index.js
+RUN echo "/* Generated fallback CSS for Docker deployment */" > dist/public/assets/index.css
+
+# Create asset manifest for easier discovery
+RUN echo '{"assets":["/assets/index.js","/assets/index.css"]}' > dist/public/assets/manifest.json
 
 # Ensure the index.html file is properly copied
 RUN cp -f client/index.html dist/public/index.html || echo "No index.html found, skipping"
