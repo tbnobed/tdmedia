@@ -1,172 +1,82 @@
 #!/bin/sh
 set -e
 
-# Function to wait for PostgreSQL to be ready
-wait_for_postgres() {
-  echo "Waiting for PostgreSQL to become available..."
-  
-  RETRIES=30
-  until [ $RETRIES -eq 0 ] || pg_isready -h postgres -U trilogy_user -d trilogy_db; do
-    echo "Waiting for PostgreSQL ($((RETRIES--)) retries left)..."
-    sleep 1
-  done
-  
-  if [ $RETRIES -eq 0 ]; then
-    echo "Error: Could not connect to PostgreSQL" >&2
-    exit 1
-  fi
-  
-  echo "PostgreSQL is ready!"
-}
+echo "Waiting for PostgreSQL to become available..."
 
-# Function to initialize the database schema
-initialize_db() {
-  echo "Initializing database schema..."
-  npm run db:push
-  
-  # Check if database was successfully initialized
-  if [ $? -ne 0 ]; then
-    echo "Error: Failed to initialize database schema" >&2
-    exit 1
-  fi
-  
-  echo "Database schema initialized successfully!"
-}
+# Wait for PostgreSQL to be available
+RETRIES=30
+until pg_isready -h postgres -U ${POSTGRES_USER:-trilogy_user} -d ${POSTGRES_DB:-trilogy_db} || [ $RETRIES -eq 0 ]; do
+  echo "Waiting for PostgreSQL ($RETRIES retries left)..."
+  RETRIES=$((RETRIES-1))
+  sleep 1
+done
 
-# Function to create default admin user if it doesn't exist
-create_admin_user() {
-  echo "Checking for admin user..."
-  
-  # Set default admin values if environment variables are not set
-  ADMIN_EMAIL=${ADMIN_EMAIL:-admin@example.com}
-  ADMIN_PASSWORD=${ADMIN_PASSWORD:-adminpassword}
-  ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
-  
-  # Create a temporary script to check and create admin if needed
-  cat > /tmp/check-admin.js << EOF
-import { db } from './dist/db/index.js';
-import { users } from './dist/shared/schema.js';
-import { eq } from 'drizzle-orm';
-import { hashPassword } from './dist/server/auth.js';
+if [ $RETRIES -eq 0 ]; then
+  echo "Error: PostgreSQL not available"
+  exit 1
+fi
 
-async function ensureAdminExists() {
+echo "PostgreSQL is ready!"
+
+# Initialize the database schema
+echo "Initializing database schema..."
+npm run db:push
+
+echo "Database schema initialized successfully!"
+
+# Check if admin user exists, create if not
+echo "Checking for admin user..."
+NODE_PATH=/app node -e "
+const { db } = require('./db');
+const { users, eq } = require('./shared/schema');
+
+async function checkAndCreateAdmin() {
   try {
-    // Get admin details from environment variables
-    const adminEmail = process.env.ADMIN_EMAIL || 'admin@example.com';
-    const adminPassword = process.env.ADMIN_PASSWORD || 'adminpassword';
-    const adminUsername = process.env.ADMIN_USERNAME || 'admin';
-    
-    // Check if admin user exists
     const admin = await db.query.users.findFirst({
-      where: eq(users.email, adminEmail)
+      where: eq(users.email, process.env.ADMIN_EMAIL || 'admin@example.com')
     });
     
     if (!admin) {
-      console.log('Creating admin user...');
-      const hashedPassword = await hashPassword(adminPassword);
+      const { hashPassword } = require('./server/auth');
+      const hashedPassword = await hashPassword(process.env.ADMIN_PASSWORD || 'adminpassword');
       
       await db.insert(users).values({
-        username: adminUsername,
-        email: adminEmail,
+        username: process.env.ADMIN_USERNAME || 'admin',
+        email: process.env.ADMIN_EMAIL || 'admin@example.com',
         password: hashedPassword,
         isAdmin: true
       });
-      
-      console.log('Admin user created successfully!');
+      console.log('Admin user created successfully');
     } else {
-      console.log('Admin user already exists.');
+      console.log('Admin user already exists');
     }
     
-    process.exit(0);
-  } catch (error) {
-    console.error('Error creating admin user:', error);
-    process.exit(1);
-  }
-}
-
-ensureAdminExists();
-EOF
-
-  # Execute the temporary script
-  node --experimental-specifier-resolution=node /tmp/check-admin.js
-  
-  # Check if admin user was successfully created or already exists
-  if [ $? -ne 0 ]; then
-    echo "Error: Failed to ensure admin user exists" >&2
-    exit 1
-  fi
-}
-
-# Function to create default client user if it doesn't exist
-create_client_user() {
-  echo "Checking for client user..."
-  
-  # Set default client values if environment variables are not set
-  CLIENT_EMAIL=${CLIENT_EMAIL:-client@example.com}
-  CLIENT_PASSWORD=${CLIENT_PASSWORD:-demopassword}
-  CLIENT_USERNAME=${CLIENT_USERNAME:-client}
-  
-  # Create a temporary script to check and create client if needed
-  cat > /tmp/check-client.js << EOF
-import { db } from './dist/db/index.js';
-import { users } from './dist/shared/schema.js';
-import { eq } from 'drizzle-orm';
-import { hashPassword } from './dist/server/auth.js';
-
-async function ensureClientExists() {
-  try {
-    // Get client details from environment variables
-    const clientEmail = process.env.CLIENT_EMAIL || 'client@example.com';
-    const clientPassword = process.env.CLIENT_PASSWORD || 'demopassword';
-    const clientUsername = process.env.CLIENT_USERNAME || 'client';
-    
-    // Check if client user exists
     const client = await db.query.users.findFirst({
-      where: eq(users.email, clientEmail)
+      where: eq(users.email, process.env.CLIENT_EMAIL || 'client@example.com')
     });
     
     if (!client) {
-      console.log('Creating client user...');
-      const hashedPassword = await hashPassword(clientPassword);
+      const { hashPassword } = require('./server/auth');
+      const hashedPassword = await hashPassword(process.env.CLIENT_PASSWORD || 'demopassword');
       
       await db.insert(users).values({
-        username: clientUsername,
-        email: clientEmail,
+        username: process.env.CLIENT_USERNAME || 'client',
+        email: process.env.CLIENT_EMAIL || 'client@example.com',
         password: hashedPassword,
         isAdmin: false
       });
-      
-      console.log('Client user created successfully!');
+      console.log('Client user created successfully');
     } else {
-      console.log('Client user already exists.');
+      console.log('Client user already exists');
     }
-    
-    process.exit(0);
   } catch (error) {
-    console.error('Error creating client user:', error);
-    process.exit(1);
+    console.error('Error checking/creating users:', error);
   }
 }
 
-ensureClientExists();
-EOF
+checkAndCreateAdmin().then(() => process.exit(0));
+"
 
-  # Execute the temporary script
-  node --experimental-specifier-resolution=node /tmp/check-client.js
-  
-  # Check if client user was successfully created or already exists
-  if [ $? -ne 0 ]; then
-    echo "Error: Failed to ensure client user exists" >&2
-    exit 1
-  fi
-}
-
-# Execute the initialization procedures
-wait_for_postgres
-initialize_db
-create_admin_user
-create_client_user
-
-# Run the command passed to docker
-echo "Starting application..."
+# Start the application
+echo "Starting the application..."
 exec "$@"
