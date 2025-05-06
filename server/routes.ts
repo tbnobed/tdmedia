@@ -24,8 +24,19 @@ declare global {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Serve static files from the uploads directory
-  app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+  // Create a public route for serving uploaded files
+  app.get('/uploads/*', (req, res, next) => {
+    // This is a public route that doesn't require authentication
+    const filePath = path.join(process.cwd(), req.path);
+    console.log('Serving file from:', filePath);
+    
+    if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+      res.sendFile(filePath);
+    } else {
+      console.error(`File not found: ${filePath}`);
+      res.status(404).send('File not found');
+    }
+  });
   
   // Setup authentication routes
   setupAuth(app);
