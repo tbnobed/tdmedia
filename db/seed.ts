@@ -1,10 +1,25 @@
-import { db } from "./index";
+import { Pool, neonConfig } from '@neondatabase/serverless';
+import { drizzle } from 'drizzle-orm/neon-serverless';
+import * as schema from "@shared/schema";
 import { users, categories, media } from "@shared/schema";
 import { hashPassword } from "../server/auth";
+import ws from 'ws';
+
+// This is required for the Neon serverless driver
+neonConfig.webSocketConstructor = ws;
 
 async function seed() {
   try {
     console.log("Seeding database...");
+    
+    // Create a connection pool
+    if (!process.env.DATABASE_URL) {
+      throw new Error("DATABASE_URL must be set");
+    }
+    
+    // Create a new connection
+    const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+    const db = drizzle(pool, { schema });
     
     // Check if admin user exists
     const adminExists = await db.query.users.findFirst({
