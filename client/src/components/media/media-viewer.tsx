@@ -130,6 +130,7 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
               <VideoPlayer 
                 mediaId={media.id} 
                 autoPlay={true}
+                showWatermark={true}
                 onError={(e) => setError(e)}
                 onLoad={() => setIsLoading(false)}
               />

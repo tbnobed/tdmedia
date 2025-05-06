@@ -14,6 +14,7 @@ interface VideoPlayerProps {
   muted?: boolean;
   className?: string;
   small?: boolean;
+  showWatermark?: boolean;
   onError?: (error: Error) => void;
   onLoad?: () => void;
 }
@@ -25,6 +26,7 @@ export default function VideoPlayer({
   muted = false,
   className = "",
   small = false,
+  showWatermark = false,
   onError,
   onLoad
 }: VideoPlayerProps) {
@@ -91,6 +93,29 @@ export default function VideoPlayer({
 
   return (
     <div className={`relative ${className}`}>
+      {/* Watermark overlay for full-size player */}
+      {showWatermark && !small && (
+        <div className="watermark-container absolute inset-0 pointer-events-none z-10">
+          {/* Center large watermark text */}
+          <div className="watermark-text absolute inset-0 flex items-center justify-center z-10">
+            <div className="watermark-content text-white text-3xl font-bold opacity-20">
+              TRILOGY DIGITAL TRILOGY DIGITAL TRILOGY DIGITAL
+            </div>
+          </div>
+          
+          {/* Grid watermark pattern */}
+          <div className="watermark-grid absolute inset-0 grid grid-cols-4 grid-rows-4 opacity-20">
+            {Array.from({ length: 16 }).map((_, index) => (
+              <div key={index} className="flex items-center justify-center">
+                <div className="transform rotate-[-30deg] text-white text-sm font-medium">
+                  TRILOGY DIGITAL
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      
       {streamInfo && (
         <video
           ref={videoRef}
