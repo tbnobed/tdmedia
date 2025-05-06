@@ -2,7 +2,7 @@ import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { setupAuth } from "./auth";
 import { storage } from "./storage";
-import { insertCategorySchema, insertMediaSchema, insertContactSchema, insertMediaAccessSchema, User } from "@shared/schema";
+import { insertCategorySchema, insertMediaSchema, insertContactSchema, insertMediaAccessSchema, User, MediaAccess } from "@shared/schema";
 import { z } from "zod";
 import fs from "fs";
 import path from "path";
