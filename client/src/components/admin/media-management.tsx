@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Media, Category } from "@shared/schema";
+import { Media, Category, User } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import VideoPlayer from "@/components/media/video-player";
@@ -18,7 +18,15 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,9 +37,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { apiRequest, queryClient } from "@/lib/queryClient";
+import { apiRequest, queryClient, getQueryFn } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Pencil, Trash2, Plus, Search, FileText, Video, Image, Presentation, Eye } from "lucide-react";
+import { Pencil, Trash2, Plus, Search, FileText, Video, Image, Presentation, Eye, UserCheck, Loader2 } from "lucide-react";
 import AddMediaForm from "./add-media-form";
 import EditMediaForm from "./edit-media-form";
 import MediaPreview from "./media-preview";
@@ -43,7 +51,9 @@ export default function MediaManagement() {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
+  const [assignDialogOpen, setAssignDialogOpen] = useState(false);
   const [selectedMedia, setSelectedMedia] = useState<Media | null>(null);
+  const [selectedUser, setSelectedUser] = useState<string>("");
 
   // Fetch all media
   const { data: media, isLoading } = useQuery<Media[]>({
@@ -53,6 +63,16 @@ export default function MediaManagement() {
   // Fetch all categories
   const { data: categories } = useQuery<Category[]>({
     queryKey: ["/api/categories"],
+  });
+  
+  // Fetch all client users (non-admin)
+  const {
+    data: clients,
+    isLoading: isLoadingClients,
+  } = useQuery<User[]>({
+    queryKey: ["/api/users/clients"],
+    queryFn: getQueryFn({ on401: "throw" }),
+    enabled: assignDialogOpen, // Only fetch when assign dialog is open
   });
 
   // Delete media mutation
@@ -98,6 +118,33 @@ export default function MediaManagement() {
       });
     },
   });
+  
+  // Assign media to user mutation
+  const assignMediaMutation = useMutation({
+    mutationFn: async ({ mediaId, userId }: { mediaId: number, userId: number }) => {
+      const response = await apiRequest("POST", "/api/media-access", {
+        mediaId,
+        userId,
+      });
+      return await response.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Media assigned",
+        description: "The media has been assigned to the user successfully.",
+      });
+      // Reset form and close dialog
+      setSelectedUser("");
+      setAssignDialogOpen(false);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error assigning media",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
 
   // Handle edit media
   const handleEditMedia = (media: Media) => {
@@ -120,6 +167,23 @@ export default function MediaManagement() {
   const handlePreviewMedia = (media: Media) => {
     setSelectedMedia(media);
     setPreviewDialogOpen(true);
+  };
+  
+  // Handle assign media
+  const handleAssignMedia = (media: Media) => {
+    setSelectedMedia(media);
+    setSelectedUser("");
+    setAssignDialogOpen(true);
+  };
+  
+  // Handle confirm assign
+  const confirmAssign = () => {
+    if (selectedMedia && selectedUser) {
+      assignMediaMutation.mutate({
+        mediaId: selectedMedia.id,
+        userId: parseInt(selectedUser, 10),
+      });
+    }
   };
 
   // Confirm delete
@@ -241,6 +305,15 @@ export default function MediaManagement() {
                         )}
                         <Button 
                           variant="outline" 
+                          size="sm"
+                          className="text-green-600 hover:text-green-800"
+                          title="Assign to User"
+                          onClick={() => handleAssignMedia(item)}
+                        >
+                          <UserCheck className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="outline" 
                           size="sm" 
                           className="text-destructive hover:text-destructive" 
                           onClick={() => handleDeleteMedia(item)}
@@ -322,6 +395,69 @@ export default function MediaManagement() {
         isOpen={previewDialogOpen}
         onClose={() => setPreviewDialogOpen(false)}
       />
+      
+      {/* Assign Media to User Dialog */}
+      <Dialog open={assignDialogOpen} onOpenChange={setAssignDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Assign Media to User</DialogTitle>
+            <DialogDescription>
+              Select a user to assign "{selectedMedia?.title}" to.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="my-6">
+            <div className="space-y-4">
+              {isLoadingClients ? (
+                <div className="flex items-center justify-center py-4">
+                  <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                </div>
+              ) : clients && clients.length > 0 ? (
+                <Select value={selectedUser} onValueChange={setSelectedUser}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a user" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {clients.map((client) => (
+                      <SelectItem key={client.id} value={client.id.toString()}>
+                        {client.username} ({client.email})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <div className="text-center py-4 text-muted-foreground">
+                  No client users found. Please create a client user first.
+                </div>
+              )}
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setAssignDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={confirmAssign}
+              disabled={!selectedUser || assignMediaMutation.isPending}
+            >
+              {assignMediaMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Assigning...
+                </>
+              ) : (
+                'Assign'
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
