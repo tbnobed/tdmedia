@@ -23,14 +23,21 @@ async function initDb() {
     const postgres = await import('postgres');
     const { drizzle: drizzlePg } = await import('drizzle-orm/postgres-js');
     
-    // Ensure connection string exists
-    if (!process.env.DATABASE_URL) {
-      throw new Error("DATABASE_URL must be set for production environment");
-    }
+    // Connection configuration
+    const pgConfig = {
+      user: process.env.POSTGRES_USER || 'trilogy_user',
+      password: process.env.POSTGRES_PASSWORD || 'postgres',
+      host: process.env.POSTGRES_HOST || 'postgres',
+      port: parseInt(process.env.POSTGRES_PORT || '5432'),
+      database: process.env.POSTGRES_DB || 'trilogy_db'
+    };
     
     // Connect to PostgreSQL
-    pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
-    const sql = postgres.default(process.env.DATABASE_URL);
+    pool = new pg.Pool(pgConfig);
+    
+    // Format connection string for postgres.js
+    const connectionString = `postgres://${pgConfig.user}:${pgConfig.password}@${pgConfig.host}:${pgConfig.port}/${pgConfig.database}`;
+    const sql = postgres.default(connectionString);
     db = drizzlePg(sql, { schema });
     
     console.log('Using PostgreSQL client for production environment');

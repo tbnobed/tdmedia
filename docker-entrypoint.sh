@@ -63,7 +63,8 @@ fi
 
 # Initialize the database schema
 echo "Initializing database schema..."
-npm run db:push
+chmod +x docker-init-db.cjs
+node docker-init-db.cjs
 
 echo "Database schema initialized successfully!"
 

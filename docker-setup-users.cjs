@@ -11,7 +11,11 @@ const scryptAsync = util.promisify(crypto.scrypt);
 
 // Create a PostgreSQL client
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL
+  user: process.env.POSTGRES_USER || 'trilogy_user',
+  password: process.env.POSTGRES_PASSWORD || 'postgres',
+  host: process.env.POSTGRES_HOST || 'postgres',
+  port: parseInt(process.env.POSTGRES_PORT || '5432'),
+  database: process.env.POSTGRES_DB || 'trilogy_db'
 });
 
 // Function to hash password

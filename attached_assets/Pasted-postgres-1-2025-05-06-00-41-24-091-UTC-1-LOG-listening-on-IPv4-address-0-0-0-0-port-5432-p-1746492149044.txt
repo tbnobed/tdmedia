@@ -1,0 +1,517 @@
+postgres-1  | 2025-05-06 00:41:24.091 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+postgres-1  | 2025-05-06 00:41:24.091 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+postgres-1  | 2025-05-06 00:41:24.094 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+postgres-1  | 2025-05-06 00:41:24.100 UTC [29] LOG:  database system was shut down at 2025-05-06 00:41:22 UTC
+postgres-1  | 2025-05-06 00:41:24.108 UTC [1] LOG:  database system is ready to accept connections
+postgres-1  | 2025-05-06 00:41:29.775 UTC [40] FATAL:  password authentication failed for user "trilogy_user"
+postgres-1  | 2025-05-06 00:41:29.775 UTC [40] DETAIL:  Connection matched pg_hba.conf line 100: "host all all all scram-sha-256"
+postgres-1  | 2025-05-06 00:41:31.514 UTC [41] FATAL:  password authentication failed for user "trilogy_user"
+postgres-1  | 2025-05-06 00:41:31.514 UTC [41] DETAIL:  Connection matched pg_hba.conf line 100: "host all all all scram-sha-256"
+postgres-1  | 2025-05-06 00:41:31.770 UTC [42] FATAL:  password authentication failed for user "trilogy_user"
+postgres-1  | 2025-05-06 00:41:31.770 UTC [42] DETAIL:  Connection matched pg_hba.conf line 100: "host all all all scram-sha-256"
+postgres-1  | 2025-05-06 00:41:32.225 UTC [43] FATAL:  password authentication failed for user "trilogy_user"
+postgres-1  | 2025-05-06 00:41:32.225 UTC [43] DETAIL:  Connection matched pg_hba.conf line 100: "host all all all scram-sha-256"
+postgres-1  | 2025-05-06 00:41:33.932 UTC [44] FATAL:  password authentication failed for user "trilogy_user"
+postgres-1  | 2025-05-06 00:41:33.932 UTC [44] DETAIL:  Connection matched pg_hba.conf line 100: "host all all all scram-sha-256"
+postgres-1  | 2025-05-06 00:41:34.182 UTC [51] FATAL:  password authentication failed for user "trilogy_user"
+postgres-1  | 2025-05-06 00:41:34.182 UTC [51] DETAIL:  Connection matched pg_hba.conf line 100: "host all all all scram-sha-256"
+postgres-1  | 2025-05-06 00:41:34.694 UTC [53] FATAL:  password authentication failed for user "trilogy_user"
+postgres-1  | 2025-05-06 00:41:34.694 UTC [53] DETAIL:  Connection matched pg_hba.conf line 100: "host all all all scram-sha-256"
+postgres-1  | 2025-05-06 00:41:36.362 UTC [54] FATAL:  password authentication failed for user "trilogy_user"
+postgres-1  | 2025-05-06 00:41:36.362 UTC [54] DETAIL:  Connection matched pg_hba.conf line 100: "host all all all scram-sha-256"
+postgres-1  | 2025-05-06 00:41:36.608 UTC [55] FATAL:  password authentication failed for user "trilogy_user"
+postgres-1  | 2025-05-06 00:41:36.608 UTC [55] DETAIL:  Connection matched pg_hba.conf line 100: "host all all all scram-sha-256"
+postgres-1  | 2025-05-06 00:41:37.325 UTC [56] FATAL:  password authentication failed for user "trilogy_user"
+postgres-1  | 2025-05-06 00:41:37.325 UTC [56] DETAIL:  Connection matched pg_hba.conf line 100: "host all all all scram-sha-256"
+postgres-1  | 2025-05-06 00:41:38.991 UTC [57] FATAL:  password authentication failed for user "trilogy_user"
+postgres-1  | 2025-05-06 00:41:38.991 UTC [57] DETAIL:  Connection matched pg_hba.conf line 100: "host all all all scram-sha-256"
+postgres-1  | 2025-05-06 00:41:39.240 UTC [58] FATAL:  password authentication failed for user "trilogy_user"
+postgres-1  | 2025-05-06 00:41:39.240 UTC [58] DETAIL:  Connection matched pg_hba.conf line 100: "host all all all scram-sha-256"
+postgres-1  | 2025-05-06 00:41:40.360 UTC [66] FATAL:  password authentication failed for user "trilogy_user"
+postgres-1  | 2025-05-06 00:41:40.360 UTC [66] DETAIL:  Connection matched pg_hba.conf line 100: "host all all all scram-sha-256"
+postgres-1  | 2025-05-06 00:41:42.036 UTC [67] FATAL:  password authentication failed for user "trilogy_user"
+postgres-1  | 2025-05-06 00:41:42.036 UTC [67] DETAIL:  Connection matched pg_hba.conf line 100: "host all all all scram-sha-256"
+postgres-1  | 2025-05-06 00:41:42.284 UTC [68] FATAL:  password authentication failed for user "trilogy_user"
+postgres-1  | 2025-05-06 00:41:42.284 UTC [68] DETAIL:  Connection matched pg_hba.conf line 100: "host all all all scram-sha-256"
+postgres-1  | 2025-05-06 00:41:44.185 UTC [70] FATAL:  password authentication failed for user "trilogy_user"
+postgres-1  | 2025-05-06 00:41:44.185 UTC [70] DETAIL:  Connection matched pg_hba.conf line 100: "host all all all scram-sha-256"
+postgres-1  | 2025-05-06 00:41:45.860 UTC [78] FATAL:  password authentication failed for user "trilogy_user"
+postgres-1  | 2025-05-06 00:41:45.860 UTC [78] DETAIL:  Connection matched pg_hba.conf line 100: "host all all all scram-sha-256"
+postgres-1  | 2025-05-06 00:41:46.104 UTC [79] FATAL:  password authentication failed for user "trilogy_user"
+postgres-1  | 2025-05-06 00:41:46.104 UTC [79] DETAIL:  Connection matched pg_hba.conf line 100: "host all all all scram-sha-256"
+postgres-1  | 2025-05-06 00:41:49.609 UTC [87] FATAL:  password authentication failed for user "trilogy_user"
+postgres-1  | 2025-05-06 00:41:49.609 UTC [87] DETAIL:  Connection matched pg_hba.conf line 100: "host all all all scram-sha-256"
+postgres-1  | 2025-05-06 00:41:51.284 UTC [88] FATAL:  password authentication failed for user "trilogy_user"
+postgres-1  | 2025-05-06 00:41:51.284 UTC [88] DETAIL:  Connection matched pg_hba.conf line 100: "host all all all scram-sha-256"
+postgres-1  | 2025-05-06 00:41:51.538 UTC [89] FATAL:  password authentication failed for user "trilogy_user"
+postgres-1  | 2025-05-06 00:41:51.538 UTC [89] DETAIL:  Connection matched pg_hba.conf line 100: "host all all all scram-sha-256"
+postgres-1  | 2025-05-06 00:41:58.246 UTC [97] FATAL:  password authentication failed for user "trilogy_user"
+postgres-1  | 2025-05-06 00:41:58.246 UTC [97] DETAIL:  Connection matched pg_hba.conf line 100: "host all all all scram-sha-256"
+postgres-1  | 2025-05-06 00:41:59.953 UTC [105] FATAL:  password authentication failed for user "trilogy_user"
+postgres-1  | 2025-05-06 00:41:59.953 UTC [105] DETAIL:  Connection matched pg_hba.conf line 100: "host all all all scram-sha-256"
+postgres-1  | 2025-05-06 00:42:00.202 UTC [106] FATAL:  password authentication failed for user "trilogy_user"
+postgres-1  | 2025-05-06 00:42:00.202 UTC [106] DETAIL:  Connection matched pg_hba.conf line 100: "host all all all scram-sha-256"
+app-1       | Waiting for PostgreSQL to become available...
+app-1       | postgres:5432 - accepting connections
+app-1       | PostgreSQL is ready!
+app-1       | Initializing database schema...
+app-1       |
+app-1       | > rest-express@1.0.0 db:push
+app-1       | > drizzle-kit push --force --config=./drizzle.config.ts
+app-1       |
+app-1       | Reading config file '/app/drizzle.config.ts'
+app-1       | Using 'pg' driver for database querying
+app-1       | [⣷] Pulling schema from database...
+app-1       | error: password authentication failed for user "trilogy_user"
+app-1       |     at /app/node_modules/pg-pool/index.js:45:11
+app-1       |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+app-1       |     at async Object.query (/app/node_modules/drizzle-kit/bin.cjs:65361:26)
+app-1       |     at async fromDatabase2 (/app/node_modules/drizzle-kit/bin.cjs:19821:25) {
+app-1       |   length: 108,
+app-1       |   severity: 'FATAL',
+app-1       |   code: '28P01',
+app-1       |   detail: undefined,
+app-1       |   hint: undefined,
+app-1       |   position: undefined,
+app-1       |   internalPosition: undefined,
+app-1       |   internalQuery: undefined,
+app-1       |   where: undefined,
+app-1       |   schema: undefined,
+app-1       |   table: undefined,
+app-1       |   column: undefined,
+app-1       |   dataType: undefined,
+app-1       |   constraint: undefined,
+app-1       |   file: 'auth.c',
+app-1       |   line: '326',
+app-1       |   routine: 'auth_failed'
+app-1       | }
+app-1       | Database schema initialized successfully!
+app-1       | Setting up default users...
+app-1       | Failed to set up users: error: password authentication failed for user "trilogy_user"
+app-1       |     at /app/node_modules/pg-pool/index.js:45:11
+app-1       |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+app-1       |     at async setupUsers (/app/docker-setup-users.cjs:26:18) {
+app-1       |   length: 108,
+app-1       |   severity: 'FATAL',
+app-1       |   code: '28P01',
+app-1       |   detail: undefined,
+app-1       |   hint: undefined,
+app-1       |   position: undefined,
+app-1       |   internalPosition: undefined,
+app-1       |   internalQuery: undefined,
+app-1       |   where: undefined,
+app-1       |   schema: undefined,
+app-1       |   table: undefined,
+app-1       |   column: undefined,
+app-1       |   dataType: undefined,
+app-1       |   constraint: undefined,
+app-1       |   file: 'auth.c',
+app-1       |   line: '326',
+app-1       |   routine: 'auth_failed'
+app-1       | }
+app-1       | Waiting for PostgreSQL to become available...
+app-1       | postgres:5432 - accepting connections
+app-1       | PostgreSQL is ready!
+app-1       | Initializing database schema...
+app-1       |
+app-1       | > rest-express@1.0.0 db:push
+app-1       | > drizzle-kit push --force --config=./drizzle.config.ts
+app-1       |
+app-1       | Reading config file '/app/drizzle.config.ts'
+app-1       | Using 'pg' driver for database querying
+app-1       | [⣷] Pulling schema from database...
+app-1       | error: password authentication failed for user "trilogy_user"
+app-1       |     at /app/node_modules/pg-pool/index.js:45:11
+app-1       |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+app-1       |     at async Object.query (/app/node_modules/drizzle-kit/bin.cjs:65361:26)
+app-1       |     at async fromDatabase2 (/app/node_modules/drizzle-kit/bin.cjs:19821:25) {
+app-1       |   length: 108,
+app-1       |   severity: 'FATAL',
+app-1       |   code: '28P01',
+app-1       |   detail: undefined,
+app-1       |   hint: undefined,
+app-1       |   position: undefined,
+app-1       |   internalPosition: undefined,
+app-1       |   internalQuery: undefined,
+app-1       |   where: undefined,
+app-1       |   schema: undefined,
+app-1       |   table: undefined,
+app-1       |   column: undefined,
+app-1       |   dataType: undefined,
+app-1       |   constraint: undefined,
+app-1       |   file: 'auth.c',
+app-1       |   line: '326',
+app-1       |   routine: 'auth_failed'
+app-1       | }
+app-1       | Database schema initialized successfully!
+app-1       | Setting up default users...
+app-1       | Failed to set up users: error: password authentication failed for user "trilogy_user"
+app-1       |     at /app/node_modules/pg-pool/index.js:45:11
+app-1       |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+app-1       |     at async setupUsers (/app/docker-setup-users.cjs:26:18) {
+app-1       |   length: 108,
+app-1       |   severity: 'FATAL',
+app-1       |   code: '28P01',
+app-1       |   detail: undefined,
+app-1       |   hint: undefined,
+app-1       |   position: undefined,
+app-1       |   internalPosition: undefined,
+app-1       |   internalQuery: undefined,
+app-1       |   where: undefined,
+app-1       |   schema: undefined,
+app-1       |   table: undefined,
+app-1       |   column: undefined,
+app-1       |   dataType: undefined,
+app-1       |   constraint: undefined,
+app-1       |   file: 'auth.c',
+app-1       |   line: '326',
+app-1       |   routine: 'auth_failed'
+app-1       | }
+app-1       | Waiting for PostgreSQL to become available...
+app-1       | postgres:5432 - accepting connections
+app-1       | PostgreSQL is ready!
+app-1       | Initializing database schema...
+app-1       |
+app-1       | > rest-express@1.0.0 db:push
+app-1       | > drizzle-kit push --force --config=./drizzle.config.ts
+app-1       |
+app-1       | Reading config file '/app/drizzle.config.ts'
+app-1       | Using 'pg' driver for database querying
+app-1       | [⣷] Pulling schema from database...
+app-1       | error: password authentication failed for user "trilogy_user"
+app-1       |     at /app/node_modules/pg-pool/index.js:45:11
+app-1       |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+app-1       |     at async Object.query (/app/node_modules/drizzle-kit/bin.cjs:65361:26)
+app-1       |     at async fromDatabase2 (/app/node_modules/drizzle-kit/bin.cjs:19821:25) {
+app-1       |   length: 108,
+app-1       |   severity: 'FATAL',
+app-1       |   code: '28P01',
+app-1       |   detail: undefined,
+app-1       |   hint: undefined,
+app-1       |   position: undefined,
+app-1       |   internalPosition: undefined,
+app-1       |   internalQuery: undefined,
+app-1       |   where: undefined,
+app-1       |   schema: undefined,
+app-1       |   table: undefined,
+app-1       |   column: undefined,
+app-1       |   dataType: undefined,
+app-1       |   constraint: undefined,
+app-1       |   file: 'auth.c',
+app-1       |   line: '326',
+app-1       |   routine: 'auth_failed'
+app-1       | }
+app-1       | Database schema initialized successfully!
+app-1       | Setting up default users...
+app-1       | Failed to set up users: error: password authentication failed for user "trilogy_user"
+app-1       |     at /app/node_modules/pg-pool/index.js:45:11
+app-1       |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+app-1       |     at async setupUsers (/app/docker-setup-users.cjs:26:18) {
+app-1       |   length: 108,
+app-1       |   severity: 'FATAL',
+app-1       |   code: '28P01',
+app-1       |   detail: undefined,
+app-1       |   hint: undefined,
+app-1       |   position: undefined,
+app-1       |   internalPosition: undefined,
+app-1       |   internalQuery: undefined,
+app-1       |   where: undefined,
+app-1       |   schema: undefined,
+app-1       |   table: undefined,
+app-1       |   column: undefined,
+app-1       |   dataType: undefined,
+app-1       |   constraint: undefined,
+app-1       |   file: 'auth.c',
+app-1       |   line: '326',
+app-1       |   routine: 'auth_failed'
+app-1       | }
+app-1       | Waiting for PostgreSQL to become available...
+app-1       | postgres:5432 - accepting connections
+app-1       | PostgreSQL is ready!
+app-1       | Initializing database schema...
+app-1       |
+app-1       | > rest-express@1.0.0 db:push
+app-1       | > drizzle-kit push --force --config=./drizzle.config.ts
+app-1       |
+app-1       | Reading config file '/app/drizzle.config.ts'
+app-1       | Using 'pg' driver for database querying
+app-1       | [⣷] Pulling schema from database...
+app-1       | error: password authentication failed for user "trilogy_user"
+app-1       |     at /app/node_modules/pg-pool/index.js:45:11
+app-1       |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+app-1       |     at async Object.query (/app/node_modules/drizzle-kit/bin.cjs:65361:26)
+app-1       |     at async fromDatabase2 (/app/node_modules/drizzle-kit/bin.cjs:19821:25) {
+app-1       |   length: 108,
+app-1       |   severity: 'FATAL',
+app-1       |   code: '28P01',
+app-1       |   detail: undefined,
+app-1       |   hint: undefined,
+app-1       |   position: undefined,
+app-1       |   internalPosition: undefined,
+app-1       |   internalQuery: undefined,
+app-1       |   where: undefined,
+app-1       |   schema: undefined,
+app-1       |   table: undefined,
+app-1       |   column: undefined,
+app-1       |   dataType: undefined,
+app-1       |   constraint: undefined,
+app-1       |   file: 'auth.c',
+app-1       |   line: '326',
+app-1       |   routine: 'auth_failed'
+app-1       | }
+app-1       | Database schema initialized successfully!
+app-1       | Setting up default users...
+app-1       | Failed to set up users: error: password authentication failed for user "trilogy_user"
+app-1       |     at /app/node_modules/pg-pool/index.js:45:11
+app-1       |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+app-1       |     at async setupUsers (/app/docker-setup-users.cjs:26:18) {
+app-1       |   length: 108,
+app-1       |   severity: 'FATAL',
+app-1       |   code: '28P01',
+app-1       |   detail: undefined,
+app-1       |   hint: undefined,
+app-1       |   position: undefined,
+app-1       |   internalPosition: undefined,
+app-1       |   internalQuery: undefined,
+app-1       |   where: undefined,
+app-1       |   schema: undefined,
+app-1       |   table: undefined,
+app-1       |   column: undefined,
+app-1       |   dataType: undefined,
+app-1       |   constraint: undefined,
+app-1       |   file: 'auth.c',
+app-1       |   line: '326',
+app-1       |   routine: 'auth_failed'
+app-1       | }
+app-1       | Waiting for PostgreSQL to become available...
+app-1       | postgres:5432 - accepting connections
+app-1       | PostgreSQL is ready!
+app-1       | Initializing database schema...
+app-1       |
+app-1       | > rest-express@1.0.0 db:push
+app-1       | > drizzle-kit push --force --config=./drizzle.config.ts
+app-1       |
+app-1       | Reading config file '/app/drizzle.config.ts'
+app-1       | Using 'pg' driver for database querying
+app-1       | [⣷] Pulling schema from database...
+app-1       | error: password authentication failed for user "trilogy_user"
+app-1       |     at /app/node_modules/pg-pool/index.js:45:11
+app-1       |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+app-1       |     at async Object.query (/app/node_modules/drizzle-kit/bin.cjs:65361:26)
+app-1       |     at async fromDatabase2 (/app/node_modules/drizzle-kit/bin.cjs:19821:25) {
+app-1       |   length: 108,
+app-1       |   severity: 'FATAL',
+app-1       |   code: '28P01',
+app-1       |   detail: undefined,
+app-1       |   hint: undefined,
+app-1       |   position: undefined,
+app-1       |   internalPosition: undefined,
+app-1       |   internalQuery: undefined,
+app-1       |   where: undefined,
+app-1       |   schema: undefined,
+app-1       |   table: undefined,
+app-1       |   column: undefined,
+app-1       |   dataType: undefined,
+app-1       |   constraint: undefined,
+app-1       |   file: 'auth.c',
+app-1       |   line: '326',
+app-1       |   routine: 'auth_failed'
+app-1       | }
+app-1       | Database schema initialized successfully!
+app-1       | Setting up default users...
+app-1       | Failed to set up users: error: password authentication failed for user "trilogy_user"
+app-1       |     at /app/node_modules/pg-pool/index.js:45:11
+app-1       |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+app-1       |     at async setupUsers (/app/docker-setup-users.cjs:26:18) {
+app-1       |   length: 108,
+app-1       |   severity: 'FATAL',
+app-1       |   code: '28P01',
+app-1       |   detail: undefined,
+app-1       |   hint: undefined,
+app-1       |   position: undefined,
+app-1       |   internalPosition: undefined,
+app-1       |   internalQuery: undefined,
+app-1       |   where: undefined,
+app-1       |   schema: undefined,
+app-1       |   table: undefined,
+app-1       |   column: undefined,
+app-1       |   dataType: undefined,
+app-1       |   constraint: undefined,
+app-1       |   file: 'auth.c',
+app-1       |   line: '326',
+app-1       |   routine: 'auth_failed'
+app-1       | }
+app-1       | Waiting for PostgreSQL to become available...
+app-1       | postgres:5432 - accepting connections
+app-1       | PostgreSQL is ready!
+app-1       | Initializing database schema...
+app-1       |
+app-1       | > rest-express@1.0.0 db:push
+app-1       | > drizzle-kit push --force --config=./drizzle.config.ts
+app-1       |
+app-1       | Reading config file '/app/drizzle.config.ts'
+app-1       | Using 'pg' driver for database querying
+app-1       | [⣷] Pulling schema from database...
+app-1       | error: password authentication failed for user "trilogy_user"
+app-1       |     at /app/node_modules/pg-pool/index.js:45:11
+app-1       |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+app-1       |     at async Object.query (/app/node_modules/drizzle-kit/bin.cjs:65361:26)
+app-1       |     at async fromDatabase2 (/app/node_modules/drizzle-kit/bin.cjs:19821:25) {
+app-1       |   length: 108,
+app-1       |   severity: 'FATAL',
+app-1       |   code: '28P01',
+app-1       |   detail: undefined,
+app-1       |   hint: undefined,
+app-1       |   position: undefined,
+app-1       |   internalPosition: undefined,
+app-1       |   internalQuery: undefined,
+app-1       |   where: undefined,
+app-1       |   schema: undefined,
+app-1       |   table: undefined,
+app-1       |   column: undefined,
+app-1       |   dataType: undefined,
+app-1       |   constraint: undefined,
+app-1       |   file: 'auth.c',
+app-1       |   line: '326',
+app-1       |   routine: 'auth_failed'
+app-1       | }
+app-1       | Database schema initialized successfully!
+app-1       | Setting up default users...
+app-1       | Failed to set up users: error: password authentication failed for user "trilogy_user"
+app-1       |     at /app/node_modules/pg-pool/index.js:45:11
+app-1       |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+app-1       |     at async setupUsers (/app/docker-setup-users.cjs:26:18) {
+app-1       |   length: 108,
+app-1       |   severity: 'FATAL',
+app-1       |   code: '28P01',
+app-1       |   detail: undefined,
+app-1       |   hint: undefined,
+app-1       |   position: undefined,
+app-1       |   internalPosition: undefined,
+app-1       |   internalQuery: undefined,
+app-1       |   where: undefined,
+app-1       |   schema: undefined,
+app-1       |   table: undefined,
+app-1       |   column: undefined,
+app-1       |   dataType: undefined,
+app-1       |   constraint: undefined,
+app-1       |   file: 'auth.c',
+app-1       |   line: '326',
+app-1       |   routine: 'auth_failed'
+app-1       | }
+app-1       | Waiting for PostgreSQL to become available...
+app-1       | postgres:5432 - accepting connections
+app-1       | PostgreSQL is ready!
+app-1       | Initializing database schema...
+app-1       |
+app-1       | > rest-express@1.0.0 db:push
+app-1       | > drizzle-kit push --force --config=./drizzle.config.ts
+app-1       |
+app-1       | Reading config file '/app/drizzle.config.ts'
+app-1       | Using 'pg' driver for database querying
+app-1       | [⣷] Pulling schema from database...
+app-1       | error: password authentication failed for user "trilogy_user"
+app-1       |     at /app/node_modules/pg-pool/index.js:45:11
+app-1       |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+app-1       |     at async Object.query (/app/node_modules/drizzle-kit/bin.cjs:65361:26)
+app-1       |     at async fromDatabase2 (/app/node_modules/drizzle-kit/bin.cjs:19821:25) {
+app-1       |   length: 108,
+app-1       |   severity: 'FATAL',
+app-1       |   code: '28P01',
+app-1       |   detail: undefined,
+app-1       |   hint: undefined,
+app-1       |   position: undefined,
+app-1       |   internalPosition: undefined,
+app-1       |   internalQuery: undefined,
+app-1       |   where: undefined,
+app-1       |   schema: undefined,
+app-1       |   table: undefined,
+app-1       |   column: undefined,
+app-1       |   dataType: undefined,
+app-1       |   constraint: undefined,
+app-1       |   file: 'auth.c',
+app-1       |   line: '326',
+app-1       |   routine: 'auth_failed'
+app-1       | }
+app-1       | Database schema initialized successfully!
+app-1       | Setting up default users...
+app-1       | Failed to set up users: error: password authentication failed for user "trilogy_user"
+app-1       |     at /app/node_modules/pg-pool/index.js:45:11
+app-1       |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+app-1       |     at async setupUsers (/app/docker-setup-users.cjs:26:18) {
+app-1       |   length: 108,
+app-1       |   severity: 'FATAL',
+app-1       |   code: '28P01',
+app-1       |   detail: undefined,
+app-1       |   hint: undefined,
+app-1       |   position: undefined,
+app-1       |   internalPosition: undefined,
+app-1       |   internalQuery: undefined,
+app-1       |   where: undefined,
+app-1       |   schema: undefined,
+app-1       |   table: undefined,
+app-1       |   column: undefined,
+app-1       |   dataType: undefined,
+app-1       |   constraint: undefined,
+app-1       |   file: 'auth.c',
+app-1       |   line: '326',
+app-1       |   routine: 'auth_failed'
+app-1       | }
+app-1       | Waiting for PostgreSQL to become available...
+app-1       | postgres:5432 - accepting connections
+app-1       | PostgreSQL is ready!
+app-1       | Initializing database schema...
+app-1       |
+app-1       | > rest-express@1.0.0 db:push
+app-1       | > drizzle-kit push --force --config=./drizzle.config.ts
+app-1       |
+app-1       | Reading config file '/app/drizzle.config.ts'
+app-1       | Using 'pg' driver for database querying
+app-1       | [⣷] Pulling schema from database...
+app-1       | error: password authentication failed for user "trilogy_user"
+app-1       |     at /app/node_modules/pg-pool/index.js:45:11
+app-1       |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+app-1       |     at async Object.query (/app/node_modules/drizzle-kit/bin.cjs:65361:26)
+app-1       |     at async fromDatabase2 (/app/node_modules/drizzle-kit/bin.cjs:19821:25) {
+app-1       |   length: 108,
+app-1       |   severity: 'FATAL',
+app-1       |   code: '28P01',
+app-1       |   detail: undefined,
+app-1       |   hint: undefined,
+app-1       |   position: undefined,
+app-1       |   internalPosition: undefined,
+app-1       |   internalQuery: undefined,
+app-1       |   where: undefined,
+app-1       |   schema: undefined,
+app-1       |   table: undefined,
+app-1       |   column: undefined,
+app-1       |   dataType: undefined,
+app-1       |   constraint: undefined,
+app-1       |   file: 'auth.c',
+app-1       |   line: '326',
+app-1       |   routine: 'auth_failed'
+app-1       | }
+app-1       | Database schema initialized successfully!
+app-1       | Setting up default users...
+app-1       | Failed to set up users: error: password authentication failed for user "trilogy_user"
+app-1       |     at /app/node_modules/pg-pool/index.js:45:11
+app-1       |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+app-1       |     at async setupUsers (/app/docker-setup-users.cjs:26:18) {
+app-1       |   length: 108,
+app-1       |   severity: 'FATAL',
+app-1       |   code: '28P01',
+app-1       |   detail: undefined,
+app-1       |   hint: undefined,
+app-1       |   position: undefined,
+app-1       |   internalPosition: undefined,
+app-1       |   internalQuery: undefined,
+app-1       |   where: undefined,
+app-1       |   schema: undefined,
+app-1       |   table: undefined,
+app-1       |   column: undefined,
+app-1       |   dataType: undefined,
+app-1       |   constraint: undefined,
+app-1       |   file: 'auth.c',
+app-1       |   line: '326',
+app-1       |   routine: 'auth_failed'
+app-1       | }
