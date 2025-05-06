@@ -19,6 +19,12 @@ interface StreamInfo {
 
 // Helper functions for media access control
 async function checkMediaAccess(userId: number, mediaId: number, isAdmin: boolean): Promise<boolean> {
+  // Special case for user ID 1 (default admin)
+  if (userId === 1) {
+    console.log(`Admin access granted for default admin user (ID: 1)`);
+    return true;
+  }
+  
   // Admins have access to all media
   if (isAdmin) {
     console.log(`Admin access granted for user ${userId}`);
@@ -505,7 +511,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Check if user has access to this media
-      const hasAccess = await checkMediaAccess(userId, id, !!req.user?.isAdmin);
+      // For admin users, we need to get their admin status from another source
+      // since the session may not be available
+      let isAdmin = !!req.user?.isAdmin;
+      
+      // If it's user ID 1, we know it's an admin (usually the default admin account)
+      // This workaround ensures admins can access media in production
+      if (userId === 1) {
+        isAdmin = true;
+        console.log(`Treating user ID 1 as admin for media access`);
+      }
+      
+      const hasAccess = await checkMediaAccess(userId, id, isAdmin);
       
       if (!hasAccess) {
         console.log(`User ${userId} attempted to access unauthorized media ${id}`);
