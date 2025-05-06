@@ -433,7 +433,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Stream media with watermark
+  // Stream media with watermark using JWT for authentication
   app.get("/api/stream/:id", isAuthenticated, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
@@ -452,14 +452,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(403).json({ message: "You don't have access to this media" });
       }
       
-      // Generate a secure signed URL for streaming the file with watermarking
-      const timestamp = Date.now();
-      const signature = createHmac('sha256', process.env.SESSION_SECRET || 'secure-media-secret')
-        .update(`${id}-${timestamp}-${userId}`)
-        .digest('hex');
-        
-      // Include userId in the URL to maintain access validation even without session
-      const streamUrl = `/api/raw-stream/${id}?signature=${signature}&timestamp=${timestamp}&userId=${userId}`;
+      // Generate a JWT token for streaming this specific media with user info embedded
+      // Make sure we have all required user properties
+      const userForToken = {
+        id: req.user!.id,
+        username: req.user!.username,
+        email: req.user!.email,
+        isAdmin: !!req.user!.isAdmin,
+        // Add required properties that might be undefined in req.user
+        password: req.user!.password || '',
+        createdAt: req.user!.createdAt || new Date()
+      };
+      const streamToken = generateStreamToken(userForToken, id);
+      
+      // Use the token in the URL for authentication - no session required
+      const streamUrl = `/api/raw-stream/${id}?token=${streamToken}`;
+      
+      console.log(`Generated stream token for user ${userId}, media ${id}`);
       
       res.json({ 
         streamUrl,
@@ -472,44 +481,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Raw stream endpoint - serves the actual media file
+  // Raw stream endpoint - serves the actual media file using JWT authentication
   app.get("/api/raw-stream/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const { signature, timestamp, userId: userIdParam } = req.query;
+      const { token } = req.query;
       
-      // Validate the signature to prevent unauthorized access
-      if (!signature || !timestamp || typeof signature !== 'string' || typeof timestamp !== 'string') {
-        console.log("Missing required signature parameters");
-        return res.status(401).json({ message: "Invalid signature or timestamp" });
+      // Validate the token to prevent unauthorized access
+      if (!token || typeof token !== 'string') {
+        console.log("Missing required token parameter");
+        return res.status(401).json({ message: "Missing authentication token" });
       }
       
-      // Verify that the URL hasn't expired (15 minutes validity)
-      const requestTime = parseInt(timestamp);
-      const currentTime = Date.now();
-      if (currentTime - requestTime > 15 * 60 * 1000) { // 15 minutes in milliseconds
-        console.log("Stream URL has expired");
-        return res.status(401).json({ message: "Stream URL has expired" });
+      // Verify the JWT token
+      const decodedToken = verifyMediaAccessToken(token);
+      if (!decodedToken) {
+        console.log("Invalid or expired token");
+        return res.status(401).json({ message: "Invalid or expired token" });
       }
       
-      // Get the user ID - either from the authenticated session OR from the URL parameter
-      // This allows the stream to work even if the session isn't available
-      let userId = req.user?.id || 0;
+      // Extract user info from the token
+      const { userId, isAdmin, mediaId } = decodedToken;
       
-      // If a userId was passed in the URL and no session exists, use that instead
-      if (!userId && userIdParam) {
-        userId = parseInt(typeof userIdParam === 'string' ? userIdParam : '0');
-      }
-      
-      // Regenerate the signature to verify
-      const expectedSignature = createHmac('sha256', process.env.SESSION_SECRET || 'secure-media-secret')
-        .update(`${id}-${timestamp}-${userId}`)
-        .digest('hex');
-      
-      // Check if signatures match
-      if (signature !== expectedSignature) {
-        console.log(`Invalid signature. Expected: ${expectedSignature}, Got: ${signature}, UserId: ${userId}`);
-        return res.status(401).json({ message: "Invalid signature" });
+      // If token contains a specific mediaId, verify it matches the requested media
+      if (mediaId !== undefined && mediaId !== id) {
+        console.log(`Token is for media ${mediaId} but requested ${id}`);
+        return res.status(403).json({ message: "Token not valid for this media" });
       }
       
       // Get the media item
@@ -518,15 +515,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Media not found" });
       }
       
-      // Check if user has access to this media
-      // For admin users, we need to get their admin status from another source
-      // since the session may not be available
-      let isAdmin = !!req.user?.isAdmin;
+      // We don't need to check session admin status anymore - the token contains this info
+      console.log(`Token verification successful - User: ${userId}, Admin: ${isAdmin}, Media: ${id}`);
       
-      // No need for special case handling - the checkMediaAccess function
-      // will now look up admin status directly from the database
-      console.log(`Checking access for user ${userId}, session admin status: ${isAdmin}`);
-      
+      // Double-check access rights from the database to be extra sure
       const hasAccess = await checkMediaAccess(userId, id, isAdmin);
       
       if (!hasAccess) {

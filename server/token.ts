@@ -9,6 +9,7 @@ interface TokenPayload {
   userId: number;
   isAdmin: boolean;
   exp?: number;
+  mediaId?: number; // Add mediaId for stream tokens
 }
 
 /**
@@ -54,7 +55,7 @@ export function verifyMediaAccessToken(token: string): TokenPayload | null {
 export function generateStreamToken(user: User, mediaId: number): string {
   const secret = process.env.JWT_SECRET || process.env.SESSION_SECRET || 'secure-media-secret';
   
-  const payload = {
+  const payload: TokenPayload = {
     userId: user.id,
     isAdmin: !!user.isAdmin,
     mediaId
