@@ -137,7 +137,7 @@ export default function VideoPlayer({
       )}
       
       {/* Small watermark in the preview version */}
-      {small && (
+      {small && showWatermark && (
         <div className="absolute top-1 right-1 text-white text-xs opacity-70 bg-black/30 px-1 rounded">
           TRILOGY
         </div>
