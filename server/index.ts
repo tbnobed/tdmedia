@@ -6,12 +6,16 @@ import { setupHealthChecks } from "./healthcheck";
 
 const app = express();
 
-// Enable CORS for all routes
+// Enable properly configured CORS with session credentials
 app.use(cors({
-  origin: true, // Allow all origins
-  credentials: true, // Allow credentials (cookies, authorization headers)
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://trilogymedia.com', /\.replit\.app$/, /\.replit\.dev$/] // Limit to known domains in production
+    : true, // Allow all origins in development
+  credentials: true, // Critical for cookies/sessions to work cross-domain
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  allowedHeaders: ['Content-Type', 'Authorization', 'Set-Cookie'],
+  exposedHeaders: ['Set-Cookie'],
+  maxAge: 86400 // Cache preflight requests for 24 hours
 }));
 
 app.use(express.json());
