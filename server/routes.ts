@@ -11,6 +11,7 @@ import { sendWelcomeEmail } from "./email";
 import { db } from "@db";
 import { sql, InferSelectModel } from "drizzle-orm";
 import { upload, getFileTypeFromFilename, getFormattedFileSize, generateThumbnail, getVideoDuration } from './upload';
+import { generateMediaAccessToken, generateStreamToken, verifyMediaAccessToken } from './token';
 
 // Type for streaming info
 interface StreamInfo {
