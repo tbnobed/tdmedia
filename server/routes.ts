@@ -150,7 +150,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       const categoryId = categoryIdParam ? parseInt(categoryIdParam) : undefined;
       
-      const mediaItems = await storage.getMedia({ search, categoryId, sort });
+      // Only pass the userId for non-admin users to filter content
+      // Admin users should see all content
+      const userId = req.user!.isAdmin ? undefined : req.user!.id;
+      console.log(`Fetching media for user ${req.user!.id}, isAdmin: ${req.user!.isAdmin}, filtering by userId: ${userId || 'none (admin view)'}`);
+      
+      const mediaItems = await storage.getMedia({ search, categoryId, sort, userId });
       res.json(mediaItems);
     } catch (error) {
       console.error("Error fetching media:", error);
