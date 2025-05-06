@@ -2,13 +2,25 @@ import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { setupAuth } from "./auth";
 import { storage } from "./storage";
-import { insertCategorySchema, insertMediaSchema, insertContactSchema } from "@shared/schema";
+import { insertCategorySchema, insertMediaSchema, insertContactSchema, User } from "@shared/schema";
 import { z } from "zod";
 import fs from "fs";
 import path from "path";
 import { createHmac } from "crypto";
 import { db } from "@db";
-import { sql } from "drizzle-orm";
+import { sql, InferSelectModel } from "drizzle-orm";
+
+// Extend Express Request to include user type
+declare global {
+  namespace Express {
+    interface User {
+      id: number;
+      username: string;
+      email: string;
+      isAdmin: boolean;
+    }
+  }
+}
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup authentication routes
@@ -194,8 +206,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // In a real implementation, this would stream the actual file with watermarking
       // For now, we'll secure the URL by adding a signature
       const timestamp = Date.now();
+      // Type check: req.user is defined because isAuthenticated middleware ensures it
+      const userId = req.user?.id || 0; // Fallback to 0 if somehow undefined
       const signature = createHmac('sha256', process.env.SESSION_SECRET || 'secure-media-secret')
-        .update(`${id}-${timestamp}-${req.user.id}`)
+        .update(`${id}-${timestamp}-${userId}`)
         .digest('hex');
         
       const streamUrl = `/api/raw-stream/${id}?signature=${signature}&timestamp=${timestamp}`;

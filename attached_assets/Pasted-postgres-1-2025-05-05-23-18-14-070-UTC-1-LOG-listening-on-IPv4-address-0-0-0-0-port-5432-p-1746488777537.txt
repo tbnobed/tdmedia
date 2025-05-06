@@ -1,0 +1,21 @@
+postgres-1  | 2025-05-05 23:18:14.070 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+postgres-1  | 2025-05-05 23:18:14.070 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+postgres-1  | 2025-05-05 23:18:14.072 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+postgres-1  | 2025-05-05 23:18:14.076 UTC [57] LOG:  database system was shut down at 2025-05-05 23:18:14 UTC
+postgres-1  | 2025-05-05 23:18:14.083 UTC [1] LOG:  database system is ready to accept connections
+postgres-1  | 2025-05-05 23:23:14.094 UTC [55] LOG:  checkpoint starting: time
+postgres-1  | 2025-05-05 23:23:26.846 UTC [55] LOG:  checkpoint complete: wrote 130 buffers (0.8%); 0 WAL file(s) added, 0 removed, 0 recycled; write=12.735 s, sync=0.012 s, total=12.752 s; sync files=79, longest=0.002 s, average=0.001 s; distance=529 kB, estimate=529 kB
+app-1       | 11:33:04 PM [express] POST /api/login 500 in 107ms :: {"message":"connect ECONNREFUSED 172.19.0.2:443…
+app-1       | Error: connect ECONNREFUSED 172.19.0.2:443
+app-1       |     at file:///app/node_modules/@neondatabase/serverless/index.mjs:1345:74
+app-1       |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+app-1       |     at async NeonPreparedQuery.execute (file:///app/node_modules/drizzle-orm/neon-serverless/session.js:76:20)
+app-1       |     at async DatabaseStorage.getUserByEmail (file:///app/dist/index.js:143:20)
+app-1       |     at async Strategy._verify (file:///app/dist/index.js:278:22)
+app-1       | 11:45:27 PM [express] POST /api/login 500 in 8ms :: {"message":"connect ECONNREFUSED 172.19.0.2:443"}
+app-1       | Error: connect ECONNREFUSED 172.19.0.2:443
+app-1       |     at file:///app/node_modules/@neondatabase/serverless/index.mjs:1345:74
+app-1       |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+app-1       |     at async NeonPreparedQuery.execute (file:///app/node_modules/drizzle-orm/neon-serverless/session.js:76:20)
+app-1       |     at async DatabaseStorage.getUserByEmail (file:///app/dist/index.js:143:20)
+app-1       |     at async Strategy._verify (file:///app/dist/index.js:278:22)
