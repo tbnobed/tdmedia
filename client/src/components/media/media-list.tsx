@@ -64,7 +64,7 @@ export default function MediaList({ media, onOpenMedia }: MediaListProps) {
                     size="sm"
                     onClick={() => onOpenMedia(item)}
                   >
-                    <ActionIcon className="mr-1 h-4 w-4" /> {getMediaActionText(item.type)}
+                    {typeof ActionIcon === 'function' && <ActionIcon className="mr-1 h-4 w-4" />} {getMediaActionText(item.type)}
                   </Button>
                 </div>
               </div>
