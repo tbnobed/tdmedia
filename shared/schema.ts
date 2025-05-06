@@ -82,7 +82,7 @@ export const mediaAccess = pgTable("media_access", {
 });
 
 export const insertMediaAccessSchema = createInsertSchema(mediaAccess, {})
-  .omit({ id: true, createdAt: true });
+  .omit({ id: true, createdAt: true, createdById: true });
 
 // Define relations
 export const categoriesRelations = relations(categories, ({ many }) => ({
