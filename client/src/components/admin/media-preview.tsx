@@ -44,6 +44,7 @@ export default function MediaPreview({ media, isOpen, onClose }: MediaPreviewPro
                 mediaId={media.id} 
                 autoPlay={true}
                 showWatermark={false} 
+                allowFullscreen={true}
                 onError={(e) => setError(e)}
                 onLoad={() => setIsLoading(false)}
               />

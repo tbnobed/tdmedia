@@ -58,7 +58,7 @@ SENDGRID_API_KEY=your_sendgrid_api_key_here
 SENDGRID_FROM_EMAIL=alerts@obedtv.com
 
 # Application domain for welcome emails and links
-APP_DOMAIN=your-application-domain.com
+APP_DOMAIN=tdev.obdtv.com
 ```
 
 > **Important:** For SendGrid, the `SENDGRID_FROM_EMAIL` must be a domain you've verified with SendGrid. Using an unverified sender email will cause emails to fail to send.
@@ -116,5 +116,5 @@ docker compose up -d
 
 - The session table might be recreated during the update. This will invalidate any existing user sessions, requiring users to log in again.
 - Make sure your firewall allows outbound connections to SendGrid's SMTP servers if you plan to use the email functionality.
-- Set the APP_DOMAIN environment variable to your actual application domain (e.g., 'app.trilogydigital.com') to ensure welcome emails contain the correct login URLs.
+- Set the APP_DOMAIN environment variable to your actual application domain (e.g., 'tdev.obdtv.com') to ensure welcome emails contain the correct login URLs.
 - No database schema migrations are required for this update as all changes are compatible with the existing schema.
