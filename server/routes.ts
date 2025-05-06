@@ -20,11 +20,22 @@ interface StreamInfo {
 // Helper functions for media access control
 async function checkMediaAccess(userId: number, mediaId: number, isAdmin: boolean): Promise<boolean> {
   // Admins have access to all media
-  if (isAdmin) return true;
+  if (isAdmin) {
+    console.log(`Admin access granted for user ${userId}`);
+    return true;
+  }
   
   // Get media access for this user
   const mediaAccessList = await storage.getMediaAccessByUser(userId);
-  return mediaAccessList.some((access: { mediaId: number }) => access.mediaId === mediaId);
+  const hasAccess = mediaAccessList.some((access: { mediaId: number }) => access.mediaId === mediaId);
+  
+  if (hasAccess) {
+    console.log(`Media access granted for user ${userId} to media ${mediaId}`);
+  } else {
+    console.log(`Media access denied for user ${userId} to media ${mediaId}`);
+  }
+  
+  return hasAccess;
 }
 
 // Extend Express Request to include user type
@@ -433,7 +444,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         .update(`${id}-${timestamp}-${userId}`)
         .digest('hex');
         
-      const streamUrl = `/api/raw-stream/${id}?signature=${signature}&timestamp=${timestamp}`;
+      // Include userId in the URL to maintain access validation even without session
+      const streamUrl = `/api/raw-stream/${id}?signature=${signature}&timestamp=${timestamp}&userId=${userId}`;
       
       res.json({ 
         streamUrl,
@@ -447,13 +459,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Raw stream endpoint - serves the actual media file
-  app.get("/api/raw-stream/:id", isAuthenticated, async (req, res) => {
+  app.get("/api/raw-stream/:id", async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const { signature, timestamp } = req.query;
+      const { signature, timestamp, userId: userIdParam } = req.query;
       
       // Validate the signature to prevent unauthorized access
       if (!signature || !timestamp || typeof signature !== 'string' || typeof timestamp !== 'string') {
+        console.log("Missing required signature parameters");
         return res.status(401).json({ message: "Invalid signature or timestamp" });
       }
       
@@ -461,11 +474,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const requestTime = parseInt(timestamp);
       const currentTime = Date.now();
       if (currentTime - requestTime > 15 * 60 * 1000) { // 15 minutes in milliseconds
+        console.log("Stream URL has expired");
         return res.status(401).json({ message: "Stream URL has expired" });
       }
       
-      // Get the user ID from the authenticated user
-      const userId = req.user?.id || 0;
+      // Get the user ID - either from the authenticated session OR from the URL parameter
+      // This allows the stream to work even if the session isn't available
+      let userId = req.user?.id || 0;
+      
+      // If a userId was passed in the URL and no session exists, use that instead
+      if (!userId && userIdParam) {
+        userId = parseInt(typeof userIdParam === 'string' ? userIdParam : '0');
+      }
       
       // Regenerate the signature to verify
       const expectedSignature = createHmac('sha256', process.env.SESSION_SECRET || 'secure-media-secret')
@@ -474,6 +494,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Check if signatures match
       if (signature !== expectedSignature) {
+        console.log(`Invalid signature. Expected: ${expectedSignature}, Got: ${signature}, UserId: ${userId}`);
         return res.status(401).json({ message: "Invalid signature" });
       }
       
