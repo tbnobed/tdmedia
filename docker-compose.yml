@@ -10,7 +10,7 @@ services:
         condition: service_healthy
     environment:
       # Database configuration
-      - DATABASE_URL=postgresql://${POSTGRES_USER:-trilogy_user}:${POSTGRES_PASSWORD:-trilogy_password}@postgres:5432/${POSTGRES_DB:-trilogy_db}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-trilogy_user}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-trilogy_db}
       
       # Application configuration
       - NODE_ENV=${NODE_ENV:-production}
@@ -42,7 +42,7 @@ services:
     image: postgres:15-alpine
     environment:
       - POSTGRES_USER=${POSTGRES_USER:-trilogy_user}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-trilogy_password}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
       - POSTGRES_DB=${POSTGRES_DB:-trilogy_db}
     volumes:
       - db_data:/var/lib/postgresql/data

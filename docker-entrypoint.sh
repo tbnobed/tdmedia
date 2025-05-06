@@ -27,18 +27,39 @@ fi
 
 # Wait for PostgreSQL to be available
 RETRIES=30
-until pg_isready -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE || [ $RETRIES -eq 0 ]; do
-  echo "Waiting for PostgreSQL ($RETRIES retries left)..."
+until pg_isready -h $PGHOST -p $PGPORT -d $PGDATABASE || [ $RETRIES -eq 0 ]; do
+  echo "Waiting for PostgreSQL server ($RETRIES retries left)..."
   RETRIES=$((RETRIES-1))
   sleep 1
 done
 
 if [ $RETRIES -eq 0 ]; then
-  echo "Error: PostgreSQL not available"
+  echo "Error: PostgreSQL server not available"
   exit 1
 fi
 
-echo "PostgreSQL is ready!"
+echo "PostgreSQL server is up and running!"
+
+# Now wait for authentication to be properly set up
+echo "Waiting for PostgreSQL authentication to be ready..."
+RETRIES=10
+AUTH_READY=0
+while [ $RETRIES -gt 0 ] && [ $AUTH_READY -eq 0 ]; do
+  if PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -c "SELECT 1" > /dev/null 2>&1; then
+    AUTH_READY=1
+    echo "PostgreSQL authentication is ready!"
+  else
+    echo "Waiting for PostgreSQL authentication to be ready ($RETRIES retries left)..."
+    RETRIES=$((RETRIES-1))
+    sleep 2
+  fi
+done
+
+if [ $AUTH_READY -eq 0 ]; then
+  echo "Warning: Could not authenticate with PostgreSQL, but proceeding anyway as the database might initialize credentials later"
+else
+  echo "PostgreSQL is fully ready!"
+fi
 
 # Initialize the database schema
 echo "Initializing database schema..."

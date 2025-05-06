@@ -31,7 +31,7 @@ The following environment variables can be set in the `.env` file:
 
 #### Database Configuration
 - `POSTGRES_USER`: Database username (default: trilogy_user)
-- `POSTGRES_PASSWORD`: Database password (default: trilogy_password)
+- `POSTGRES_PASSWORD`: Database password (default: postgres)
 - `POSTGRES_DB`: Database name (default: trilogy_db)
 - `POSTGRES_PORT`: Database port (default: 5432)
 - `DATABASE_URL`: Full database connection string (constructed automatically)
