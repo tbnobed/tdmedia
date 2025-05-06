@@ -74,6 +74,28 @@ export default function MediaManagement() {
       });
     },
   });
+  
+  // Generate thumbnail mutation
+  const thumbnailMutation = useMutation({
+    mutationFn: async (id: number) => {
+      return apiRequest("POST", `/api/media/${id}/thumbnail`);
+    },
+    onSuccess: async (response) => {
+      const data = await response.json();
+      queryClient.invalidateQueries({ queryKey: ["/api/media"] });
+      toast({
+        title: "Thumbnail generated",
+        description: "The thumbnail has been generated successfully.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: `Failed to generate thumbnail: ${error.message}`,
+        variant: "destructive",
+      });
+    },
+  });
 
   // Handle edit media
   const handleEditMedia = (media: Media) => {
@@ -85,6 +107,11 @@ export default function MediaManagement() {
   const handleDeleteMedia = (media: Media) => {
     setSelectedMedia(media);
     setDeleteDialogOpen(true);
+  };
+  
+  // Handle thumbnail generation
+  const handleGenerateThumbnail = (id: number) => {
+    thumbnailMutation.mutate(id);
   };
 
   // Confirm delete
@@ -184,6 +211,17 @@ export default function MediaManagement() {
                         >
                           <Pencil className="h-4 w-4" />
                         </Button>
+                        {item.type === 'video' && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleGenerateThumbnail(item.id)}
+                            className="text-blue-600 hover:text-blue-800"
+                            title="Generate thumbnail"
+                          >
+                            <Image className="h-4 w-4" />
+                          </Button>
+                        )}
                         <Button 
                           variant="outline" 
                           size="sm" 

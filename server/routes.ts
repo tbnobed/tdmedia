@@ -9,7 +9,7 @@ import path from "path";
 import { createHmac } from "crypto";
 import { db } from "@db";
 import { sql, InferSelectModel } from "drizzle-orm";
-import { upload, getFileTypeFromFilename, getFormattedFileSize } from './upload';
+import { upload, getFileTypeFromFilename, getFormattedFileSize, generateThumbnail } from './upload';
 
 // Extend Express Request to include user type
 declare global {
@@ -280,6 +280,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting media:", error);
       res.status(500).json({ message: "Failed to delete media" });
+    }
+  });
+  
+  // Generate thumbnail for video
+  app.post("/api/media/:id/thumbnail", isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const mediaItem = await storage.getMediaById(id);
+      
+      if (!mediaItem) {
+        return res.status(404).json({ message: "Media not found" });
+      }
+      
+      // Verify this is a video
+      if (mediaItem.type !== 'video') {
+        return res.status(400).json({ 
+          message: "Thumbnail generation is only available for video media" 
+        });
+      }
+      
+      // Make sure the file path is absolute
+      let filePath = mediaItem.fileUrl;
+      // Remove the leading slash if it exists and prepend the current directory
+      if (filePath.startsWith('/')) {
+        filePath = '.' + filePath;
+      } else if (!filePath.startsWith('./')) {
+        filePath = './' + filePath;
+      }
+      
+      // Check if the file exists
+      if (!fs.existsSync(filePath)) {
+        return res.status(404).json({ message: "Video file not found" });
+      }
+      
+      // Generate the thumbnail
+      const result = await generateThumbnail(id, filePath);
+      
+      if (!result.success) {
+        return res.status(500).json({ 
+          message: "Failed to generate thumbnail", 
+          error: result.error 
+        });
+      }
+      
+      // Update the media item with the new thumbnail
+      const updatedMedia = await storage.updateMedia(id, {
+        ...mediaItem,
+        thumbnailUrl: result.thumbnailPath
+      });
+      
+      res.status(200).json({
+        message: "Thumbnail generated successfully",
+        media: updatedMedia
+      });
+    } catch (error) {
+      console.error("Error generating thumbnail:", error);
+      res.status(500).json({ 
+        message: "Failed to generate thumbnail", 
+        error: error instanceof Error ? error.message : String(error)
+      });
     }
   });
 

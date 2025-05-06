@@ -15,9 +15,10 @@ const docsDir = path.join(uploadsDir, 'documents');
 const imagesDir = path.join(uploadsDir, 'images');
 const videosDir = path.join(uploadsDir, 'videos');
 const presentationsDir = path.join(uploadsDir, 'presentations');
+const thumbnailsDir = path.join(uploadsDir, 'thumbnails');
 
 // Ensure all subdirectories exist
-[docsDir, imagesDir, videosDir, presentationsDir].forEach(dir => {
+[docsDir, imagesDir, videosDir, presentationsDir, thumbnailsDir].forEach(dir => {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
   }
@@ -148,4 +149,43 @@ export function getVideoDuration(filePath: string): Promise<string> {
   // to get the actual duration of video files
   // For now, we'll just return a placeholder
   return Promise.resolve('00:00:00');
+}
+
+// Helper function to generate a thumbnail for a video
+export async function generateThumbnail(videoId: number, videoFilePath: string): Promise<{ success: boolean, thumbnailPath?: string, error?: string }> {
+  try {
+    // Create a unique filename for the thumbnail
+    const thumbnailFilename = `thumbnail-${videoId}-${Date.now()}.jpg`;
+    const thumbnailPath = path.join(thumbnailsDir, thumbnailFilename);
+    
+    // In a real implementation, we would use ffmpeg to extract a frame from the video
+    // For now, we'll create a simple placeholder image that indicates this is a video thumbnail
+    const placeholderSvg = `
+      <svg width="640" height="360" xmlns="http://www.w3.org/2000/svg">
+        <rect width="100%" height="100%" fill="#1e293b"/>
+        <text x="50%" y="50%" font-family="Arial" font-size="24" fill="white" text-anchor="middle">
+          Video #${videoId} Thumbnail
+        </text>
+        <circle cx="320" cy="180" r="60" fill="none" stroke="white" stroke-width="4"/>
+        <polygon points="310,150 310,210 360,180" fill="white"/>
+      </svg>
+    `;
+    
+    // Write the SVG to a file
+    fs.writeFileSync(thumbnailPath, placeholderSvg);
+    
+    // Calculate relative path for the database
+    const relativeThumbnailPath = `/uploads/thumbnails/${thumbnailFilename}`;
+    
+    return {
+      success: true,
+      thumbnailPath: relativeThumbnailPath
+    };
+  } catch (error) {
+    console.error('Error generating thumbnail:', error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error generating thumbnail'
+    };
+  }
 }
