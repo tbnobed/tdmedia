@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -6,14 +6,24 @@ import MediaManagement from "@/components/admin/media-management";
 import CategoryManagement from "@/components/admin/category-management";
 import ContactManagement from "@/components/admin/contact-management";
 import UserMediaAccess from "@/components/admin/user-media-access";
+import ClientManagement from "@/components/admin/client-management";
 import { useAuth } from "@/hooks/use-auth";
 import { useLocation } from "wouter";
-import { Shield, FileText, FolderTree, Mail, Users } from "lucide-react";
+import { Shield, FileText, FolderTree, Mail, Users, UserPlus } from "lucide-react";
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState("media");
   const { user } = useAuth();
   const [, setLocation] = useLocation();
+
+  // Check for hash in URL to set active tab
+  useEffect(() => {
+    // Remove the # character and get the tab name
+    const hash = window.location.hash.substring(1);
+    if (hash && ["media", "categories", "clients", "access", "contacts"].includes(hash)) {
+      setActiveTab(hash);
+    }
+  }, []);
 
   // Double-check admin access
   if (user && !user.isAdmin) {
@@ -43,7 +53,7 @@ export default function AdminPage() {
             onValueChange={setActiveTab}
             className="space-y-6"
           >
-            <TabsList className="grid grid-cols-4 w-full max-w-3xl mx-auto">
+            <TabsList className="grid grid-cols-5 w-full max-w-4xl mx-auto">
               <TabsTrigger value="media" className="flex items-center space-x-2">
                 <FileText className="h-4 w-4" />
                 <span>Media</span>
@@ -51,6 +61,10 @@ export default function AdminPage() {
               <TabsTrigger value="categories" className="flex items-center space-x-2">
                 <FolderTree className="h-4 w-4" />
                 <span>Categories</span>
+              </TabsTrigger>
+              <TabsTrigger value="clients" className="flex items-center space-x-2">
+                <UserPlus className="h-4 w-4" />
+                <span>Clients</span>
               </TabsTrigger>
               <TabsTrigger value="access" className="flex items-center space-x-2">
                 <Users className="h-4 w-4" />
@@ -74,6 +88,14 @@ export default function AdminPage() {
               <div className="bg-white rounded-lg shadow">
                 <div className="p-6">
                   <CategoryManagement />
+                </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="clients">
+              <div className="bg-white rounded-lg shadow">
+                <div className="p-6">
+                  <ClientManagement />
                 </div>
               </div>
             </TabsContent>
