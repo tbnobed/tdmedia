@@ -68,6 +68,22 @@ else
   echo "Initializing database schema..."
   chmod +x docker-init-db.cjs
   
+  # Create the session table first to avoid it being dropped by Drizzle
+  echo "Creating session table before schema initialization..."
+  PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE <<EOF
+CREATE TABLE IF NOT EXISTS "session" (
+  "sid" varchar NOT NULL COLLATE "default",
+  "sess" json NOT NULL,
+  "expire" timestamp(6) NOT NULL,
+  CONSTRAINT "session_pkey" PRIMARY KEY ("sid")
+);
+CREATE INDEX IF NOT EXISTS "IDX_session_expire" ON "session" ("expire");
+EOF
+
+  # Set environment variables to protect session table
+  export DRIZZLE_SKIP_TABLE_SESSION=true
+  export PG_SESSION_KEEP_EXISTING=true
+  
   # Run the initialization script
   if node docker-init-db.cjs; then
     echo "Database schema initialized successfully!"
