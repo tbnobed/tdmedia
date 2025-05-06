@@ -35,10 +35,10 @@ export default function HomePage() {
   const [contactMedia, setContactMedia] = useState<Media | null>(null);
   const [contactOpen, setContactOpen] = useState(false);
   
-  // Fetch media with filters
+  // Fetch media with filters - uses client-specific endpoint for regular users
   const { data: mediaData, isLoading, refetch } = useQuery<Media[]>({
     queryKey: [
-      "/api/media", 
+      "/api/client/media", 
       filters.search, 
       filters.categoryId, 
       filters.sort,
