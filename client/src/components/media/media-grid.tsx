@@ -2,6 +2,7 @@ import { Media } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { getMediaTypeColor, getMediaMetadata, getMediaActionText } from "@/lib/media-utils";
+import VideoPlayer from "@/components/media/video-player";
 import { 
   FileQuestion, 
   FileText, 
@@ -51,15 +52,44 @@ export default function MediaGrid({ media, onOpenMedia }: MediaGridProps) {
           return (
             <Card key={item.id} className="overflow-hidden flex flex-col">
               <div className="relative aspect-video bg-gray-100 overflow-hidden">
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <TypeIcon className="h-10 w-10 text-gray-400" />
-                </div>
-                {item.thumbnailUrl && (
-                  <img 
-                    src={item.thumbnailUrl} 
-                    alt={item.title} 
-                    className="w-full h-full object-cover" 
-                  />
+                {item.type === 'video' ? (
+                  <>
+                    {item.thumbnailUrl ? (
+                      <>
+                        <img 
+                          src={item.thumbnailUrl} 
+                          alt={item.title} 
+                          className="w-full h-full object-cover" 
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="bg-black bg-opacity-30 rounded-full p-3">
+                            <Play className="h-8 w-8 text-white" />
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      <VideoPlayer 
+                        mediaId={item.id} 
+                        controls={false} 
+                        muted={true} 
+                        small={true} 
+                        autoPlay={false}
+                      />
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <TypeIcon className="h-10 w-10 text-gray-400" />
+                    </div>
+                    {item.thumbnailUrl && (
+                      <img 
+                        src={item.thumbnailUrl} 
+                        alt={item.title} 
+                        className="w-full h-full object-cover" 
+                      />
+                    )}
+                  </>
                 )}
               </div>
               

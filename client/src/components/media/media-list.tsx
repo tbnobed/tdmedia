@@ -1,6 +1,7 @@
 import { Media } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { getMediaTypeColor, getMediaMetadata, getMediaActionText, getMediaActionIcon } from "@/lib/media-utils";
+import VideoPlayer from "@/components/media/video-player";
 import * as LucideIcons from "lucide-react";
 
 interface MediaListProps {
@@ -34,16 +35,41 @@ export default function MediaList({ media, onOpenMedia }: MediaListProps) {
             <li key={item.id}>
               <div className="px-4 py-4 sm:px-6 flex items-center">
                 <div className="w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 bg-gray-100 rounded overflow-hidden mr-4">
-                  {item.thumbnailUrl ? (
-                    <img 
-                      src={item.thumbnailUrl} 
-                      alt={item.title} 
-                      className="w-full h-full object-cover" 
-                    />
+                  {item.type === 'video' ? (
+                    item.thumbnailUrl ? (
+                      <div className="relative">
+                        <img 
+                          src={item.thumbnailUrl} 
+                          alt={item.title} 
+                          className="w-full h-full object-cover" 
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <div className="bg-black bg-opacity-30 rounded-full p-2">
+                            <LucideIcons.Play className="h-4 w-4 text-white" />
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <VideoPlayer 
+                        mediaId={item.id} 
+                        controls={false} 
+                        muted={true} 
+                        small={true} 
+                        autoPlay={false} 
+                      />
+                    )
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <LucideIcons.File className="h-8 w-8 text-gray-400" />
-                    </div>
+                    item.thumbnailUrl ? (
+                      <img 
+                        src={item.thumbnailUrl} 
+                        alt={item.title} 
+                        className="w-full h-full object-cover" 
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <LucideIcons.File className="h-8 w-8 text-gray-400" />
+                      </div>
+                    )
                   )}
                 </div>
                 
