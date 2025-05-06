@@ -3,6 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { Media, Category } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import VideoPlayer from "@/components/media/video-player";
 import {
   Table,
   TableBody,
@@ -155,7 +156,16 @@ export default function MediaManagement() {
               {filteredMedia && filteredMedia.length > 0 ? (
                 filteredMedia.map((item) => (
                   <TableRow key={item.id}>
-                    <TableCell className="font-medium">{item.title}</TableCell>
+                    <TableCell>
+                      <div className="space-y-2">
+                        <div className="font-medium">{item.title}</div>
+                        {item.type === 'video' && (
+                          <div className="w-full max-w-[160px] h-24 bg-gray-100 rounded-md overflow-hidden">
+                            <VideoPlayer mediaId={item.id} controls={false} muted={true} small={true} />
+                          </div>
+                        )}
+                      </div>
+                    </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         {getMediaTypeIcon(item.type)}

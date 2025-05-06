@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Media } from "@shared/schema";
 import { getMediaTypeColor } from "@/lib/media-utils";
 import { Button } from "@/components/ui/button";
@@ -8,11 +8,10 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogFooter,
 } from "@/components/ui/dialog";
 import { Mail, X } from "lucide-react";
-import { apiRequest } from "@/lib/queryClient";
 import { useQuery } from "@tanstack/react-query";
+import VideoPlayer from "./video-player";
 
 interface MediaViewerProps {
   media: Media | null;
@@ -28,29 +27,10 @@ interface StreamInfo {
 }
 
 export default function MediaViewer({ media, isOpen, onClose, onContactRequest }: MediaViewerProps) {
-  const videoRef = useRef<HTMLVideoElement>(null);
   const [activeViewer, setActiveViewer] = useState<"video" | "image" | "document">("video");
-  
-  // Fetch stream URL when media changes
-  const { data: streamInfo, isLoading, error } = useQuery<StreamInfo>({
-    queryKey: [`/api/stream/${media?.id}`],
-    enabled: isOpen && !!media,
-    queryFn: async () => {
-      const baseUrl = window.TRILOGY_CONFIG?.apiBaseUrl || '';
-      const url = `/api/stream/${media?.id}`;
-      const fullUrl = `${baseUrl}${url}`;
-      
-      const res = await fetch(fullUrl, {
-        credentials: "include",
-      });
-      
-      if (!res.ok) {
-        throw new Error(`Failed to fetch stream info: ${res.status} ${res.statusText}`);
-      }
-      
-      return res.json();
-    },
-  });
+  const [streamInfo, setStreamInfo] = useState<StreamInfo | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
   
   // Set the appropriate viewer based on media type
   useEffect(() => {
@@ -72,12 +52,26 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
     }
   }, [media]);
   
-  // Pause video when dialog closes
-  useEffect(() => {
-    if (!isOpen && videoRef.current) {
-      videoRef.current.pause();
-    }
-  }, [isOpen]);
+  // Fetch stream info for image viewer
+  const { data: imageStreamInfo, isLoading: isImageLoading, error: imageError } = useQuery<StreamInfo>({
+    queryKey: [`/api/stream/${media?.id}`],
+    enabled: isOpen && !!media && activeViewer === "image",
+    queryFn: async () => {
+      const baseUrl = window.TRILOGY_CONFIG?.apiBaseUrl || '';
+      const url = `/api/stream/${media?.id}`;
+      const fullUrl = `${baseUrl}${url}`;
+      
+      const res = await fetch(fullUrl, {
+        credentials: "include",
+      });
+      
+      if (!res.ok) {
+        throw new Error(`Failed to fetch stream info: ${res.status} ${res.statusText}`);
+      }
+      
+      return res.json();
+    },
+  });
   
   if (!media) return null;
   
@@ -131,42 +125,23 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
           </div>
           
           {/* Video Player */}
-          {activeViewer === "video" && (
-            <>
-              {streamInfo ? (
-                <video
-                  ref={videoRef}
-                  className={`w-full h-full ${isLoading ? 'hidden' : ''}`}
-                  controls
-                  controlsList="nodownload"
-                  onContextMenu={preventRightClick}
-                  autoPlay
-                  preload="auto"
-                  playsInline
-                >
-                  <source 
-                    src={`${window.TRILOGY_CONFIG?.apiBaseUrl || ''}${streamInfo.streamUrl}`} 
-                    type="video/mp4" 
-                  />
-                  Your browser does not support the video tag.
-                </video>
-              ) : error ? (
-                <div className="flex items-center justify-center h-full w-full bg-black/40 text-white">
-                  <div className="text-center p-4">
-                    <p className="text-xl font-semibold mb-2">Error loading video</p>
-                    <p className="text-sm">{error.toString()}</p>
-                  </div>
-                </div>
-              ) : null}
-            </>
+          {activeViewer === "video" && media && (
+            <div className="z-10 relative w-full h-full">
+              <VideoPlayer 
+                mediaId={media.id} 
+                autoPlay={true}
+                onError={(e) => setError(e)}
+                onLoad={() => setIsLoading(false)}
+              />
+            </div>
           )}
           
           {/* Image Viewer */}
           {activeViewer === "image" && (
-            <div className={`w-full h-full relative ${isLoading ? 'hidden' : ''}`}>
-              {streamInfo && (
+            <div className={`w-full h-full relative ${isImageLoading ? 'hidden' : ''}`}>
+              {imageStreamInfo && (
                 <img
-                  src={`${window.TRILOGY_CONFIG?.apiBaseUrl || ''}${streamInfo.streamUrl}`}
+                  src={`${window.TRILOGY_CONFIG?.apiBaseUrl || ''}${imageStreamInfo.streamUrl}`}
                   className="w-full h-full object-contain"
                   alt={media.title}
                   onContextMenu={preventRightClick}
