@@ -35,7 +35,7 @@ export async function sendWelcomeEmail(
   email: string, 
   username: string, 
   password: string, 
-  senderEmail = 'noreply@trilogydigital.com'
+  senderEmail = process.env.SENDGRID_FROM_EMAIL || 'noreply@trilogydigital.com'
 ): Promise<boolean> {
   const subject = 'Welcome to Trilogy Digital Media';
   

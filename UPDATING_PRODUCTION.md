@@ -54,7 +54,10 @@ Add the new environment variables to your `.env` file:
 ```bash
 # Email configuration
 SENDGRID_API_KEY=your_sendgrid_api_key_here
+SENDGRID_FROM_EMAIL=your_verified_sender_email@example.com
 ```
+
+> **Important:** For SendGrid, the `SENDGRID_FROM_EMAIL` must be a domain you've verified with SendGrid. Using an unverified sender email will cause emails to fail to send.
 
 ### 4. Rebuild and Restart Containers
 

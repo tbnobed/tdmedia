@@ -39,6 +39,7 @@ services:
       
       # Email configuration
       - SENDGRID_API_KEY=${SENDGRID_API_KEY:-}
+      - SENDGRID_FROM_EMAIL=${SENDGRID_FROM_EMAIL:-noreply@trilogydigital.com}
       
       # Large file upload configuration
       - NODE_MAX_HTTP_HEADER_SIZE=81920

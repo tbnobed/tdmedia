@@ -8,10 +8,11 @@ Use this checklist to verify that your production deployment of Trilogy Digital 
 - [ ] Database schema updates have been tested
 - [ ] Docker Compose configuration has been updated with new environment variables
 - [ ] SendGrid API key has been obtained for email functionality
+- [ ] SendGrid sender email has been verified in the SendGrid dashboard
 
 ## Environment Configuration
 
-- [ ] `.env` file contains all required variables including `SENDGRID_API_KEY`
+- [ ] `.env` file contains all required variables including `SENDGRID_API_KEY` and `SENDGRID_FROM_EMAIL`
 - [ ] Database credentials are secure in production
 - [ ] `SESSION_SECRET` is set to a strong random value
 - [ ] Admin credentials have been changed from defaults
@@ -76,8 +77,10 @@ Use this checklist to verify that your production deployment of Trilogy Digital 
 
 ### Email Sending Problems
 - Verify SENDGRID_API_KEY is correctly set
+- Verify SENDGRID_FROM_EMAIL is set to a SendGrid-verified sender address
 - Check SendGrid dashboard for sending limits or blocks
 - Look for error logs related to email sending
+- Ensure the verification process for your sender domain is complete in SendGrid
 
 ### Media Upload Issues
 - Check disk space on upload volumes
