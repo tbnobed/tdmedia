@@ -24,13 +24,34 @@ declare global {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Create a public route for serving uploaded files
-  app.get('/uploads/*', (req, res, next) => {
+  // Enable CORS for all routes
+  app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+    next();
+  });
+
+  // Create a public route for serving uploaded files - this bypasses authentication
+  app.get('/uploads/*', (req, res) => {
     // This is a public route that doesn't require authentication
     const filePath = path.join(process.cwd(), req.path);
     console.log('Serving file from:', filePath);
     
     if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+      // Send the file with correct content type based on extension
+      const ext = path.extname(filePath).toLowerCase();
+      let contentType = 'application/octet-stream'; // default
+      
+      // Set content type based on file extension
+      if (ext === '.jpg' || ext === '.jpeg') contentType = 'image/jpeg';
+      else if (ext === '.png') contentType = 'image/png';
+      else if (ext === '.gif') contentType = 'image/gif';
+      else if (ext === '.svg') contentType = 'image/svg+xml';
+      else if (ext === '.mp4') contentType = 'video/mp4';
+      else if (ext === '.webm') contentType = 'video/webm';
+      else if (ext === '.pdf') contentType = 'application/pdf';
+      
+      res.set('Content-Type', contentType);
       res.sendFile(filePath);
     } else {
       console.error(`File not found: ${filePath}`);
@@ -359,10 +380,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log('Generated thumbnail URL:', thumbnailUrl);
       
       // Update the media item with the new thumbnail
-      const updatedMedia = await storage.updateMedia(id, {
-        ...mediaItem,
-        thumbnailUrl
-      });
+    // Make sure thumbnailUrl does not start with a slash to avoid browser issues
+    if (thumbnailUrl.startsWith('/')) {
+      thumbnailUrl = thumbnailUrl.substring(1);
+    }
+      
+    const updatedMedia = await storage.updateMedia(id, {
+      ...mediaItem,
+      thumbnailUrl
+    });
       
       console.log('Updated media with thumbnail:', updatedMedia);
       
