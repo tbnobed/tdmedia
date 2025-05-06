@@ -1,25 +1,33 @@
 # Nginx Proxy Manager Configuration for Trilogy Digital Media
 # This file contains recommended settings for configuring Nginx Proxy Manager
-# to handle large file uploads for Trilogy Digital Media application.
+# to handle large file uploads (up to 2GB) for Trilogy Digital Media application.
 #
 # Instructions:
 # 1. Go to your Nginx Proxy Manager dashboard
 # 2. Edit your proxy host for Trilogy Digital Media
 # 3. Navigate to the "Advanced" tab
 # 4. Copy and paste the following configuration into the Custom Nginx Configuration field
+#
+# IMPORTANT: When using this configuration in restricted container environments:
+# - These settings work in most Docker environments including those with 
+#   read-only filesystems or other security restrictions
+# - Nginx Proxy Manager settings take precedence over container-level settings
+# - If you experience "413 Request Entity Too Large" errors, ensure these settings
+#   are properly applied in Nginx Proxy Manager
 
-# Increase client body size limit to allow large uploads (up to 1GB)
-client_max_body_size 1000M;
+# Increase client body size limit to allow large uploads (up to 2GB)
+client_max_body_size 2048M;
 
 # Increase proxy timeouts for large file uploads
 proxy_connect_timeout 600s;
 proxy_send_timeout 600s;
 proxy_read_timeout 600s;
 
-# Increase buffer size for handling large headers
+# Increase buffer size for handling large headers and file uploads
 proxy_buffer_size 128k;
-proxy_buffers 4 256k;
-proxy_busy_buffers_size 256k;
+proxy_buffers 8 256k; # Increased from 4 to 8 buffers
+proxy_busy_buffers_size 512k; # Increased from 256k to 512k
+proxy_temp_file_write_size 512k; # Added for better temp file handling
 
 # Additional settings for large file uploads
 proxy_request_buffering off;
@@ -44,6 +52,22 @@ location ~* \.(jpg|jpeg|png|gif|webp|mp4|webm|pdf|doc|docx|ppt|pptx)$ {
 location ~* \.mp4$ {
     proxy_pass http://backend;
     mp4;
-    mp4_buffer_size 10m;
-    mp4_max_buffer_size 20m;
+    mp4_buffer_size 20m;  # Doubled from 10m to 20m
+    mp4_max_buffer_size 40m;  # Doubled from 20m to 40m
+    
+    # Additional settings for better streaming performance
+    proxy_buffering on;
+    proxy_buffer_size 512k;
+    proxy_buffers 16 512k;
+    proxy_busy_buffers_size 1024k;
+    
+    # Cache settings for video content
+    proxy_cache proxy_cache;
+    proxy_cache_valid 200 1d;
+    proxy_cache_use_stale error timeout updating http_500 http_502 http_503 http_504;
+    add_header X-Cache-Status $upstream_cache_status;
+    
+    # Allow seeking in video files
+    proxy_force_ranges on;
+    add_header Accept-Ranges bytes;
 }

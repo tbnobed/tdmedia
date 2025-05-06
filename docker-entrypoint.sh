@@ -97,10 +97,12 @@ chmod -R 755 /app/uploads
 
 # Set file size limit for the container
 echo "Setting file size limits for uploads..."
-ulimit -f 2000000 # Set file size limit to approximately 2GB
-ulimit -n 8192    # Increase open file limit
-ulimit -c unlimited # Allow core dumps for better debugging
-ulimit -m unlimited # Remove memory limit
+# Using try/catch pattern for each ulimit command to handle restricted containers gracefully
+ulimit -f 2000000 > /dev/null 2>&1 || echo "Unable to set file size limit (normal in restricted containers)"
+ulimit -n 8192 > /dev/null 2>&1 || echo "Unable to set open file limit (normal in restricted containers)"
+ulimit -c unlimited > /dev/null 2>&1 || echo "Unable to set core dump limit (normal in restricted containers)"
+ulimit -m unlimited > /dev/null 2>&1 || echo "Unable to set memory limit (normal in restricted containers)"
+echo "System limits configured where allowed by container security"
 
 # Make sure temporary directory exists with proper permissions
 mkdir -p /tmp/uploads
@@ -112,21 +114,19 @@ export UV_THREADPOOL_SIZE=32 # Increase libuv thread pool for better I/O perform
 
 # Configure network settings
 echo "Configuring network settings for large file handling..."
-# These settings allow better handling of large uploads
-if [ -w /proc/sys/net/core/somaxconn ]; then
-  echo 65535 > /proc/sys/net/core/somaxconn
-fi
+# We won't try to modify system files directly as they might be read-only in container environments
+# Instead we'll use sysctl command where available, and gracefully handle if it's not possible
 
-if [ -w /proc/sys/net/ipv4/tcp_max_syn_backlog ]; then
-  echo 65535 > /proc/sys/net/ipv4/tcp_max_syn_backlog
-fi
-
-if [ -w /proc/sys/net/ipv4/tcp_fin_timeout ]; then
-  echo 10 > /proc/sys/net/ipv4/tcp_fin_timeout
-fi
-
-if [ -w /proc/sys/net/ipv4/tcp_keepalive_time ]; then
-  echo 300 > /proc/sys/net/ipv4/tcp_keepalive_time
+# Check if sysctl command is available
+if command -v sysctl > /dev/null 2>&1; then
+  # Try to set the values with sysctl, but ignore errors
+  sysctl -w net.core.somaxconn=65535 > /dev/null 2>&1 || echo "Unable to set somaxconn (normal in restricted containers)"
+  sysctl -w net.ipv4.tcp_max_syn_backlog=65535 > /dev/null 2>&1 || echo "Unable to set tcp_max_syn_backlog (normal in restricted containers)"
+  sysctl -w net.ipv4.tcp_fin_timeout=10 > /dev/null 2>&1 || echo "Unable to set tcp_fin_timeout (normal in restricted containers)"
+  sysctl -w net.ipv4.tcp_keepalive_time=300 > /dev/null 2>&1 || echo "Unable to set tcp_keepalive_time (normal in restricted containers)"
+  echo "Network settings configured where allowed by container security"
+else
+  echo "sysctl command not available - skipping network configuration (normal in restricted containers)"
 fi
 
 # Start the application

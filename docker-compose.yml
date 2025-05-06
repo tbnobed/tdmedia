@@ -44,20 +44,13 @@ services:
     networks:
       - trilogy_network
     # Configure container limits for better performance
+    # Using deploy resources only when supported by the Docker environment
     deploy:
       resources:
         limits:
           memory: 4G
         reservations:
           memory: 1G
-    # Configure ulimits for file handling
-    ulimits:
-      nofile:
-        soft: 65536
-        hard: 65536
-      core:
-        soft: -1
-        hard: -1
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5000/api/healthcheck"]
       interval: 30s
