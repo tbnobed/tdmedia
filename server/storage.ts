@@ -1,9 +1,10 @@
 import { db } from "@db";
-import { users, media, categories, contacts, mediaAccess } from "@shared/schema";
+import { users, media, categories, contacts, mediaAccess, session as sessionTable } from "@shared/schema";
 import { eq, and, like, desc, asc, inArray } from "drizzle-orm";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
 import { pool } from "@db";
+import { sql } from "drizzle-orm";
 
 const PostgresSessionStore = connectPg(session);
 
@@ -50,14 +51,42 @@ export class DatabaseStorage implements IStorage {
   sessionStore: any; // Using any to resolve type issues
   
   constructor() {
+    // Immediately create the session table synchronously
+    this.createSessionTable();
+    
     // Use the default session table name to avoid conflicts
     this.sessionStore = new PostgresSessionStore({ 
       pool,
-      // Don't create the table automatically, as it might already exist
-      createTableIfMissing: false,
+      // Enable automatic table creation as a backup
+      createTableIfMissing: true,
       // Use default pruning interval
       pruneSessionInterval: 60 * 15 // Prune expired sessions every 15 min
     });
+  }
+  
+  /**
+   * Create the session table synchronously using a direct SQL query
+   * to ensure it exists before we try to use it with the session store.
+   */
+  private createSessionTable() {
+    try {
+      // Use pool directly for synchronous execution
+      pool.query(`
+        CREATE TABLE IF NOT EXISTS "session" (
+          "sid" varchar NOT NULL,
+          "sess" json NOT NULL,
+          "expire" timestamp(6) NOT NULL,
+          CONSTRAINT "session_pkey" PRIMARY KEY ("sid")
+        );
+        CREATE INDEX IF NOT EXISTS "IDX_session_expire" ON "session" ("expire");
+      `).then(() => {
+        console.log("Session table created for connect-pg-simple");
+      }).catch(err => {
+        console.error("Error creating session table:", err);
+      });
+    } catch (error) {
+      console.error("Error with session table setup:", error);
+    }
   }
   
   // User methods
