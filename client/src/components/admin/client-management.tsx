@@ -308,8 +308,14 @@ export default function ClientManagement() {
                           onClick={() => {
                             // Store the selected client ID in localStorage
                             localStorage.setItem('selectedClientId', client.id.toString());
-                            // Navigate to user media access tab
-                            window.location.hash = "access";
+                            
+                            // Navigate to the access tab directly
+                            // First change the hash to trigger hash change event
+                            window.location.hash = "";
+                            // Then set it to "access" to navigate properly
+                            setTimeout(() => {
+                              window.location.hash = "access";
+                            }, 50);
                           }}
                         >
                           Manage Access

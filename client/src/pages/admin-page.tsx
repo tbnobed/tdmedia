@@ -16,13 +16,29 @@ export default function AdminPage() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
 
-  // Check for hash in URL to set active tab
+  // Check for hash in URL to set active tab - needed to run whenever hash changes
   useEffect(() => {
     // Remove the # character and get the tab name
     const hash = window.location.hash.substring(1);
     if (hash && ["media", "categories", "clients", "access", "contacts"].includes(hash)) {
       setActiveTab(hash);
     }
+    
+    // Set up listener for hash changes
+    const handleHashChange = () => {
+      const newHash = window.location.hash.substring(1);
+      if (newHash && ["media", "categories", "clients", "access", "contacts"].includes(newHash)) {
+        setActiveTab(newHash);
+      }
+    };
+    
+    // Add hash change listener
+    window.addEventListener('hashchange', handleHashChange);
+    
+    // Clean up
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+    };
   }, []);
 
   // Double-check admin access
