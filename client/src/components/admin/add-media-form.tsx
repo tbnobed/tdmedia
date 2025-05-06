@@ -173,7 +173,14 @@ export default function AddMediaForm({ onComplete }: AddMediaFormProps) {
     // Create a FormData object to send the file
     const formData = new FormData();
     formData.append('file', file);
-    formData.append('type', mediaType); // Pass the selected media type
+    
+    // Ensure mediaType is a string, not an array
+    if (typeof mediaType === 'string') {
+      formData.append('type', mediaType); // Pass the selected media type
+    } else {
+      // Default to 'video' if type is not a string
+      formData.append('type', 'video');
+    }
     
     // Simulate progress updates (in a real implementation, you'd use XMLHttpRequest or fetch with a progress event listener)
     const progressInterval = setInterval(() => {

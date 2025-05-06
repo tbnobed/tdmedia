@@ -158,7 +158,22 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Get file details
       const file = req.file;
-      const fileType = req.body.type || getFileTypeFromFilename(file.filename);
+      
+      // Handle different formats of the type parameter
+      let fileType;
+      if (Array.isArray(req.body.type)) {
+        // If it's an array, use the first value
+        fileType = req.body.type[0] || getFileTypeFromFilename(file.filename);
+      } else {
+        // Use the string value or fall back to filename detection
+        fileType = req.body.type || getFileTypeFromFilename(file.filename);
+      }
+      
+      // Validate file type is one of the allowed types
+      if (!['video', 'image', 'document', 'presentation'].includes(fileType)) {
+        fileType = getFileTypeFromFilename(file.filename);
+      }
+      
       const fileSize = getFormattedFileSize(file.path);
       
       // Build the URL for the file
