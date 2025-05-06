@@ -3,6 +3,10 @@ import multer, { FileFilterCallback } from 'multer';
 import path from 'path';
 import fs from 'fs';
 import crypto from 'crypto';
+import { exec } from 'child_process';
+import { promisify } from 'util';
+
+const execAsync = promisify(exec);
 
 // Create uploads directory if it doesn't exist
 const uploadsDir = path.join(process.cwd(), 'uploads');
@@ -143,12 +147,33 @@ export function getFormattedFileSize(filePath: string): string {
   }
 }
 
-// Helper function to extract duration from video file (placeholder)
-export function getVideoDuration(filePath: string): Promise<string> {
-  // In a real implementation, you would use ffmpeg or a similar library
-  // to get the actual duration of video files
-  // For now, we'll just return a placeholder
-  return Promise.resolve('00:00:00');
+// Helper function to extract duration from video file using ffmpeg
+export async function getVideoDuration(filePath: string): Promise<string> {
+  try {
+    // Use ffmpeg to get the duration of the video
+    // The command format returns the duration in seconds
+    const ffmpegCommand = `ffmpeg -i "${filePath}" 2>&1 | grep "Duration" | cut -d ' ' -f 4 | sed s/,//`;
+    
+    const { stdout, stderr } = await execAsync(ffmpegCommand);
+    
+    if (stderr && !stdout) {
+      console.error('Error getting video duration:', stderr);
+      return '00:00:00';
+    }
+    
+    // Parse the duration from the output (format: HH:MM:SS.MS)
+    const durationStr = stdout.trim();
+    
+    // If we have a valid duration string, return it (removing milliseconds if present)
+    if (durationStr && durationStr.includes(':')) {
+      return durationStr.split('.')[0]; // Remove milliseconds
+    }
+    
+    return '00:00:00';
+  } catch (error) {
+    console.error('Error extracting video duration:', error);
+    return '00:00:00';
+  }
 }
 
 // Helper function to generate a thumbnail for a video
@@ -158,29 +183,52 @@ export async function generateThumbnail(videoId: number, videoFilePath: string):
     const thumbnailFilename = `thumbnail-${videoId}-${Date.now()}.jpg`;
     const thumbnailPath = path.join(thumbnailsDir, thumbnailFilename);
     
-    // In a real implementation, we would use ffmpeg to extract a frame from the video
-    // For now, we'll create a simple placeholder image that indicates this is a video thumbnail
-    const placeholderSvg = `
-      <svg width="640" height="360" xmlns="http://www.w3.org/2000/svg">
-        <rect width="100%" height="100%" fill="#1e293b"/>
-        <text x="50%" y="50%" font-family="Arial" font-size="24" fill="white" text-anchor="middle">
-          Video #${videoId} Thumbnail
-        </text>
-        <circle cx="320" cy="180" r="60" fill="none" stroke="white" stroke-width="4"/>
-        <polygon points="310,150 310,210 360,180" fill="white"/>
-      </svg>
-    `;
+    // Use ffmpeg to extract a frame from the video at 1 second (adjust timing as needed)
+    // This will use I-frames at time position 00:00:01 for better quality
+    const ffmpegCommand = `ffmpeg -i "${videoFilePath}" -ss 00:00:01 -vframes 1 -q:v 2 "${thumbnailPath}"`;
     
-    // Write the SVG to a file
-    fs.writeFileSync(thumbnailPath, placeholderSvg);
-    
-    // Calculate relative path for the database
-    const relativeThumbnailPath = `/uploads/thumbnails/${thumbnailFilename}`;
-    
-    return {
-      success: true,
-      thumbnailPath: relativeThumbnailPath
-    };
+    try {
+      // Execute the ffmpeg command to generate the thumbnail
+      await execAsync(ffmpegCommand);
+      
+      // Check if the file was actually created
+      if (!fs.existsSync(thumbnailPath)) {
+        throw new Error('Thumbnail file was not created by ffmpeg');
+      }
+      
+      // Calculate relative path for the database
+      const relativeThumbnailPath = `/uploads/thumbnails/${thumbnailFilename}`;
+      
+      return {
+        success: true,
+        thumbnailPath: relativeThumbnailPath
+      };
+    } catch (execError) {
+      console.error('FFmpeg error:', execError);
+      
+      // Fallback to a simple SVG placeholder if ffmpeg fails
+      const placeholderSvg = `
+        <svg width="640" height="360" xmlns="http://www.w3.org/2000/svg">
+          <rect width="100%" height="100%" fill="#1e293b"/>
+          <text x="50%" y="50%" font-family="Arial" font-size="24" fill="white" text-anchor="middle">
+            Video #${videoId} Thumbnail
+          </text>
+          <circle cx="320" cy="180" r="60" fill="none" stroke="white" stroke-width="4"/>
+          <polygon points="310,150 310,210 360,180" fill="white"/>
+        </svg>
+      `;
+      
+      // Write the SVG to a file
+      fs.writeFileSync(thumbnailPath, placeholderSvg);
+      
+      // Calculate relative path for the database
+      const relativeThumbnailPath = `/uploads/thumbnails/${thumbnailFilename}`;
+      
+      return {
+        success: true,
+        thumbnailPath: relativeThumbnailPath
+      };
+    }
   } catch (error) {
     console.error('Error generating thumbnail:', error);
     return {
