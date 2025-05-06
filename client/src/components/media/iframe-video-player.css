@@ -1,0 +1,81 @@
+/* Styles for the iframe-based video player */
+.iframe-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: #000;
+}
+
+.iframe-video {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.watermark-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.watermark-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-30deg);
+  font-size: 3rem;
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.2);
+  white-space: nowrap;
+}
+
+.watermark-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  width: 100%;
+  height: 100%;
+}
+
+.watermark-grid-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.watermark-grid-item span {
+  transform: rotate(-30deg);
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.2);
+  font-weight: 500;
+}
+
+/* Loading spinner */
+.loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  background-color: #1a1a1a;
+}
+
+.loading-spinner {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-top-color: #3b82f6;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -12,6 +12,7 @@ import {
 import { Mail, X } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import VideoPlayer from "./video-player";
+import IframeVideoPlayer from "./iframe-video-player";
 
 interface MediaViewerProps {
   media: Media | null;
@@ -124,14 +125,12 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
             )}
           </div>
           
-          {/* Video Player */}
+          {/* Video Player - Using iframe player for better fullscreen control */}
           {activeViewer === "video" && media && (
             <div className="z-10 relative w-full h-full">
-              <VideoPlayer 
-                mediaId={media.id} 
-                autoPlay={true}
+              <IframeVideoPlayer 
+                mediaId={media.id}
                 showWatermark={true}
-                allowFullscreen={false}
                 onError={(e) => setError(e)}
                 onLoad={() => setIsLoading(false)}
               />
