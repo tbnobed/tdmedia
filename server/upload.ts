@@ -183,21 +183,33 @@ export async function generateThumbnail(videoId: number, videoFilePath: string):
     const thumbnailFilename = `thumbnail-${videoId}-${Date.now()}.jpg`;
     const thumbnailPath = path.join(thumbnailsDir, thumbnailFilename);
     
-    // Use ffmpeg to extract a frame from the video at 1 second (adjust timing as needed)
-    // This will use I-frames at time position 00:00:01 for better quality
-    const ffmpegCommand = `ffmpeg -i "${videoFilePath}" -ss 00:00:01 -vframes 1 -q:v 2 "${thumbnailPath}"`;
+    // Try a better timestamp for thumbnail - about 5% into the video to avoid black frames
+    const ffmpegCommand = `ffmpeg -i "${videoFilePath}" -ss 00:00:03 -vframes 1 -q:v 1 -f image2 "${thumbnailPath}"`;
+    console.log('Running ffmpeg command:', ffmpegCommand);
     
     try {
       // Execute the ffmpeg command to generate the thumbnail
-      await execAsync(ffmpegCommand);
+      const { stdout, stderr } = await execAsync(ffmpegCommand);
+      if (stderr) {
+        console.log('FFmpeg stderr:', stderr);
+      }
       
       // Check if the file was actually created
       if (!fs.existsSync(thumbnailPath)) {
         throw new Error('Thumbnail file was not created by ffmpeg');
       }
       
-      // Calculate relative path for the database
+      // Get file stats to verify the thumbnail
+      const stats = fs.statSync(thumbnailPath);
+      console.log(`Thumbnail created: ${thumbnailPath}, size: ${stats.size} bytes`);
+      
+      if (stats.size === 0) {
+        throw new Error('Thumbnail file is empty');
+      }
+      
+      // Calculate relative path for the database - this should be accessible via static middleware
       const relativeThumbnailPath = `/uploads/thumbnails/${thumbnailFilename}`;
+      console.log('Thumbnail URL path:', relativeThumbnailPath);
       
       return {
         success: true,
@@ -206,7 +218,25 @@ export async function generateThumbnail(videoId: number, videoFilePath: string):
     } catch (execError) {
       console.error('FFmpeg error:', execError);
       
-      // Fallback to a simple SVG placeholder if ffmpeg fails
+      // Try a different timestamp as a fallback (10% into the video)
+      try {
+        const fallbackCommand = `ffmpeg -i "${videoFilePath}" -ss 00:00:05 -vframes 1 -q:v 2 "${thumbnailPath}"`;
+        console.log('Trying fallback ffmpeg command:', fallbackCommand);
+        await execAsync(fallbackCommand);
+        
+        if (fs.existsSync(thumbnailPath) && fs.statSync(thumbnailPath).size > 0) {
+          const relativeThumbnailPath = `/uploads/thumbnails/${thumbnailFilename}`;
+          console.log('Fallback thumbnail created at:', relativeThumbnailPath);
+          return {
+            success: true,
+            thumbnailPath: relativeThumbnailPath
+          };
+        }
+      } catch (fallbackError) {
+        console.error('Fallback thumbnail generation failed:', fallbackError);
+      }
+      
+      // If all ffmpeg attempts fail, create a SVG placeholder
       const placeholderSvg = `
         <svg width="640" height="360" xmlns="http://www.w3.org/2000/svg">
           <rect width="100%" height="100%" fill="#1e293b"/>
@@ -220,6 +250,7 @@ export async function generateThumbnail(videoId: number, videoFilePath: string):
       
       // Write the SVG to a file
       fs.writeFileSync(thumbnailPath, placeholderSvg);
+      console.log('Created SVG placeholder thumbnail');
       
       // Calculate relative path for the database
       const relativeThumbnailPath = `/uploads/thumbnails/${thumbnailFilename}`;
