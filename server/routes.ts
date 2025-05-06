@@ -1,4 +1,4 @@
-import type { Express, Request, Response } from "express";
+import express, { type Express, type Request, type Response } from "express";
 import { createServer, type Server } from "http";
 import { setupAuth } from "./auth";
 import { storage } from "./storage";
@@ -24,6 +24,9 @@ declare global {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Serve static files from the uploads directory
+  app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+  
   // Setup authentication routes
   setupAuth(app);
   
