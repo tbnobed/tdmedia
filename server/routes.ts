@@ -659,6 +659,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Delete a client user
+  app.delete("/api/users/clients/:id", isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      
+      // Check if user exists
+      const user = await storage.getUser(id);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Don't allow deletion of admin users through this endpoint
+      if (user.isAdmin) {
+        return res.status(403).json({ message: "Cannot delete admin users" });
+      }
+      
+      // Delete the user (this will also remove all media access entries)
+      await storage.deleteUser(id);
+      
+      res.sendStatus(204); // Successful deletion (no content)
+    } catch (error) {
+      console.error("Error deleting client:", error);
+      res.status(500).json({ message: "Failed to delete client" });
+    }
+  });
+  
   // Get all media assigned to a specific user
   app.get("/api/users/:userId/media", isAdmin, async (req, res) => {
     try {
