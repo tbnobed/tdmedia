@@ -106,13 +106,14 @@ export default function UserMediaAccess() {
       });
       return await response.json();
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       toast({
         title: "Media assigned",
         description: "The media has been assigned to the user successfully.",
       });
-      // Invalidate queries to refresh data
-      queryClient.invalidateQueries({ queryKey: [`/api/users/${selectedUser}/media`] });
+      // Invalidate both media access and the specific user's media cache
+      queryClient.invalidateQueries({ queryKey: ["/api/media-access"] });
+      queryClient.invalidateQueries({ queryKey: [`/api/users/${variables.userId}/media`] });
       setShowAssignDialog(false);
     },
     onError: (error: Error) => {
@@ -129,13 +130,14 @@ export default function UserMediaAccess() {
     mutationFn: async ({ mediaId, userId }: { mediaId: number; userId: number }) => {
       await apiRequest("DELETE", `/api/media-access/${mediaId}/${userId}`);
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       toast({
         title: "Access removed",
         description: "Media access has been removed successfully.",
       });
-      // Invalidate queries to refresh data
-      queryClient.invalidateQueries({ queryKey: [`/api/users/${selectedUser}/media`] });
+      // Invalidate both media access and the specific user's media cache
+      queryClient.invalidateQueries({ queryKey: ["/api/media-access"] });
+      queryClient.invalidateQueries({ queryKey: [`/api/users/${variables.userId}/media`] });
     },
     onError: (error: Error) => {
       toast({

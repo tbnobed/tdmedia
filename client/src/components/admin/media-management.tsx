@@ -128,7 +128,11 @@ export default function MediaManagement() {
       });
       return await response.json();
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
+      // Invalidate both media access and the specific user's media cache
+      queryClient.invalidateQueries({ queryKey: ["/api/media-access"] });
+      queryClient.invalidateQueries({ queryKey: [`/api/users/${variables.userId}/media`] });
+      
       toast({
         title: "Media assigned",
         description: "The media has been assigned to the user successfully.",
