@@ -1,0 +1,67 @@
+db.
+postgres-1  | syncing data to disk ... ok
+postgres-1  |
+postgres-1  |
+app-1       | Initializing database schema...
+app-1       | Initializing database schema...
+postgres-1  | Success. You can now start the database server using:
+postgres-1  |
+postgres-1  |     pg_ctl -D /var/lib/postgresql/data -l logfile start
+postgres-1  |
+postgres-1  | waiting for server to start....2025-05-06 07:42:13.322 UTC [41] LOG:  starting PostgreSQL 15.12 on x86_64-pc-linux-musl, compiled by gcc (Alpine 14.2.0) 14.2.0, 64-bit
+postgres-1  | 2025-05-06 07:42:13.324 UTC [41] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+postgres-1  | 2025-05-06 07:42:13.330 UTC [44] LOG:  database system was shut down at 2025-05-06 07:42:12 UTC
+postgres-1  | 2025-05-06 07:42:13.337 UTC [41] LOG:  database system is ready to accept connections
+postgres-1  |  done
+postgres-1  | server started
+postgres-1  | CREATE DATABASE
+app-1       | Seeding default categories...
+app-1       | Categories seeded successfully
+app-1       | Seeding sample media...
+app-1       | Media seeded successfully
+app-1       | Database initialization completed successfully
+app-1       | Database schema initialized successfully!
+app-1       | Setting up default users...
+app-1       | Checking for admin user...
+postgres-1  |
+postgres-1  |
+postgres-1  | /usr/local/bin/docker-entrypoint.sh: ignoring /docker-entrypoint-initdb.d/*
+postgres-1  |
+app-1       | Creating admin user...
+app-1       | Admin user created successfully
+app-1       | Checking for client user...
+app-1       | Creating client user...
+postgres-1  | waiting for server to shut down...2025-05-06 07:42:13.521 UTC [41] LOG:  received fast shutdown request
+postgres-1  | .2025-05-06 07:42:13.523 UTC [41] LOG:  aborting any active transactions
+postgres-1  | 2025-05-06 07:42:13.528 UTC [41] LOG:  background worker "logical replication launcher" (PID 47) exited with exit code 1
+postgres-1  | 2025-05-06 07:42:13.528 UTC [42] LOG:  shutting down
+postgres-1  | 2025-05-06 07:42:13.529 UTC [42] LOG:  checkpoint starting: shutdown immediate
+postgres-1  | 2025-05-06 07:42:13.623 UTC [42] LOG:  checkpoint complete: wrote 920 buffers (5.6%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.038 s, sync=0.051 s, total=0.096 s; sync files=301, longest=0.002 s, average=0.001 s; distance=4233 kB, estimate=4233 kB
+postgres-1  | 2025-05-06 07:42:13.632 UTC [41] LOG:  database system is shut down
+postgres-1  |  done
+postgres-1  | server stopped
+postgres-1  |
+postgres-1  | PostgreSQL init process complete; ready for start up.
+postgres-1  |
+postgres-1  | 2025-05-06 07:42:13.758 UTC [1] LOG:  starting PostgreSQL 15.12 on x86_64-pc-linux-musl, compiled by gcc (Alpine 14.2.0) 14.2.0, 64-bit
+postgres-1  | 2025-05-06 07:42:13.758 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+postgres-1  | 2025-05-06 07:42:13.758 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+postgres-1  | 2025-05-06 07:42:13.761 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+app-1       | Client user created successfully
+app-1       | User setup completed successfully
+app-1       | Setting up upload directories...
+app-1       | Starting the application...
+app-1       |
+app-1       | > rest-express@1.0.0 start
+app-1       | > NODE_ENV=production node dist/index.js
+postgres-1  | 2025-05-06 07:42:13.767 UTC [57] LOG:  database system was shut down at 2025-05-06 07:42:13 UTC
+postgres-1  | 2025-05-06 07:42:13.774 UTC [1] LOG:  database system is ready to accept connections
+app-1       |
+app-1       | 7:42:18 AM [express] serving on port 5000
+app-1       | Using PostgreSQL client for production environment
+app-1       | 7:43:38 AM [express] GET /api/user 401 in 3ms
+app-1       | 7:43:45 AM [express] POST /api/login 200 in 199ms :: {"id":1,"username":"admin","email":"admin@obedt…
+app-1       | 7:43:46 AM [express] GET /api/media 401 in 2ms :: {"message":"Unauthorized"}
+app-1       | 7:43:46 AM [express] GET /api/categories 200 in 11ms :: [{"id":4,"name":"Corporate","description":"C…
+app-1       | 7:43:49 AM [express] GET /api/media 401 in 2ms :: {"message":"Unauthorized"}
+app-1       | 7:44:28 AM [express] POST /api/upload 401 in 2ms :: {"message":"Unauthorized"}
