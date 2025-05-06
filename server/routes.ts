@@ -375,11 +375,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Media not found" });
       }
       
-      // In a real implementation, this would stream the actual file with watermarking
-      // For now, we'll secure the URL by adding a signature
+      // Check if user has access to this media (admins have access to all media)
+      const userId = req.user?.id || 0;
+      if (!req.user?.isAdmin) {
+        // Get media access for this user
+        const mediaAccessList = await storage.getMediaAccessByUser(userId);
+        const hasAccess = mediaAccessList.some(access => access.mediaId === id);
+        
+        if (!hasAccess) {
+          console.log(`User ${userId} attempted to access unauthorized media ${id}`);
+          return res.status(403).json({ message: "You don't have access to this media" });
+        }
+      }
+      
+      // Generate a secure signed URL for streaming the file with watermarking
       const timestamp = Date.now();
-      // Type check: req.user is defined because isAuthenticated middleware ensures it
-      const userId = req.user?.id || 0; // Fallback to 0 if somehow undefined
       const signature = createHmac('sha256', process.env.SESSION_SECRET || 'secure-media-secret')
         .update(`${id}-${timestamp}-${userId}`)
         .digest('hex');
@@ -432,6 +442,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const mediaItem = await storage.getMediaById(id);
       if (!mediaItem) {
         return res.status(404).json({ message: "Media not found" });
+      }
+      
+      // Check if user has access to this media (admins have access to all media)
+      if (!req.user?.isAdmin) {
+        // Get media access for this user
+        const mediaAccessList = await storage.getMediaAccessByUser(userId);
+        const hasAccess = mediaAccessList.some(access => access.mediaId === id);
+        
+        if (!hasAccess) {
+          console.log(`User ${userId} attempted to access unauthorized media ${id}`);
+          return res.status(403).json({ message: "You don't have access to this media" });
+        }
       }
       
       // Make sure the file path is absolute
