@@ -38,8 +38,9 @@ app.use(cors({
   maxAge: 86400 // Cache preflight requests for 24 hours
 }));
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+// Configure Express with higher payload limits
+app.use(express.json({ limit: '500mb' }));
+app.use(express.urlencoded({ extended: false, limit: '500mb' }));
 
 // Serve the uploads directory statically
 app.use('/uploads', express.static('uploads'));
