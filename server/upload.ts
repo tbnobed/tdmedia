@@ -185,7 +185,8 @@ export async function generateThumbnail(videoId: number, videoFilePath: string):
     fs.writeFileSync(thumbnailPath, placeholderSvg);
     
     // Calculate relative path for the database (from the app root)
-    const relativeThumbnailPath = `/uploads/thumbnails/${thumbnailFilename}`;
+    // Use a URL format that's compatible with the img src attribute
+    const relativeThumbnailPath = `uploads/thumbnails/${thumbnailFilename}`;
     console.log('Generated thumbnail at:', relativeThumbnailPath);
     
     return {

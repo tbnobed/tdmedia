@@ -38,9 +38,13 @@ export default function MediaList({ media, onOpenMedia }: MediaListProps) {
                     item.thumbnailUrl ? (
                       <div className="relative">
                         <img 
-                          src={item.thumbnailUrl} 
+                          src={item.thumbnailUrl?.startsWith('/') ? item.thumbnailUrl.substring(1) : item.thumbnailUrl} 
                           alt={item.title} 
-                          className="w-full h-full object-cover" 
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            console.error("Error loading thumbnail:", item.thumbnailUrl);
+                            e.currentTarget.style.display = 'none';
+                          }}
                         />
                         <div className="absolute inset-0 flex items-center justify-center">
                           <div className="bg-black bg-opacity-30 rounded-full p-2">
@@ -60,9 +64,13 @@ export default function MediaList({ media, onOpenMedia }: MediaListProps) {
                   ) : (
                     item.thumbnailUrl ? (
                       <img 
-                        src={item.thumbnailUrl} 
+                        src={item.thumbnailUrl?.startsWith('/') ? item.thumbnailUrl.substring(1) : item.thumbnailUrl} 
                         alt={item.title} 
-                        className="w-full h-full object-cover" 
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          console.error("Error loading thumbnail:", item.thumbnailUrl);
+                          e.currentTarget.style.display = 'none';
+                        }}
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
