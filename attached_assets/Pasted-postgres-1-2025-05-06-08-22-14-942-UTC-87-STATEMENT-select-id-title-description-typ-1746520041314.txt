@@ -1,0 +1,64 @@
+postgres-1  | 2025-05-06 08:22:14.942 UTC [87] STATEMENT:  select "id", "title", "description", "type", "category_id", "file_url", "thumbnail_url", "duration", "size", "created_at", "updated_at" from "media" order by "media"."created_at" desc
+app-1       | Error fetching media: PostgresError: column "file_url" does not exist
+app-1       |     at ErrorResponse (file:///app/node_modules/postgres/src/connection.js:788:26)
+app-1       |     at handle (file:///app/node_modules/postgres/src/connection.js:474:6)
+app-1       |     at Socket.data (file:///app/node_modules/postgres/src/connection.js:315:9)
+app-1       |     at Socket.emit (node:events:524:28)
+app-1       |     at addChunk (node:internal/streams/readable:561:12)
+app-1       |     at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+app-1       |     at Readable.push (node:internal/streams/readable:392:5)
+app-1       |     at TCP.onStreamRead (node:internal/stream_base_commons:191:23) {
+app-1       |   severity_local: 'ERROR',
+app-1       |   severity: 'ERROR',
+app-1       |   code: '42703',
+app-1       |   position: '61',
+app-1       |   file: 'parse_relation.c',
+app-1       |   line: '3665',
+postgres-1  | 2025-05-06 08:22:28.539 UTC [87] ERROR:  column "file_url" of relation "media" does not exist at character 75
+postgres-1  | 2025-05-06 08:22:28.539 UTC [87] STATEMENT:  insert into "media" ("id", "title", "description", "type", "category_id", "file_url", "thumbnail_url", "duration", "size", "created_at", "updated_at") values (default, $1, $2, $3, $4, $5, $6, $7, $8, default, default) returning "id", "title", "description", "type", "category_id", "file_url", "thumbnail_url", "duration", "size", "created_at", "updated_at"
+postgres-1  | 2025-05-06 08:22:50.778 UTC [87] ERROR:  column "file_url" of relation "media" does not exist at character 75
+postgres-1  | 2025-05-06 08:22:50.778 UTC [87] STATEMENT:  insert into "media" ("id", "title", "description", "type", "category_id", "file_url", "thumbnail_url", "duration", "size", "created_at", "updated_at") values (default, $1, $2, $3, $4, $5, $6, $7, $8, default, default) returning "id", "title", "description", "type", "category_id", "file_url", "thumbnail_url", "duration", "size", "created_at", "updated_at"
+app-1       |   routine: 'errorMissingColumn'
+app-1       | }
+app-1       | 8:22:14 AM [express] GET /api/media 500 in 12ms :: {"message":"Failed to fetch media"}
+app-1       | Admin access granted for user 1
+app-1       | Extracted video duration: 00:02:09
+app-1       | 8:22:24 AM [express] POST /api/upload 201 in 798ms :: {"fileUrl":"/uploads/videos/file-1746519744018…
+app-1       | Admin access granted for user 1
+app-1       | Error creating media: PostgresError: column "file_url" of relation "media" does not exist
+app-1       |     at ErrorResponse (file:///app/node_modules/postgres/src/connection.js:788:26)
+app-1       |     at handle (file:///app/node_modules/postgres/src/connection.js:474:6)
+app-1       |     at Socket.data (file:///app/node_modules/postgres/src/connection.js:315:9)
+app-1       |     at Socket.emit (node:events:524:28)
+app-1       |     at addChunk (node:internal/streams/readable:561:12)
+app-1       |     at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+app-1       |     at Readable.push (node:internal/streams/readable:392:5)
+app-1       |     at TCP.onStreamRead (node:internal/stream_base_commons:191:23) {
+app-1       |   severity_local: 'ERROR',
+app-1       |   severity: 'ERROR',
+app-1       |   code: '42703',
+app-1       |   position: '75',
+app-1       |   file: 'parse_target.c',
+app-1       |   line: '1075',
+app-1       |   routine: 'checkInsertTargets'
+app-1       | }
+app-1       | 8:22:28 AM [express] POST /api/media 500 in 23ms :: {"message":"Failed to create media"}
+app-1       | Admin access granted for user 1
+app-1       | Error creating media: PostgresError: column "file_url" of relation "media" does not exist
+app-1       |     at ErrorResponse (file:///app/node_modules/postgres/src/connection.js:788:26)
+app-1       |     at handle (file:///app/node_modules/postgres/src/connection.js:474:6)
+app-1       |     at Socket.data (file:///app/node_modules/postgres/src/connection.js:315:9)
+app-1       |     at Socket.emit (node:events:524:28)
+app-1       |     at addChunk (node:internal/streams/readable:561:12)
+app-1       |     at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+app-1       |     at Readable.push (node:internal/streams/readable:392:5)
+app-1       |     at TCP.onStreamRead (node:internal/stream_base_commons:191:23) {
+app-1       |   severity_local: 'ERROR',
+app-1       |   severity: 'ERROR',
+app-1       |   code: '42703',
+app-1       |   position: '75',
+app-1       |   file: 'parse_target.c',
+app-1       |   line: '1075',
+app-1       |   routine: 'checkInsertTargets'
+app-1       | }
+app-1       | 8:22:50 AM [express] POST /api/media 500 in 36ms :: {"message":"Failed to create media"}

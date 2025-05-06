@@ -1,49 +1,49 @@
 # Nginx Proxy Manager Configuration for Trilogy Digital Media
+# This file contains recommended settings for configuring Nginx Proxy Manager
+# to handle large file uploads for Trilogy Digital Media application.
+#
+# Instructions:
+# 1. Go to your Nginx Proxy Manager dashboard
+# 2. Edit your proxy host for Trilogy Digital Media
+# 3. Navigate to the "Advanced" tab
+# 4. Copy and paste the following configuration into the Custom Nginx Configuration field
 
-# This file provides recommended settings for your Nginx Proxy Manager
-# Copy these settings to the "Advanced" tab in your proxy host configuration
+# Increase client body size limit to allow large uploads (up to 1GB)
+client_max_body_size 1000M;
 
-# Client Max Body Size - Increase to allow large file uploads (1GB)
-client_max_body_size 1000m;
+# Increase proxy timeouts for large file uploads
+proxy_connect_timeout 600s;
+proxy_send_timeout 600s;
+proxy_read_timeout 600s;
 
-# Proxy Buffer Settings - Optimize for large file transfers
-proxy_buffer_size 16k;
-proxy_buffers 8 16k;
-proxy_busy_buffers_size 32k;
+# Increase buffer size for handling large headers
+proxy_buffer_size 128k;
+proxy_buffers 4 256k;
+proxy_busy_buffers_size 256k;
 
-# Timeouts - Increase for large file uploads
-proxy_connect_timeout 300s;
-proxy_send_timeout 300s;
-proxy_read_timeout 300s;
+# Additional settings for large file uploads
+proxy_request_buffering off;
+proxy_http_version 1.1;
+proxy_set_header Connection "";
+proxy_set_header X-Forwarded-Proto $scheme;
+proxy_set_header X-Real-IP $remote_addr;
+proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+proxy_set_header Host $host;
 
-# Cache Settings for Media Files
-location ~* \.(jpg|jpeg|png|gif|ico|css|js|svg)$ {
-    proxy_pass http://app:5000;
+# Optional: Enable caching for media files to improve performance
+location ~* \.(jpg|jpeg|png|gif|webp|mp4|webm|pdf|doc|docx|ppt|pptx)$ {
+    proxy_pass http://backend;
+    proxy_cache proxy_cache;
+    proxy_cache_valid 200 7d;
+    proxy_cache_use_stale error timeout updating http_500 http_502 http_503 http_504;
+    add_header X-Cache-Status $upstream_cache_status;
     expires 7d;
-    add_header Cache-Control "public, max-age=604800, immutable";
 }
 
-# Media file streaming with special handling
-location /uploads/ {
-    proxy_pass http://app:5000;
-    add_header Cache-Control "public, max-age=86400";
-    add_header Content-Disposition "inline";
-    
-    # Video streaming optimizations
-    proxy_http_version 1.1;
-    proxy_set_header Connection "";
-    proxy_set_header Range $http_range;
-    proxy_set_header If-Range $http_if_range;
-    proxy_cache_valid 200 206 1d;
-    proxy_buffering off;
-}
-
-# Pass all other requests normally
-location / {
-    proxy_pass http://app:5000;
-    proxy_http_version 1.1;
-    proxy_set_header Upgrade $http_upgrade;
-    proxy_set_header Connection 'upgrade';
-    proxy_set_header Host $host;
-    proxy_cache_bypass $http_upgrade;
+# Optional: Increase buffer size for large streaming media
+location ~* \.mp4$ {
+    proxy_pass http://backend;
+    mp4;
+    mp4_buffer_size 10m;
+    mp4_max_buffer_size 20m;
 }

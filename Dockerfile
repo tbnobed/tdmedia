@@ -5,6 +5,14 @@ WORKDIR /app
 # Install dependencies for building and running
 RUN apk add --no-cache python3 make g++ postgresql-client
 
+# Install additional tools for media processing and large file support
+RUN apk add --no-cache ffmpeg
+
+# Configure system for large file uploads
+RUN echo "fs.file-max = 65535" >> /etc/sysctl.conf && \
+    echo "net.core.somaxconn = 65535" >> /etc/sysctl.conf && \
+    echo "vm.max_map_count = 262144" >> /etc/sysctl.conf
+
 # Install dependencies first (leverage Docker cache)
 COPY package*.json ./
 RUN npm ci
@@ -16,14 +24,13 @@ COPY . .
 RUN npm run build
 
 # Create directory structure for media files with proper subdirectories
-RUN mkdir -p /app/uploads/videos
-RUN mkdir -p /app/uploads/images
-RUN mkdir -p /app/uploads/documents
-RUN mkdir -p /app/uploads/presentations
-RUN mkdir -p /app/uploads/thumbnails
-
-# Install additional tools for handling large files
-RUN apk add --no-cache ffmpeg
+# and ensure the upload directories have proper permissions
+RUN mkdir -p /app/uploads/videos && \
+    mkdir -p /app/uploads/images && \
+    mkdir -p /app/uploads/documents && \
+    mkdir -p /app/uploads/presentations && \
+    mkdir -p /app/uploads/thumbnails && \
+    chmod -R 755 /app/uploads
 
 # Copy config.js to the dist directory to ensure it's available in production
 RUN cp -f client/public/config.js dist/public/ || true
@@ -31,6 +38,12 @@ RUN cp -f client/public/config.js dist/public/ || true
 # Create the entrypoint script
 COPY docker-entrypoint.sh /app/docker-entrypoint.sh
 RUN chmod +x /app/docker-entrypoint.sh
+
+# Set Node.js memory limits higher for large file operations
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+
+# Set larger timeout for Node.js operations
+ENV NODE_TIMEOUT=1800000
 
 # Expose the application port
 EXPOSE 5000

@@ -27,21 +27,43 @@ services:
       - CLIENT_EMAIL=${CLIENT_EMAIL:-client@example.com}
       - CLIENT_PASSWORD=${CLIENT_PASSWORD:-demopassword}
       - CLIENT_USERNAME=${CLIENT_USERNAME:-client}
+      
+      # Large file upload configuration
+      - NODE_MAX_HTTP_HEADER_SIZE=81920
+      - UV_THREADPOOL_SIZE=32
+      - NODE_OPTIONS=--max-old-space-size=4096
+      - NODE_TIMEOUT=1800000
     volumes:
       - upload_videos:/app/uploads/videos
       - upload_images:/app/uploads/images
       - upload_documents:/app/uploads/documents
       - upload_presentations:/app/uploads/presentations
       - upload_thumbnails:/app/uploads/thumbnails
+      - /tmp/uploads:/tmp/uploads
     restart: unless-stopped
     networks:
       - trilogy_network
+    # Configure container limits for better performance
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 1G
+    # Configure ulimits for file handling
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+      core:
+        soft: -1
+        hard: -1
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5000/api/healthcheck"]
       interval: 30s
-      timeout: 10s
+      timeout: 30s
       retries: 5
-      start_period: 30s
+      start_period: 60s
 
   postgres:
     image: postgres:15-alpine

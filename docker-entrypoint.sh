@@ -97,8 +97,37 @@ chmod -R 755 /app/uploads
 
 # Set file size limit for the container
 echo "Setting file size limits for uploads..."
-ulimit -f 1000000 # Set file size limit to approximately 1GB
-ulimit -n 4096    # Increase open file limit
+ulimit -f 2000000 # Set file size limit to approximately 2GB
+ulimit -n 8192    # Increase open file limit
+ulimit -c unlimited # Allow core dumps for better debugging
+ulimit -m unlimited # Remove memory limit
+
+# Make sure temporary directory exists with proper permissions
+mkdir -p /tmp/uploads
+chmod 777 /tmp/uploads
+
+# Configure Node.js for large file uploads
+export NODE_MAX_HTTP_HEADER_SIZE=81920 # Increase HTTP header size to 80KB
+export UV_THREADPOOL_SIZE=32 # Increase libuv thread pool for better I/O performance
+
+# Configure network settings
+echo "Configuring network settings for large file handling..."
+# These settings allow better handling of large uploads
+if [ -w /proc/sys/net/core/somaxconn ]; then
+  echo 65535 > /proc/sys/net/core/somaxconn
+fi
+
+if [ -w /proc/sys/net/ipv4/tcp_max_syn_backlog ]; then
+  echo 65535 > /proc/sys/net/ipv4/tcp_max_syn_backlog
+fi
+
+if [ -w /proc/sys/net/ipv4/tcp_fin_timeout ]; then
+  echo 10 > /proc/sys/net/ipv4/tcp_fin_timeout
+fi
+
+if [ -w /proc/sys/net/ipv4/tcp_keepalive_time ]; then
+  echo 300 > /proc/sys/net/ipv4/tcp_keepalive_time
+fi
 
 # Start the application
 echo "Starting the application..."
