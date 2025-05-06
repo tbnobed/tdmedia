@@ -92,7 +92,7 @@ export default function UserMediaAccess() {
     isLoading: isLoadingUserMedia,
     error: userMediaError,
   } = useQuery<MediaAccess[]>({
-    queryKey: ["/api/users", selectedUser, "media"],
+    queryKey: [`/api/users/${selectedUser}/media`],
     queryFn: getQueryFn({ on401: "throw" }),
     enabled: !!selectedUser,
   });
