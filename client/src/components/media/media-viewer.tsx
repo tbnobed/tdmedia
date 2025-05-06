@@ -40,8 +40,6 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
       const url = `/api/stream/${media?.id}`;
       const fullUrl = `${baseUrl}${url}`;
       
-      console.log(`Fetching stream info from: ${fullUrl}`);
-      
       const res = await fetch(fullUrl, {
         credentials: "include",
       });
@@ -53,16 +51,6 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
       return res.json();
     },
   });
-  
-  // Log errors for debugging
-  useEffect(() => {
-    if (error) {
-      console.error("Error fetching stream info:", error);
-    }
-    if (streamInfo) {
-      console.log("Stream info received:", streamInfo);
-    }
-  }, [error, streamInfo]);
   
   // Set the appropriate viewer based on media type
   useEffect(() => {
@@ -146,27 +134,22 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
           {activeViewer === "video" && (
             <>
               {streamInfo ? (
-                <>
-                  <video
-                    ref={videoRef}
-                    className={`w-full h-full ${isLoading ? 'hidden' : ''}`}
-                    controls
-                    controlsList="nodownload"
-                    onContextMenu={preventRightClick}
-                    autoPlay
-                    preload="auto"
-                    playsInline
-                  >
-                    <source 
-                      src={`${window.TRILOGY_CONFIG?.apiBaseUrl || ''}${streamInfo.streamUrl}`} 
-                      type="video/mp4" 
-                    />
-                    Your browser does not support the video tag.
-                  </video>
-                  <div className="absolute bottom-2 right-2 text-xs bg-black/60 text-white p-1 rounded">
-                    Video URL: {`${window.TRILOGY_CONFIG?.apiBaseUrl || ''}${streamInfo.streamUrl}`}
-                  </div>
-                </>
+                <video
+                  ref={videoRef}
+                  className={`w-full h-full ${isLoading ? 'hidden' : ''}`}
+                  controls
+                  controlsList="nodownload"
+                  onContextMenu={preventRightClick}
+                  autoPlay
+                  preload="auto"
+                  playsInline
+                >
+                  <source 
+                    src={`${window.TRILOGY_CONFIG?.apiBaseUrl || ''}${streamInfo.streamUrl}`} 
+                    type="video/mp4" 
+                  />
+                  Your browser does not support the video tag.
+                </video>
               ) : error ? (
                 <div className="flex items-center justify-center h-full w-full bg-black/40 text-white">
                   <div className="text-center p-4">
@@ -183,7 +166,7 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
             <div className={`w-full h-full relative ${isLoading ? 'hidden' : ''}`}>
               {streamInfo && (
                 <img
-                  src={streamInfo.streamUrl}
+                  src={`${window.TRILOGY_CONFIG?.apiBaseUrl || ''}${streamInfo.streamUrl}`}
                   className="w-full h-full object-contain"
                   alt={media.title}
                   onContextMenu={preventRightClick}
