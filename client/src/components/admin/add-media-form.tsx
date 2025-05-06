@@ -252,6 +252,8 @@ export default function AddMediaForm({ onComplete }: AddMediaFormProps) {
   
   // Form submission handler
   const onSubmit = (values: MediaFormValues) => {
+    // Debug log to see what's being submitted
+    console.log("Submitting media to database:", values);
     createMediaMutation.mutate(values);
   };
   

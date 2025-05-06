@@ -278,11 +278,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Create a new media entry
   app.post("/api/media", isAdmin, async (req, res) => {
     try {
+      console.log("Received media creation request:", req.body);
       const validatedData = insertMediaSchema.parse(req.body);
+      console.log("Validated data:", validatedData);
       const newMedia = await storage.createMedia(validatedData);
+      console.log("Media created successfully:", newMedia);
       res.status(201).json(newMedia);
     } catch (error) {
       if (error instanceof z.ZodError) {
+        console.log("Validation error:", error.errors);
         return res.status(400).json({ errors: error.errors });
       }
       console.error("Error creating media:", error);
