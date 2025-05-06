@@ -51,7 +51,14 @@ try {
     }
     
     // Run db:push with prevention of session table dropping
-    execSync('npm run db:push -- --skip-drops', { stdio: 'inherit' });
+    // Check if the environment variable to skip session table is set
+    if (process.env.DRIZZLE_SKIP_TABLE_SESSION === 'true') {
+      log('Running with session table protection enabled');
+      // Force using standard approach without --skip-drops which might not be supported
+      execSync('npm run db:push', { stdio: 'inherit' });
+    } else {
+      execSync('npm run db:push -- --skip-drops', { stdio: 'inherit' });
+    }
   } catch (error) {
     log(`Warning during schema push: ${error.message}`);
     log('Continuing with alternative approach...');

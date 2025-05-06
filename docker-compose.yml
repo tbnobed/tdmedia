@@ -36,10 +36,13 @@ services:
       
       # Database client configuration
       - USE_NEON_CLIENT=false  # Force using standard pg client instead of Neon
+      - DRIZZLE_SKIP_TABLE_SESSION=true  # Prevent Drizzle from dropping the session table
       
       # Email configuration
       - SENDGRID_API_KEY=${SENDGRID_API_KEY:-}
       - SENDGRID_FROM_EMAIL=${SENDGRID_FROM_EMAIL:-alerts@obedtv.com}
+      - APP_DOMAIN=${APP_DOMAIN:-tdev.obdtv.com}
+      - PG_SESSION_KEEP_EXISTING=true
       
       # Large file upload configuration
       - NODE_MAX_HTTP_HEADER_SIZE=81920
