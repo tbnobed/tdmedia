@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Media } from "@shared/schema";
+import { Media, Category } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -45,6 +45,11 @@ export default function MediaManagement() {
   // Fetch all media
   const { data: media, isLoading } = useQuery<Media[]>({
     queryKey: ["/api/media"],
+  });
+  
+  // Fetch all categories
+  const { data: categories } = useQuery<Category[]>({
+    queryKey: ["/api/categories"],
   });
 
   // Delete media mutation
@@ -157,7 +162,9 @@ export default function MediaManagement() {
                         <span className="capitalize">{item.type}</span>
                       </div>
                     </TableCell>
-                    <TableCell>{item.categoryId}</TableCell>
+                    <TableCell>
+                      {categories?.find(cat => cat.id === item.categoryId)?.name || 'Uncategorized'}
+                    </TableCell>
                     <TableCell>
                       <div className="flex space-x-2">
                         <Button 
