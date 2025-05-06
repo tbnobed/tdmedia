@@ -14,6 +14,7 @@ export interface IStorage {
   getUserByUsername(username: string): Promise<any>;
   getUserByEmail(email: string): Promise<any>;
   createUser(userData: any): Promise<any>;
+  deleteUser(id: number): Promise<void>;
   getNonAdminUsers(): Promise<any[]>;
   
   // Category methods
@@ -112,6 +113,14 @@ export class DatabaseStorage implements IStorage {
   
   async getNonAdminUsers() {
     return await db.select().from(users).where(eq(users.isAdmin, false)).orderBy(users.username);
+  }
+  
+  async deleteUser(id: number) {
+    // First delete any media access entries for this user
+    await db.delete(mediaAccess).where(eq(mediaAccess.userId, id));
+    
+    // Then delete the user
+    await db.delete(users).where(eq(users.id, id));
   }
   
   // Category methods
