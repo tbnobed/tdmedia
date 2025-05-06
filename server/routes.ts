@@ -11,6 +11,21 @@ import { db } from "@db";
 import { sql, InferSelectModel } from "drizzle-orm";
 import { upload, getFileTypeFromFilename, getFormattedFileSize, generateThumbnail, getVideoDuration } from './upload';
 
+// Type for streaming info
+interface StreamInfo {
+  streamUrl: string;
+}
+
+// Helper functions for media access control
+async function checkMediaAccess(userId: number, mediaId: number, isAdmin: boolean): Promise<boolean> {
+  // Admins have access to all media
+  if (isAdmin) return true;
+  
+  // Get media access for this user
+  const mediaAccessList = await storage.getMediaAccessByUser(userId);
+  return mediaAccessList.some((access: { mediaId: number }) => access.mediaId === mediaId);
+}
+
 // Extend Express Request to include user type
 declare global {
   namespace Express {
@@ -375,17 +390,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Media not found" });
       }
       
-      // Check if user has access to this media (admins have access to all media)
+      // Check if user has access to this media
       const userId = req.user?.id || 0;
-      if (!req.user?.isAdmin) {
-        // Get media access for this user
-        const mediaAccessList = await storage.getMediaAccessByUser(userId);
-        const hasAccess = mediaAccessList.some(access => access.mediaId === id);
-        
-        if (!hasAccess) {
-          console.log(`User ${userId} attempted to access unauthorized media ${id}`);
-          return res.status(403).json({ message: "You don't have access to this media" });
-        }
+      const hasAccess = await checkMediaAccess(userId, id, !!req.user?.isAdmin);
+      
+      if (!hasAccess) {
+        console.log(`User ${userId} attempted to access unauthorized media ${id}`);
+        return res.status(403).json({ message: "You don't have access to this media" });
       }
       
       // Generate a secure signed URL for streaming the file with watermarking
@@ -444,16 +455,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Media not found" });
       }
       
-      // Check if user has access to this media (admins have access to all media)
-      if (!req.user?.isAdmin) {
-        // Get media access for this user
-        const mediaAccessList = await storage.getMediaAccessByUser(userId);
-        const hasAccess = mediaAccessList.some(access => access.mediaId === id);
-        
-        if (!hasAccess) {
-          console.log(`User ${userId} attempted to access unauthorized media ${id}`);
-          return res.status(403).json({ message: "You don't have access to this media" });
-        }
+      // Check if user has access to this media
+      const hasAccess = await checkMediaAccess(userId, id, !!req.user?.isAdmin);
+      
+      if (!hasAccess) {
+        console.log(`User ${userId} attempted to access unauthorized media ${id}`);
+        return res.status(403).json({ message: "You don't have access to this media" });
       }
       
       // Make sure the file path is absolute
