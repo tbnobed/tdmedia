@@ -17,6 +17,7 @@ This document provides instructions for updating the production deployment of Tr
 3. **Email Integration**
    - SendGrid integration for welcome emails to new clients
    - HTML email templates for professional onboarding
+   - Configurable application domain for email URLs via APP_DOMAIN environment variable
 
 4. **Bug Fixes**
    - Fixed navigation between dashboard tabs
@@ -55,6 +56,9 @@ Add the new environment variables to your `.env` file:
 # Email configuration
 SENDGRID_API_KEY=your_sendgrid_api_key_here
 SENDGRID_FROM_EMAIL=alerts@obedtv.com
+
+# Application domain for welcome emails and links
+APP_DOMAIN=your-application-domain.com
 ```
 
 > **Important:** For SendGrid, the `SENDGRID_FROM_EMAIL` must be a domain you've verified with SendGrid. Using an unverified sender email will cause emails to fail to send.
@@ -83,7 +87,7 @@ docker compose up -d
    - Media assignment works correctly
    - Tab navigation is functioning properly
 
-3. Test the email functionality by creating a new client with the "Send Welcome Email" option enabled.
+3. Test the email functionality by creating a new client with the "Send Welcome Email" option enabled. Verify that the welcome email contains the correct application domain URL as specified in your APP_DOMAIN environment variable.
 
 ## Rollback Procedure
 
@@ -112,4 +116,5 @@ docker compose up -d
 
 - The session table might be recreated during the update. This will invalidate any existing user sessions, requiring users to log in again.
 - Make sure your firewall allows outbound connections to SendGrid's SMTP servers if you plan to use the email functionality.
+- Set the APP_DOMAIN environment variable to your actual application domain (e.g., 'app.trilogydigital.com') to ensure welcome emails contain the correct login URLs.
 - No database schema migrations are required for this update as all changes are compatible with the existing schema.

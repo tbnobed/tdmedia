@@ -1,5 +1,6 @@
 import { useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useAuth } from "@/hooks/use-auth";
 
 interface StreamInfo {
   streamUrl: string;
@@ -17,6 +18,7 @@ interface VideoPlayerProps {
   showWatermark?: boolean;
   onError?: (error: Error) => void;
   onLoad?: () => void;
+  allowFullscreen?: boolean;
 }
 
 export default function VideoPlayer({
@@ -28,9 +30,18 @@ export default function VideoPlayer({
   small = false,
   showWatermark = false,
   onError,
-  onLoad
+  onLoad,
+  allowFullscreen
 }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const { user } = useAuth();
+  
+  // Determine if fullscreen should be allowed
+  // If allowFullscreen prop is explicitly provided, use that value
+  // Otherwise, only allow fullscreen for admin users
+  const disableFullscreen = allowFullscreen !== undefined 
+    ? !allowFullscreen 
+    : !user?.isAdmin;
   
   // Fetch stream URL when media changes
   const { data: streamInfo, isLoading, error } = useQuery<StreamInfo>({
@@ -121,7 +132,7 @@ export default function VideoPlayer({
           ref={videoRef}
           className={`w-full ${small ? 'h-24 object-cover' : 'h-full'}`}
           controls={controls}
-          controlsList="nodownload"
+          controlsList={`nodownload ${disableFullscreen ? 'nofullscreen' : ''}`}
           onContextMenu={preventRightClick}
           autoPlay={autoPlay}
           preload="auto"
