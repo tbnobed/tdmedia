@@ -43,11 +43,11 @@ export interface IStorage {
   markContactAsRead(id: number): Promise<any>;
   
   // Session store
-  sessionStore: session.SessionStore;
+  sessionStore: any; // Using any type to avoid SessionStore type issues
 }
 
 export class DatabaseStorage implements IStorage {
-  sessionStore: session.SessionStore;
+  sessionStore: any; // Using any to resolve type issues
   
   constructor() {
     this.sessionStore = new PostgresSessionStore({ 
@@ -124,7 +124,7 @@ export class DatabaseStorage implements IStorage {
       }
       
       // Get the list of media IDs this user can access
-      const mediaIds = accessibleMediaIds.map(item => item.id);
+      const mediaIds = accessibleMediaIds.map((item: { id: number }) => item.id);
       
       // Build a query using these media IDs
       let query = db.select().from(media).where(inArray(media.id, mediaIds));

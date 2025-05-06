@@ -2,7 +2,7 @@ import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { setupAuth } from "./auth";
 import { storage } from "./storage";
-import { insertCategorySchema, insertMediaSchema, insertContactSchema, User } from "@shared/schema";
+import { insertCategorySchema, insertMediaSchema, insertContactSchema, insertMediaAccessSchema, User } from "@shared/schema";
 import { z } from "zod";
 import fs from "fs";
 import path from "path";
@@ -453,6 +453,102 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error marking contact as read:", error);
       res.status(500).json({ message: "Failed to update contact" });
+    }
+  });
+
+  // Media Access Management (Client User Access)
+  
+  // Get all non-admin users (clients)
+  app.get("/api/users/clients", isAdmin, async (req, res) => {
+    try {
+      const clients = await storage.getNonAdminUsers();
+      res.json(clients);
+    } catch (error) {
+      console.error("Error fetching client users:", error);
+      res.status(500).json({ message: "Failed to fetch clients" });
+    }
+  });
+  
+  // Get all media assigned to a specific user
+  app.get("/api/users/:userId/media", isAdmin, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.userId);
+      const mediaAccess = await storage.getMediaAccessByUser(userId);
+      res.json(mediaAccess);
+    } catch (error) {
+      console.error("Error fetching user's media access:", error);
+      res.status(500).json({ message: "Failed to fetch user's media access" });
+    }
+  });
+  
+  // Get all users with access to a specific media item
+  app.get("/api/media/:mediaId/users", isAdmin, async (req, res) => {
+    try {
+      const mediaId = parseInt(req.params.mediaId);
+      const users = await storage.getMediaAccessUsers(mediaId);
+      res.json(users);
+    } catch (error) {
+      console.error("Error fetching media access users:", error);
+      res.status(500).json({ message: "Failed to fetch users with access" });
+    }
+  });
+  
+  // Assign media to a user
+  app.post("/api/media-access", isAdmin, async (req, res) => {
+    try {
+      const validatedData = insertMediaAccessSchema.parse(req.body);
+      const { mediaId, userId } = validatedData;
+      
+      // isAdmin middleware ensures req.user is defined
+      const createdById = req.user!.id;
+      
+      const mediaAccess = await storage.assignMediaToUser(mediaId, userId, createdById);
+      res.status(201).json(mediaAccess);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ errors: error.errors });
+      }
+      console.error("Error assigning media to user:", error);
+      res.status(500).json({ message: "Failed to assign media" });
+    }
+  });
+  
+  // Remove media access from a user
+  app.delete("/api/media-access/:mediaId/:userId", isAdmin, async (req, res) => {
+    try {
+      const mediaId = parseInt(req.params.mediaId);
+      const userId = parseInt(req.params.userId);
+      
+      await storage.removeMediaFromUser(mediaId, userId);
+      res.sendStatus(204);
+    } catch (error) {
+      console.error("Error removing media access:", error);
+      res.status(500).json({ message: "Failed to remove media access" });
+    }
+  });
+  
+  // Client-specific media endpoint - gets only media the user has access to
+  app.get("/api/client/media", isAuthenticated, async (req, res) => {
+    try {
+      // Only return media that this specific user has access to
+      const search = req.query.search as string | undefined;
+      const categoryIdParam = req.query.category as string | undefined;
+      const sort = req.query.sort as string | undefined;
+      
+      const categoryId = categoryIdParam ? parseInt(categoryIdParam) : undefined;
+      const userId = req.user.id;
+      
+      // Only show media items the user has access to (if not admin)
+      const filters = { search, categoryId, sort };
+      if (!req.user.isAdmin) {
+        Object.assign(filters, { userId });
+      }
+      
+      const mediaItems = await storage.getMedia(filters);
+      res.json(mediaItems);
+    } catch (error) {
+      console.error("Error fetching client media:", error);
+      res.status(500).json({ message: "Failed to fetch media" });
     }
   });
 
