@@ -20,6 +20,10 @@ RUN mkdir -p /app/uploads/videos
 RUN mkdir -p /app/uploads/images
 RUN mkdir -p /app/uploads/documents
 RUN mkdir -p /app/uploads/presentations
+RUN mkdir -p /app/uploads/thumbnails
+
+# Install additional tools for handling large files
+RUN apk add --no-cache ffmpeg
 
 # Copy config.js to the dist directory to ensure it's available in production
 RUN cp -f client/public/config.js dist/public/ || true

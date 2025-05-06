@@ -92,7 +92,13 @@ mkdir -p /app/uploads/videos
 mkdir -p /app/uploads/images
 mkdir -p /app/uploads/documents
 mkdir -p /app/uploads/presentations
+mkdir -p /app/uploads/thumbnails
 chmod -R 755 /app/uploads
+
+# Set file size limit for the container
+echo "Setting file size limits for uploads..."
+ulimit -f 1000000 # Set file size limit to approximately 1GB
+ulimit -n 4096    # Increase open file limit
 
 # Start the application
 echo "Starting the application..."
