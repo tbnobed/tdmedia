@@ -149,6 +149,51 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Upload a new media file
+  app.post("/api/upload", isAdmin, upload.single('file'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ message: "No file uploaded" });
+      }
+
+      // Get file details
+      const file = req.file;
+      const fileType = req.body.type || getFileTypeFromFilename(file.filename);
+      const fileSize = getFormattedFileSize(file.path);
+      
+      // Build the URL for the file
+      const baseUrl = process.env.NODE_ENV === 'production' 
+        ? process.env.PUBLIC_URL || '' 
+        : '';
+      const fileUrl = `${baseUrl}/uploads/${fileType}s/${file.filename}`;
+      
+      // Handle thumbnails for images and videos (simplified)
+      let thumbnailUrl = '';
+      if (fileType === 'image') {
+        // For images, use the image itself as the thumbnail
+        thumbnailUrl = fileUrl;
+      }
+      
+      // Create response object with file details
+      const fileData = {
+        fileUrl,
+        thumbnailUrl,
+        type: fileType,
+        size: fileSize,
+        duration: fileType === 'video' ? '00:00:00' : undefined, // Simplified
+      };
+      
+      res.status(201).json(fileData);
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      res.status(500).json({ 
+        message: "Failed to upload file", 
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+  
+  // Create a new media entry
   app.post("/api/media", isAdmin, async (req, res) => {
     try {
       const validatedData = insertMediaSchema.parse(req.body);
@@ -265,6 +310,73 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error marking contact as read:", error);
       res.status(500).json({ message: "Failed to update contact" });
+    }
+  });
+
+  // Serve uploaded files with proper content types
+  app.get('/uploads/:type/:filename', isAuthenticated, (req, res) => {
+    try {
+      const { type, filename } = req.params;
+      
+      // Validate path to prevent directory traversal attacks
+      if (filename.includes('..') || !['documents', 'images', 'videos', 'presentations'].includes(type)) {
+        return res.status(400).send('Invalid file path');
+      }
+      
+      // Construct the file path
+      const filePath = path.join(process.cwd(), 'uploads', type, filename);
+      
+      // Check if file exists
+      if (!fs.existsSync(filePath)) {
+        return res.status(404).send('File not found');
+      }
+      
+      // Set content type based on file extension
+      const ext = path.extname(filename).toLowerCase();
+      const contentTypes: Record<string, string> = {
+        // Images
+        '.jpg': 'image/jpeg',
+        '.jpeg': 'image/jpeg',
+        '.png': 'image/png',
+        '.gif': 'image/gif',
+        '.svg': 'image/svg+xml',
+        '.webp': 'image/webp',
+        // Videos
+        '.mp4': 'video/mp4',
+        '.webm': 'video/webm',
+        '.mov': 'video/quicktime',
+        '.avi': 'video/x-msvideo',
+        '.mkv': 'video/x-matroska',
+        // Documents
+        '.pdf': 'application/pdf',
+        '.doc': 'application/msword',
+        '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        '.txt': 'text/plain',
+        '.rtf': 'application/rtf',
+        // Presentations
+        '.ppt': 'application/vnd.ms-powerpoint',
+        '.pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        '.key': 'application/vnd.apple.keynote',
+        '.odp': 'application/vnd.oasis.opendocument.presentation'
+      };
+      
+      const contentType = contentTypes[ext] || 'application/octet-stream';
+      
+      // Set watermark header for media types that support it
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Content-Disposition', `inline; filename="${filename}"`);
+      
+      // Add watermark header to indicate this is a protected file
+      res.setHeader('X-Trilogy-Digital-Watermark', 'true');
+      
+      // Add a watermark to the media (would be implemented for images and videos in a real production system)
+      // This is a placeholder - in a real implementation we would process the file to add visual watermarks
+      
+      // Send the file
+      res.sendFile(filePath);
+    } catch (error) {
+      console.error('Error serving file:', error);
+      res.status(500).send('Error serving file');
     }
   });
 

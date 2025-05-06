@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,6 +13,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import {
   Select,
@@ -24,7 +25,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { Loader2, Upload, FileText, FileImage, Video, PresentationIcon, Check, AlertTriangle } from "lucide-react";
 
 // Media form schema based on the insertMediaSchema
 const mediaFormSchema = insertMediaSchema.extend({
@@ -39,6 +41,17 @@ interface AddMediaFormProps {
 
 export default function AddMediaForm({ onComplete }: AddMediaFormProps) {
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<{
+    fileUrl: string;
+    thumbnailUrl?: string;
+    type: string;
+    size: string;
+    duration?: string;
+  } | null>(null);
   
   // Media types for select dropdown
   const mediaTypes = [
@@ -49,7 +62,7 @@ export default function AddMediaForm({ onComplete }: AddMediaFormProps) {
   ];
   
   // Fetch categories for select dropdown
-  const { data: categories } = useQuery({
+  const { data: categories = [] } = useQuery<{id: number, name: string}[]>({
     queryKey: ["/api/categories"],
   });
   
@@ -66,6 +79,63 @@ export default function AddMediaForm({ onComplete }: AddMediaFormProps) {
       duration: "",
       size: "",
     },
+  });
+  
+  // Watch the type field to dynamically update file validation
+  const mediaType = form.watch("type");
+  
+  // Upload file mutation
+  const uploadFileMutation = useMutation({
+    mutationFn: async (formData: FormData) => {
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include',
+      });
+      
+      if (!res.ok) {
+        const errorData = await res.text();
+        throw new Error(errorData || `Upload failed: ${res.status}`);
+      }
+      
+      return await res.json();
+    },
+    onSuccess: (data) => {
+      setUploadedFile(data);
+      setUploadProgress(100);
+      
+      // Update form fields with file data
+      form.setValue("fileUrl", data.fileUrl);
+      if (data.thumbnailUrl) {
+        form.setValue("thumbnailUrl", data.thumbnailUrl);
+      }
+      form.setValue("size", data.size);
+      if (data.duration) {
+        form.setValue("duration", data.duration);
+      }
+      if (data.type) {
+        form.setValue("type", data.type);
+      }
+      
+      toast({
+        title: "File uploaded",
+        description: "Your file has been uploaded successfully.",
+      });
+    },
+    onError: (error: Error) => {
+      setUploadError(error.message);
+      setUploadProgress(0);
+      setIsUploading(false);
+      
+      toast({
+        title: "Upload failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+    onSettled: () => {
+      setIsUploading(false);
+    }
   });
   
   // Create media mutation
@@ -90,6 +160,40 @@ export default function AddMediaForm({ onComplete }: AddMediaFormProps) {
       });
     },
   });
+  
+  // Handle file selection
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    
+    setUploadError(null);
+    setIsUploading(true);
+    setUploadProgress(0);
+    
+    // Create a FormData object to send the file
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('type', mediaType); // Pass the selected media type
+    
+    // Simulate progress updates (in a real implementation, you'd use XMLHttpRequest or fetch with a progress event listener)
+    const progressInterval = setInterval(() => {
+      setUploadProgress((prev) => {
+        const next = Math.min(prev + 5, 95);
+        if (next >= 95) {
+          clearInterval(progressInterval);
+        }
+        return next;
+      });
+    }, 100);
+    
+    // Upload the file
+    uploadFileMutation.mutate(formData);
+  };
+  
+  // Prompt user to select a file
+  const handleUploadClick = () => {
+    fileInputRef.current?.click();
+  };
   
   // Form submission handler
   const onSubmit = (values: MediaFormValues) => {
@@ -189,6 +293,72 @@ export default function AddMediaForm({ onComplete }: AddMediaFormProps) {
           />
         </div>
         
+        {/* File Upload Section */}
+        <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-800 space-y-4">
+          <h3 className="text-sm font-medium">Media File Upload</h3>
+          
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            className="hidden"
+            accept={
+              mediaType === 'image' ? 'image/*' :
+              mediaType === 'video' ? 'video/*' :
+              mediaType === 'document' ? '.pdf,.doc,.docx,.txt,.rtf' :
+              '.ppt,.pptx,.key,.odp'
+            }
+          />
+          
+          <div 
+            className={`
+              border-2 border-dashed rounded-lg p-8 text-center cursor-pointer
+              transition-colors duration-200
+              ${isUploading || uploadedFile 
+                ? 'border-slate-300 dark:border-slate-700' 
+                : 'border-slate-300 dark:border-slate-700 hover:border-primary hover:dark:border-primary'}
+            `}
+            onClick={handleUploadClick}
+          >
+            {uploadedFile ? (
+              <div className="flex flex-col items-center space-y-2 text-slate-700 dark:text-slate-300">
+                <Check className="h-10 w-10 text-green-500" />
+                <p className="text-sm">File successfully uploaded</p>
+                <p className="text-xs text-slate-500">{uploadedFile.fileUrl.split('/').pop()}</p>
+                <p className="text-xs text-slate-500">{uploadedFile.size}</p>
+              </div>
+            ) : isUploading ? (
+              <div className="flex flex-col items-center space-y-3">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <p className="text-sm">Uploading file...</p>
+                <Progress value={uploadProgress} className="w-full max-w-xs" />
+                <p className="text-xs text-slate-500">{uploadProgress}%</p>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center space-y-2">
+                {mediaType === 'video' && <Video className="h-10 w-10 text-slate-400" />}
+                {mediaType === 'image' && <FileImage className="h-10 w-10 text-slate-400" />}
+                {mediaType === 'document' && <FileText className="h-10 w-10 text-slate-400" />}
+                {mediaType === 'presentation' && <PresentationIcon className="h-10 w-10 text-slate-400" />}
+                <p className="text-sm">Drag and drop or click to upload</p>
+                <p className="text-xs text-slate-500">
+                  {mediaType === 'image' ? 'JPG, PNG, GIF or WebP' :
+                   mediaType === 'video' ? 'MP4, WebM or MOV' :
+                   mediaType === 'document' ? 'PDF, DOC, DOCX or TXT' :
+                   'PPT, PPTX or ODP'}
+                </p>
+              </div>
+            )}
+          </div>
+          
+          {uploadError && (
+            <div className="flex items-center space-x-2 text-red-500 text-sm">
+              <AlertTriangle className="h-4 w-4" />
+              <p>{uploadError}</p>
+            </div>
+          )}
+        </div>
+
         <FormField
           control={form.control}
           name="fileUrl"
@@ -198,6 +368,9 @@ export default function AddMediaForm({ onComplete }: AddMediaFormProps) {
               <FormControl>
                 <Input placeholder="/media/file.ext" {...field} />
               </FormControl>
+              <FormDescription>
+                This field will be automatically filled when you upload a file, or you can enter a URL manually.
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
