@@ -9,7 +9,7 @@ import path from "path";
 import { createHmac } from "crypto";
 import { db } from "@db";
 import { sql, InferSelectModel } from "drizzle-orm";
-import { upload, getFileTypeFromFilename, getFormattedFileSize, generateThumbnail } from './upload';
+import { upload, getFileTypeFromFilename, getFormattedFileSize, generateThumbnail, getVideoDuration } from './upload';
 
 // Extend Express Request to include user type
 declare global {
@@ -217,13 +217,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
         watermarkInfo = 'Protected document with "TRILOGY DIGITAL" watermark';
       }
       
+      // Extract duration for video files
+      let duration;
+      if (fileType === 'video') {
+        try {
+          // Get actual duration from the video file
+          duration = await getVideoDuration(file.path);
+          console.log(`Extracted video duration: ${duration}`);
+        } catch (err) {
+          console.error("Error extracting video duration:", err);
+          duration = '00:00:00'; // Fallback duration
+        }
+      }
+      
       // Create response object with file details
       const fileData = {
         fileUrl,
         thumbnailUrl,
         type: fileType,
         size: fileSize,
-        duration: fileType === 'video' ? '00:00:00' : undefined, // Simplified
+        duration: duration,
         watermark: watermarkInfo
       };
       
