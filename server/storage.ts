@@ -1,6 +1,6 @@
 import { db } from "@db";
-import { users, media, categories, contacts } from "@shared/schema";
-import { eq, and, like, desc, asc } from "drizzle-orm";
+import { users, media, categories, contacts, mediaAccess } from "@shared/schema";
+import { eq, and, like, desc, asc, inArray } from "drizzle-orm";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
 import { pool } from "@db";
@@ -13,6 +13,7 @@ export interface IStorage {
   getUserByUsername(username: string): Promise<any>;
   getUserByEmail(email: string): Promise<any>;
   createUser(userData: any): Promise<any>;
+  getNonAdminUsers(): Promise<any[]>;
   
   // Category methods
   getCategories(): Promise<any[]>;
@@ -22,11 +23,18 @@ export interface IStorage {
   deleteCategory(id: number): Promise<void>;
   
   // Media methods
-  getMedia(filters?: { search?: string, categoryId?: number, sort?: string }): Promise<any[]>;
+  getMedia(filters?: { search?: string, categoryId?: number, sort?: string, userId?: number }): Promise<any[]>;
   getMediaById(id: number): Promise<any>;
   createMedia(mediaData: any): Promise<any>;
   updateMedia(id: number, mediaData: any): Promise<any>;
   deleteMedia(id: number): Promise<void>;
+  
+  // Media Access methods
+  getMediaAccessByUser(userId: number): Promise<any[]>;
+  getMediaAccessByMedia(mediaId: number): Promise<any[]>;
+  assignMediaToUser(mediaId: number, userId: number, createdById: number): Promise<any>;
+  removeMediaFromUser(mediaId: number, userId: number): Promise<void>;
+  getMediaAccessUsers(mediaId: number): Promise<any[]>;
   
   // Contact methods
   createContact(contactData: any): Promise<any>;
@@ -69,6 +77,10 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
   
+  async getNonAdminUsers() {
+    return await db.select().from(users).where(eq(users.isAdmin, false)).orderBy(users.username);
+  }
+  
   // Category methods
   async getCategories() {
     return await db.select().from(categories).orderBy(categories.name);
@@ -97,41 +109,93 @@ export class DatabaseStorage implements IStorage {
   }
   
   // Media methods
-  async getMedia(filters: { search?: string, categoryId?: number, sort?: string } = {}) {
-    let query = db.select().from(media);
-    
-    if (filters.search) {
-      query = query.where(
-        like(media.title, `%${filters.search}%`)
-      );
-    }
-    
-    if (filters.categoryId && filters.categoryId > 0) {
-      query = query.where(eq(media.categoryId, filters.categoryId));
-    }
-    
-    if (filters.sort) {
-      switch (filters.sort) {
-        case 'newest':
-          query = query.orderBy(desc(media.createdAt));
-          break;
-        case 'oldest':
-          query = query.orderBy(asc(media.createdAt));
-          break;
-        case 'a-z':
-          query = query.orderBy(asc(media.title));
-          break;
-        case 'z-a':
-          query = query.orderBy(desc(media.title));
-          break;
-        default:
-          query = query.orderBy(desc(media.createdAt));
+  async getMedia(filters: { search?: string, categoryId?: number, sort?: string, userId?: number } = {}) {
+    // For regular clients, we need to limit media to what they have access to
+    if (filters.userId) {
+      // If a non-admin user ID is provided, get only the media they have access to
+      const accessibleMediaIds = await db.select({ id: media.id })
+        .from(media)
+        .innerJoin(mediaAccess, eq(media.id, mediaAccess.mediaId))
+        .where(eq(mediaAccess.userId, filters.userId));
+      
+      // If user has no media access, return empty array
+      if (accessibleMediaIds.length === 0) {
+        return [];
       }
+      
+      // Get the list of media IDs this user can access
+      const mediaIds = accessibleMediaIds.map(item => item.id);
+      
+      // Build a query using these media IDs
+      let query = db.select().from(media).where(inArray(media.id, mediaIds));
+      
+      // Apply additional filters
+      if (filters.search) {
+        query = query.where(like(media.title, `%${filters.search}%`));
+      }
+      
+      if (filters.categoryId && filters.categoryId > 0) {
+        query = query.where(eq(media.categoryId, filters.categoryId));
+      }
+      
+      // Apply sorting
+      if (filters.sort) {
+        switch (filters.sort) {
+          case 'newest':
+            query = query.orderBy(desc(media.createdAt));
+            break;
+          case 'oldest':
+            query = query.orderBy(asc(media.createdAt));
+            break;
+          case 'a-z':
+            query = query.orderBy(asc(media.title));
+            break;
+          case 'z-a':
+            query = query.orderBy(desc(media.title));
+            break;
+          default:
+            query = query.orderBy(desc(media.createdAt));
+        }
+      } else {
+        query = query.orderBy(desc(media.createdAt));
+      }
+      
+      return await query;
     } else {
-      query = query.orderBy(desc(media.createdAt));
+      // For admin users, return all media with filters
+      let query = db.select().from(media);
+      
+      if (filters.search) {
+        query = query.where(like(media.title, `%${filters.search}%`));
+      }
+      
+      if (filters.categoryId && filters.categoryId > 0) {
+        query = query.where(eq(media.categoryId, filters.categoryId));
+      }
+      
+      if (filters.sort) {
+        switch (filters.sort) {
+          case 'newest':
+            query = query.orderBy(desc(media.createdAt));
+            break;
+          case 'oldest':
+            query = query.orderBy(asc(media.createdAt));
+            break;
+          case 'a-z':
+            query = query.orderBy(asc(media.title));
+            break;
+          case 'z-a':
+            query = query.orderBy(desc(media.title));
+            break;
+          default:
+            query = query.orderBy(desc(media.createdAt));
+        }
+      } else {
+        query = query.orderBy(desc(media.createdAt));
+      }
+      
+      return await query;
     }
-    
-    return await query;
   }
   
   async getMediaById(id: number) {
@@ -160,6 +224,85 @@ export class DatabaseStorage implements IStorage {
   
   async deleteMedia(id: number) {
     await db.delete(media).where(eq(media.id, id));
+  }
+  
+  // Media Access methods
+  async getMediaAccessByUser(userId: number) {
+    return await db.select({
+      id: mediaAccess.id,
+      mediaId: mediaAccess.mediaId,
+      userId: mediaAccess.userId,
+      createdAt: mediaAccess.createdAt,
+      createdById: mediaAccess.createdById,
+      media: media
+    })
+    .from(mediaAccess)
+    .innerJoin(media, eq(mediaAccess.mediaId, media.id))
+    .where(eq(mediaAccess.userId, userId))
+    .orderBy(desc(mediaAccess.createdAt));
+  }
+  
+  async getMediaAccessByMedia(mediaId: number) {
+    return await db.select({
+      id: mediaAccess.id,
+      mediaId: mediaAccess.mediaId,
+      userId: mediaAccess.userId,
+      user: users,
+      createdAt: mediaAccess.createdAt,
+      createdById: mediaAccess.createdById
+    })
+    .from(mediaAccess)
+    .innerJoin(users, eq(mediaAccess.userId, users.id))
+    .where(eq(mediaAccess.mediaId, mediaId))
+    .orderBy(users.username);
+  }
+  
+  async assignMediaToUser(mediaId: number, userId: number, createdById: number) {
+    // Check if the access already exists
+    const existing = await db.select()
+      .from(mediaAccess)
+      .where(and(
+        eq(mediaAccess.mediaId, mediaId),
+        eq(mediaAccess.userId, userId)
+      ))
+      .limit(1);
+    
+    if (existing.length > 0) {
+      return existing[0]; // Already exists
+    }
+    
+    // Create new access
+    const [access] = await db.insert(mediaAccess)
+      .values({
+        mediaId,
+        userId,
+        createdById
+      })
+      .returning();
+    
+    return access;
+  }
+  
+  async removeMediaFromUser(mediaId: number, userId: number) {
+    await db.delete(mediaAccess)
+      .where(and(
+        eq(mediaAccess.mediaId, mediaId),
+        eq(mediaAccess.userId, userId)
+      ));
+  }
+  
+  async getMediaAccessUsers(mediaId: number) {
+    const results = await db.select({
+      id: users.id,
+      username: users.username,
+      email: users.email
+    })
+    .from(users)
+    .innerJoin(mediaAccess, eq(mediaAccess.userId, users.id))
+    .where(eq(mediaAccess.mediaId, mediaId))
+    .orderBy(users.username);
+    
+    return results;
   }
   
   // Contact methods
