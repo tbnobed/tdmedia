@@ -3,12 +3,11 @@ import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MediaManagement from "@/components/admin/media-management";
-import CategoryManagement from "@/components/admin/category-management";
 import ContactManagement from "@/components/admin/contact-management";
 import UserMediaAccess from "@/components/admin/user-media-access";
 import { useAuth } from "@/hooks/use-auth";
 import { useLocation } from "wouter";
-import { Shield, FileText, FolderTree, Mail, Users } from "lucide-react";
+import { Shield, FileText, Mail, Users } from "lucide-react";
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState("media");
@@ -43,14 +42,10 @@ export default function AdminPage() {
             onValueChange={setActiveTab}
             className="space-y-6"
           >
-            <TabsList className="grid grid-cols-4 w-full max-w-3xl mx-auto">
+            <TabsList className="grid grid-cols-3 w-full max-w-3xl mx-auto">
               <TabsTrigger value="media" className="flex items-center space-x-2">
                 <FileText className="h-4 w-4" />
                 <span>Media</span>
-              </TabsTrigger>
-              <TabsTrigger value="categories" className="flex items-center space-x-2">
-                <FolderTree className="h-4 w-4" />
-                <span>Categories</span>
               </TabsTrigger>
               <TabsTrigger value="access" className="flex items-center space-x-2">
                 <Users className="h-4 w-4" />
@@ -66,14 +61,6 @@ export default function AdminPage() {
               <div className="bg-white rounded-lg shadow">
                 <div className="p-6">
                   <MediaManagement />
-                </div>
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="categories">
-              <div className="bg-white rounded-lg shadow">
-                <div className="p-6">
-                  <CategoryManagement />
                 </div>
               </div>
             </TabsContent>
