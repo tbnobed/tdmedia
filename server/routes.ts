@@ -317,10 +317,28 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/media/:id", isAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
+      console.log("Deleting media with ID:", id);
+
+      // First delete any media access entries related to this media
+      try {
+        await storage.removeAllMediaAccess(id);
+        console.log("Removed all media access records for media ID:", id);
+      } catch (accessError) {
+        console.error("Error removing media access during deletion:", accessError);
+        // Continue with deletion even if this fails
+      }
+
+      // Now delete the media itself
       await storage.deleteMedia(id);
+      console.log("Successfully deleted media with ID:", id);
       res.sendStatus(204);
     } catch (error) {
       console.error("Error deleting media:", error);
+      // Log more detailed error information
+      if (error instanceof Error) {
+        console.error("Error message:", error.message);
+        console.error("Error stack:", error.stack);
+      }
       res.status(500).json({ message: "Failed to delete media" });
     }
   });

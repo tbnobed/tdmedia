@@ -36,6 +36,7 @@ export interface IStorage {
   getMediaAccessByMedia(mediaId: number): Promise<any[]>;
   assignMediaToUser(mediaId: number, userId: number, createdById: number): Promise<any>;
   removeMediaFromUser(mediaId: number, userId: number): Promise<void>;
+  removeAllMediaAccess(mediaId: number): Promise<void>;
   getMediaAccessUsers(mediaId: number): Promise<any[]>;
   
   // Contact methods
@@ -345,6 +346,11 @@ export class DatabaseStorage implements IStorage {
     .orderBy(users.username);
     
     return results;
+  }
+  
+  // Remove all media access records for a specific media item
+  async removeAllMediaAccess(mediaId: number) {
+    await db.delete(mediaAccess).where(eq(mediaAccess.mediaId, mediaId));
   }
   
   // Contact methods
