@@ -196,7 +196,7 @@ export default function MediaManagement() {
                         <div className="font-medium">{item.title}</div>
                         {item.type === 'video' && (
                           <div className="w-full max-w-[160px] h-24 bg-gray-100 rounded-md overflow-hidden">
-                            <VideoPlayer mediaId={item.id} controls={false} muted={true} small={true} />
+                            <VideoPlayer mediaId={item.id} controls={false} muted={true} small={true} showWatermark={false} />
                           </div>
                         )}
                       </div>

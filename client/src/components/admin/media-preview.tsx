@@ -43,7 +43,7 @@ export default function MediaPreview({ media, isOpen, onClose }: MediaPreviewPro
               <VideoPlayer 
                 mediaId={media.id} 
                 autoPlay={true}
-                showWatermark={true}
+                showWatermark={false} 
                 onError={(e) => setError(e)}
                 onLoad={() => setIsLoading(false)}
               />
