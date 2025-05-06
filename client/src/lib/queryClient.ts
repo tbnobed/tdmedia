@@ -37,9 +37,19 @@ export async function apiRequest(
   } catch (error) {
     if (error instanceof TypeError && error.message.includes('fetch')) {
       // Network error (connection refused, network offline, etc.)
-      throw new Error('NetworkError when attempting to fetch resource.');
+      console.error('Network error occurred:', error);
+      const errorMessage = 'NetworkError when attempting to fetch resource. Please check your connection and try again. The server may be unavailable.';
+      throw new Error(errorMessage);
     }
-    // Re-throw any other errors
+    
+    // More detailed error for CORS issues
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      console.error('Request aborted (possibly CORS):', error);
+      throw new Error('Request was blocked. This may be due to CORS configuration issues.');
+    }
+    
+    // Re-throw any other errors with additional logging
+    console.error('API request failed:', error);
     throw error;
   }
 }
@@ -71,9 +81,18 @@ export const getQueryFn: <T>(options: {
       if (error instanceof TypeError && error.message.includes('fetch')) {
         // Network error (connection refused, network offline, etc.)
         console.error('Network error occurred:', error);
-        throw new Error('NetworkError when attempting to fetch resource.');
+        const errorMessage = 'NetworkError when attempting to fetch resource. Please check your connection and try again. The server may be unavailable.';
+        throw new Error(errorMessage);
       }
-      // Re-throw any other errors
+      
+      // More detailed error for CORS issues
+      if (error instanceof DOMException && error.name === 'AbortError') {
+        console.error('Request aborted (possibly CORS):', error);
+        throw new Error('Request was blocked. This may be due to CORS configuration issues.');
+      }
+      
+      // Re-throw any other errors with additional logging
+      console.error('API request failed:', error);
       throw error;
     }
   };
