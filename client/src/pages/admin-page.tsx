@@ -7,9 +7,10 @@ import CategoryManagement from "@/components/admin/category-management";
 import ContactManagement from "@/components/admin/contact-management";
 import UserMediaAccess from "@/components/admin/user-media-access";
 import ClientManagement from "@/components/admin/client-management";
+import AdminUserManagement from "@/components/admin/admin-user-management";
 import { useAuth } from "@/hooks/use-auth";
 import { useLocation } from "wouter";
-import { Shield, FileText, FolderTree, Mail, Users, UserPlus } from "lucide-react";
+import { Shield, FileText, FolderTree, Mail, Users, UserPlus, UserCog } from "lucide-react";
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState("media");
@@ -20,14 +21,14 @@ export default function AdminPage() {
   useEffect(() => {
     // Remove the # character and get the tab name
     const hash = window.location.hash.substring(1);
-    if (hash && ["media", "categories", "clients", "access", "contacts"].includes(hash)) {
+    if (hash && ["media", "categories", "clients", "access", "contacts", "admins"].includes(hash)) {
       setActiveTab(hash);
     }
     
     // Set up listener for hash changes
     const handleHashChange = () => {
       const newHash = window.location.hash.substring(1);
-      if (newHash && ["media", "categories", "clients", "access", "contacts"].includes(newHash)) {
+      if (newHash && ["media", "categories", "clients", "access", "contacts", "admins"].includes(newHash)) {
         setActiveTab(newHash);
       }
     };
@@ -69,7 +70,7 @@ export default function AdminPage() {
             onValueChange={setActiveTab}
             className="space-y-6"
           >
-            <TabsList className="grid grid-cols-5 w-full max-w-4xl mx-auto">
+            <TabsList className="grid grid-cols-6 w-full max-w-5xl mx-auto">
               <TabsTrigger value="media" className="flex items-center space-x-2">
                 <FileText className="h-4 w-4" />
                 <span>Media</span>
@@ -89,6 +90,10 @@ export default function AdminPage() {
               <TabsTrigger value="contacts" className="flex items-center space-x-2">
                 <Mail className="h-4 w-4" />
                 <span>Inquiries</span>
+              </TabsTrigger>
+              <TabsTrigger value="admins" className="flex items-center space-x-2">
+                <UserCog className="h-4 w-4" />
+                <span>Admins</span>
               </TabsTrigger>
             </TabsList>
             
@@ -128,6 +133,14 @@ export default function AdminPage() {
               <div className="bg-white rounded-lg shadow">
                 <div className="p-6">
                   <ContactManagement />
+                </div>
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="admins">
+              <div className="bg-white rounded-lg shadow">
+                <div className="p-6">
+                  <AdminUserManagement />
                 </div>
               </div>
             </TabsContent>

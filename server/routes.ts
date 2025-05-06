@@ -1,6 +1,6 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
-import { setupAuth, hashPassword } from "./auth";
+import { setupAuth, hashPassword, comparePasswords } from "./auth";
 import { storage } from "./storage";
 import { insertCategorySchema, insertMediaSchema, insertContactSchema, insertMediaAccessSchema, User, MediaAccess } from "@shared/schema";
 import { z } from "zod";
@@ -646,8 +646,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Media Access Management (Client User Access)
+  // User Management
   
+  // Get all users
+  app.get("/api/users", isAdmin, async (req, res) => {
+    try {
+      const users = await storage.getAllUsers();
+      res.json(users);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      res.status(500).json({ message: "Failed to fetch users" });
+    }
+  });
+
   // Get all non-admin users (clients)
   app.get("/api/users/clients", isAdmin, async (req, res) => {
     try {
@@ -656,6 +667,103 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching client users:", error);
       res.status(500).json({ message: "Failed to fetch clients" });
+    }
+  });
+  
+  // Create a new admin user
+  app.post("/api/users/admins", isAdmin, async (req, res) => {
+    try {
+      // Check if user with this email already exists
+      const existingUser = await storage.getUserByEmail(req.body.email);
+      if (existingUser) {
+        return res.status(400).json({ message: "A user with this email already exists" });
+      }
+      
+      // Prepare user data with admin role
+      const userData = {
+        ...req.body,
+        isAdmin: true
+      };
+      
+      // Validate the data
+      const validatedData = z.object({
+        username: z.string().min(3),
+        email: z.string().email(),
+        password: z.string().min(6),
+        isAdmin: z.boolean()
+      }).parse(userData);
+      
+      // Hash the password before saving the user
+      const hashedPassword = await hashPassword(validatedData.password);
+      
+      // Create the admin user with hashed password
+      const newUser = await storage.createUser({
+        ...validatedData,
+        password: hashedPassword
+      });
+      
+      // Remove password from response
+      const { password, ...userWithoutPassword } = newUser;
+      
+      res.status(201).json({
+        user: userWithoutPassword
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ errors: error.errors });
+      }
+      console.error("Error creating admin:", error);
+      res.status(500).json({ 
+        message: "Failed to create admin user",
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+  
+  // Update user credentials (for self-service password changes)
+  app.put("/api/users/:id/credentials", isAuthenticated, async (req, res) => {
+    try {
+      const userId = parseInt(req.params.id);
+      
+      // Users can only update their own credentials unless they're an admin
+      if (userId !== req.user!.id && !req.user!.isAdmin) {
+        return res.status(403).json({ message: "You can only update your own credentials" });
+      }
+      
+      // Get the current user
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Validate the request data
+      const validatedData = z.object({
+        currentPassword: z.string().min(1),
+        newPassword: z.string().min(6),
+      }).parse(req.body);
+      
+      // Verify the current password
+      const passwordValid = await comparePasswords(validatedData.currentPassword, user.password);
+      if (!passwordValid) {
+        return res.status(400).json({ message: "Current password is incorrect" });
+      }
+      
+      // Hash the new password
+      const hashedPassword = await hashPassword(validatedData.newPassword);
+      
+      // Update the user's password
+      const updatedUser = await storage.updateUserCredentials(userId, hashedPassword);
+      
+      // Remove sensitive data from response
+      const { password, ...userWithoutPassword } = updatedUser;
+      
+      res.json(userWithoutPassword);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ errors: error.errors });
+      }
+      console.error("Error updating credentials:", error);
+      res.status(500).json({ message: "Failed to update credentials" });
     }
   });
   

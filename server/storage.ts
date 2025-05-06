@@ -15,7 +15,9 @@ export interface IStorage {
   getUserByEmail(email: string): Promise<any>;
   createUser(userData: any): Promise<any>;
   deleteUser(id: number): Promise<void>;
+  getAllUsers(): Promise<any[]>;
   getNonAdminUsers(): Promise<any[]>;
+  updateUserCredentials(userId: number, newPasswordHash: string): Promise<any>;
   
   // Category methods
   getCategories(): Promise<any[]>;
@@ -112,8 +114,40 @@ export class DatabaseStorage implements IStorage {
     return user;
   }
   
+  async getAllUsers() {
+    try {
+      const result = await db.select().from(users).orderBy(users.username);
+      return result.map(user => {
+        // Don't return password hashes
+        const { password, ...userWithoutPassword } = user;
+        return userWithoutPassword;
+      });
+    } catch (error) {
+      console.error('Error getting all users:', error);
+      throw new Error('Failed to get users');
+    }
+  }
+  
   async getNonAdminUsers() {
     return await db.select().from(users).where(eq(users.isAdmin, false)).orderBy(users.username);
+  }
+  
+  async updateUserCredentials(userId: number, newPasswordHash: string) {
+    try {
+      const [updatedUser] = await db
+        .update(users)
+        .set({ 
+          password: newPasswordHash,
+          updatedAt: new Date()
+        })
+        .where(eq(users.id, userId))
+        .returning();
+      
+      return updatedUser;
+    } catch (error) {
+      console.error('Error updating user credentials:', error);
+      throw new Error('Failed to update user credentials');
+    }
   }
   
   async deleteUser(id: number) {
