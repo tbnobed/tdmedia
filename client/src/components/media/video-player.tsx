@@ -39,9 +39,13 @@ export default function VideoPlayer({
   // Determine if fullscreen should be allowed
   // If allowFullscreen prop is explicitly provided, use that value
   // Otherwise, only allow fullscreen for admin users
-  const disableFullscreen = allowFullscreen !== undefined 
-    ? !allowFullscreen 
-    : !user?.isAdmin;
+  // Force disable fullscreen for non-admin users
+  // If allowFullscreen is explicitly set to true, only then allow it for admins
+  // Otherwise, disable for everyone
+  console.log("VideoPlayer user info:", {isAdmin: user?.isAdmin, allowFullscreen});
+  // Always disable fullscreen for client users, only enable for admins with explicit true prop
+  const disableFullscreen = !user?.isAdmin || (allowFullscreen === undefined ? true : !allowFullscreen);
+  console.log("Fullscreen disabled:", disableFullscreen);
   
   // Fetch stream URL when media changes
   const { data: streamInfo, isLoading, error } = useQuery<StreamInfo>({
@@ -83,6 +87,25 @@ export default function VideoPlayer({
     e.preventDefault();
     return false;
   };
+  
+  // Prevent fullscreen for non-admin users with direct JavaScript
+  useEffect(() => {
+    if (disableFullscreen && videoRef.current) {
+      // Override the requestFullscreen method to prevent fullscreen
+      const originalRequestFullscreen = videoRef.current.requestFullscreen;
+      videoRef.current.requestFullscreen = function() {
+        console.log("Fullscreen request blocked by policy");
+        return Promise.reject(new Error("Fullscreen is disabled for client users"));
+      };
+      
+      // Clean up on unmount
+      return () => {
+        if (videoRef.current) {
+          videoRef.current.requestFullscreen = originalRequestFullscreen;
+        }
+      };
+    }
+  }, [disableFullscreen, videoRef.current]);
 
   if (isLoading) {
     return (
@@ -102,8 +125,22 @@ export default function VideoPlayer({
     );
   }
 
+  // Set the allowFullscreen attribute at the container level
+  // This is a critical attribute that browsers look for when allowing fullscreen mode
+  const containerProps = disableFullscreen 
+    ? { allowFullscreen: "false" } 
+    : { allowFullscreen: "true" };
+    
+  // Log the current video player configuration
+  console.log("VideoPlayer Config:", {
+    isAdmin: user?.isAdmin,
+    allowFullscreenProp: allowFullscreen, 
+    disableFullscreen, 
+    containerProps
+  });
+  
   return (
-    <div className={`relative ${className}`}>
+    <div className={`relative ${className}`} {...containerProps}>
       {/* Watermark overlay for full-size player */}
       {showWatermark && !small && (
         <div className="watermark-container absolute inset-0 pointer-events-none z-10">
@@ -138,6 +175,10 @@ export default function VideoPlayer({
           preload="auto"
           playsInline
           muted={muted}
+          disablePictureInPicture
+          disableRemotePlayback
+          // Critical: explicitly set allowFullScreen attribute based on our logic
+          {...(disableFullscreen ? { disablefullscreen: "true" } : {})}
         >
           <source 
             src={`${window.TRILOGY_CONFIG?.apiBaseUrl || ''}${streamInfo.streamUrl}`} 
