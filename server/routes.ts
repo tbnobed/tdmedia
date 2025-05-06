@@ -536,11 +536,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const sort = req.query.sort as string | undefined;
       
       const categoryId = categoryIdParam ? parseInt(categoryIdParam) : undefined;
-      const userId = req.user.id;
+      
+      // isAuthenticated middleware ensures req.user is defined
+      const userId = req.user!.id;
       
       // Only show media items the user has access to (if not admin)
-      const filters = { search, categoryId, sort };
-      if (!req.user.isAdmin) {
+      const filters: { 
+        search?: string; 
+        categoryId?: number; 
+        sort?: string;
+        userId?: number;
+      } = { search, categoryId, sort };
+      
+      if (!req.user!.isAdmin) {
         Object.assign(filters, { userId });
       }
       
