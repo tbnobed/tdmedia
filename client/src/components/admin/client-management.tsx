@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { Loader2, UserPlus, Users, RefreshCw, CheckCircle2, AlertCircle } from "lucide-react";
+import { Loader2, UserPlus, Users, RefreshCw, CheckCircle2, AlertCircle, Trash2 } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -17,7 +17,18 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   Form,
   FormControl,
@@ -84,6 +95,8 @@ interface Media {
 export default function ClientManagement() {
   const { toast } = useToast();
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [clientToDelete, setClientToDelete] = useState<User | null>(null);
   const [onboardingStatus, setOnboardingStatus] = useState<{
     status: 'idle' | 'creating' | 'assigning' | 'emailing' | 'complete' | 'error';
     message: string;
@@ -102,6 +115,36 @@ export default function ClientManagement() {
   } = useQuery<User[]>({
     queryKey: ["/api/users/clients"],
     queryFn: getQueryFn({ on401: "throw" }),
+  });
+  
+  // Delete client mutation
+  const deleteClientMutation = useMutation({
+    mutationFn: async (clientId: number) => {
+      const response = await apiRequest("DELETE", `/api/users/clients/${clientId}`);
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.message || 'Failed to delete client');
+      }
+      return clientId;
+    },
+    onSuccess: () => {
+      toast({
+        title: "Client deleted",
+        description: "Client and all their media access have been removed",
+      });
+      // Close the delete dialog
+      setDeleteDialogOpen(false);
+      setClientToDelete(null);
+      // Refresh the client list
+      queryClient.invalidateQueries({ queryKey: ["/api/users/clients"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error deleting client",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
   });
 
   // Query for media to assign during onboarding
@@ -302,24 +345,41 @@ export default function ClientManagement() {
                         {new Date(client.createdAt).toLocaleDateString()}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            // Store the selected client ID in localStorage
-                            localStorage.setItem('selectedClientId', client.id.toString());
-                            
-                            // Navigate to the access tab directly
-                            // First change the hash to trigger hash change event
-                            window.location.hash = "";
-                            // Then set it to "access" to navigate properly
-                            setTimeout(() => {
-                              window.location.hash = "access";
-                            }, 50);
-                          }}
-                        >
-                          Manage Access
-                        </Button>
+                        <div className="flex justify-end space-x-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              // Store the selected client ID in localStorage
+                              localStorage.setItem('selectedClientId', client.id.toString());
+                              
+                              // Navigate to the access tab directly
+                              // First change the hash to trigger hash change event
+                              window.location.hash = "";
+                              // Then set it to "access" to navigate properly
+                              setTimeout(() => {
+                                window.location.hash = "access";
+                              }, 50);
+                            }}
+                          >
+                            Manage Access
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={() => {
+                              setClientToDelete(client);
+                              setDeleteDialogOpen(true);
+                            }}
+                            disabled={deleteClientMutation.isPending}
+                          >
+                            {deleteClientMutation.isPending && deleteClientMutation.variables === client.id ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -548,6 +608,55 @@ export default function ClientManagement() {
           </Form>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Client Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Client</AlertDialogTitle>
+            <AlertDialogDescription>
+              {clientToDelete ? (
+                <>
+                  Are you sure you want to delete client <strong>{clientToDelete.username}</strong>?
+                  <p className="mt-2">
+                    This action will remove the client account and all their media access permissions.
+                    This cannot be undone.
+                  </p>
+                </>
+              ) : (
+                'Are you sure you want to delete this client? This action cannot be undone.'
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              disabled={deleteClientMutation.isPending}
+              onClick={() => setClientToDelete(null)}
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={deleteClientMutation.isPending}
+              onClick={() => {
+                if (clientToDelete) {
+                  deleteClientMutation.mutate(clientToDelete.id);
+                  // Dialog will close automatically when the delete mutation succeeds
+                }
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleteClientMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                "Delete Client"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
