@@ -314,6 +314,105 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ message: "Failed to prepare media stream" });
     }
   });
+  
+  // Raw stream endpoint - serves the actual media file
+  app.get("/api/raw-stream/:id", isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { signature, timestamp } = req.query;
+      
+      // Validate the signature to prevent unauthorized access
+      if (!signature || !timestamp || typeof signature !== 'string' || typeof timestamp !== 'string') {
+        return res.status(401).json({ message: "Invalid signature or timestamp" });
+      }
+      
+      // Verify that the URL hasn't expired (15 minutes validity)
+      const requestTime = parseInt(timestamp);
+      const currentTime = Date.now();
+      if (currentTime - requestTime > 15 * 60 * 1000) { // 15 minutes in milliseconds
+        return res.status(401).json({ message: "Stream URL has expired" });
+      }
+      
+      // Get the user ID from the authenticated user
+      const userId = req.user?.id || 0;
+      
+      // Regenerate the signature to verify
+      const expectedSignature = createHmac('sha256', process.env.SESSION_SECRET || 'secure-media-secret')
+        .update(`${id}-${timestamp}-${userId}`)
+        .digest('hex');
+      
+      // Check if signatures match
+      if (signature !== expectedSignature) {
+        return res.status(401).json({ message: "Invalid signature" });
+      }
+      
+      // Get the media item
+      const mediaItem = await storage.getMediaById(id);
+      if (!mediaItem) {
+        return res.status(404).json({ message: "Media not found" });
+      }
+      
+      // Make sure the file path is absolute
+      let filePath = mediaItem.fileUrl;
+      
+      // Remove the leading slash if it exists and prepend the current directory
+      if (filePath.startsWith('/')) {
+        filePath = '.' + filePath;
+      } else if (!filePath.startsWith('./')) {
+        filePath = './' + filePath;
+      }
+      
+      // Check if the file exists
+      if (!fs.existsSync(filePath)) {
+        console.error(`File not found: ${filePath}`);
+        return res.status(404).json({ message: "Media file not found" });
+      }
+      
+      // Stream the file based on media type
+      if (mediaItem.type === 'video') {
+        // For videos, use range streaming for better playback
+        const stat = fs.statSync(filePath);
+        const fileSize = stat.size;
+        const range = req.headers.range;
+        
+        if (range) {
+          const parts = range.replace(/bytes=/, "").split("-");
+          const start = parseInt(parts[0], 10);
+          const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+          const chunksize = (end - start) + 1;
+          const file = fs.createReadStream(filePath, { start, end });
+          
+          res.writeHead(206, {
+            'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+            'Accept-Ranges': 'bytes',
+            'Content-Length': chunksize,
+            'Content-Type': 'video/mp4',
+          });
+          
+          file.pipe(res);
+        } else {
+          res.writeHead(200, {
+            'Content-Length': fileSize,
+            'Content-Type': 'video/mp4',
+          });
+          
+          fs.createReadStream(filePath).pipe(res);
+        }
+      } else if (mediaItem.type === 'image') {
+        // For images, simply serve the file
+        res.setHeader('Content-Type', 'image/jpeg'); // Adjust based on actual image type
+        fs.createReadStream(filePath).pipe(res);
+      } else {
+        // For documents and other files, simply serve the file
+        res.setHeader('Content-Type', 'application/octet-stream');
+        res.setHeader('Content-Disposition', `inline; filename="${path.basename(filePath)}"`);
+        fs.createReadStream(filePath).pipe(res);
+      }
+    } catch (error) {
+      console.error("Error streaming media:", error);
+      res.status(500).json({ message: "Failed to stream media file" });
+    }
+  });
 
   // Contact form submission
   app.post("/api/contacts", isAuthenticated, async (req, res) => {
