@@ -27,7 +27,10 @@ services:
       - CLIENT_PASSWORD=${CLIENT_PASSWORD:-demopassword}
       - CLIENT_USERNAME=${CLIENT_USERNAME:-client}
     volumes:
-      - media_data:/app/media
+      - upload_videos:/app/uploads/videos
+      - upload_images:/app/uploads/images
+      - upload_documents:/app/uploads/documents
+      - upload_presentations:/app/uploads/presentations
     restart: unless-stopped
     networks:
       - trilogy_network
@@ -64,5 +67,11 @@ networks:
 volumes:
   db_data:
     name: trilogy_db_data
-  media_data:
-    name: trilogy_media_data
+  upload_videos:
+    name: trilogy_upload_videos
+  upload_images:
+    name: trilogy_upload_images
+  upload_documents:
+    name: trilogy_upload_documents
+  upload_presentations:
+    name: trilogy_upload_presentations

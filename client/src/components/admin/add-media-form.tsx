@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -73,13 +73,20 @@ export default function AddMediaForm({ onComplete }: AddMediaFormProps) {
       title: "",
       description: "",
       type: "video",
-      categoryId: 0,
+      categoryId: 1, // Default value that will be updated when categories load
       fileUrl: "",
       thumbnailUrl: "",
       duration: "",
       size: "",
     },
   });
+  
+  // Update categoryId when categories are loaded
+  useEffect(() => {
+    if (categories && categories.length > 0) {
+      form.setValue("categoryId", categories[0].id);
+    }
+  }, [categories, form]);
   
   // Watch the type field to dynamically update file validation
   const mediaType = form.watch("type");
@@ -278,7 +285,7 @@ export default function AddMediaForm({ onComplete }: AddMediaFormProps) {
               <FormItem>
                 <FormLabel>Category</FormLabel>
                 <Select
-                  onValueChange={field.onChange}
+                  onValueChange={(value) => field.onChange(parseInt(value, 10))}
                   defaultValue={field.value.toString()}
                 >
                   <FormControl>

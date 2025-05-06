@@ -73,6 +73,14 @@ echo "Setting up default users..."
 chmod +x docker-setup-users.cjs
 node docker-setup-users.cjs
 
+# Ensure upload directories exist with proper permissions
+echo "Setting up upload directories..."
+mkdir -p /app/uploads/videos
+mkdir -p /app/uploads/images
+mkdir -p /app/uploads/documents
+mkdir -p /app/uploads/presentations
+chmod -R 755 /app/uploads
+
 # Start the application
 echo "Starting the application..."
 exec "$@"

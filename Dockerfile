@@ -15,8 +15,11 @@ COPY . .
 # Build the application
 RUN npm run build
 
-# Create directory for media files
-RUN mkdir -p /app/media
+# Create directory structure for media files with proper subdirectories
+RUN mkdir -p /app/uploads/videos
+RUN mkdir -p /app/uploads/images
+RUN mkdir -p /app/uploads/documents
+RUN mkdir -p /app/uploads/presentations
 
 # Copy config.js to the dist directory to ensure it's available in production
 RUN cp -f client/public/config.js dist/public/ || true
