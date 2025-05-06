@@ -8,6 +8,10 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    # Add DNS configuration for better network resolution
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
     environment:
       # Database configuration
       - DATABASE_URL=postgresql://${POSTGRES_USER:-trilogy_user}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-trilogy_db}
@@ -81,6 +85,16 @@ services:
 networks:
   trilogy_network:
     driver: bridge
+    # Explicitly set DNS for external connectivity
+    driver_opts:
+      com.docker.network.bridge.host_binding_ipv4: "0.0.0.0"
+      com.docker.network.bridge.enable_icc: "true"
+      com.docker.network.bridge.enable_ip_masquerade: "true"
+    # Add DNS configuration to improve external connectivity
+    ipam:
+      config:
+        - subnet: 172.18.0.0/16
+          gateway: 172.18.0.1
 
 volumes:
   db_data:
