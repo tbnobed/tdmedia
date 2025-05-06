@@ -61,21 +61,39 @@ else
   echo "PostgreSQL is fully ready!"
 fi
 
-# Initialize the database schema
-echo "Initializing database schema..."
-chmod +x docker-init-db.cjs
-node docker-init-db.cjs
-
-echo "Database schema initialized successfully!"
+# Initialize the database schema only if needed (using a flag file to track status)
+if [ -f "./.db_initialized" ]; then
+  echo "Database schema already initialized, skipping initialization step."
+else
+  echo "Initializing database schema..."
+  chmod +x docker-init-db.cjs
+  
+  # Run the initialization script
+  if node docker-init-db.cjs; then
+    echo "Database schema initialized successfully!"
+    # Create a flag file to indicate successful initialization
+    touch ./.db_initialized
+  else
+    echo "Warning: Database initialization encountered issues, but we'll continue startup."
+  fi
+fi
 
 # Setup default users
 echo "Setting up default users..."
 chmod +x docker-setup-users.cjs
 node docker-setup-users.cjs
 
-# Set up session table if needed
+# Set up session table if needed (but don't drop it if it exists!)
 echo "Setting up session table for authentication..."
-PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE <<EOF
+# First check if the session table already exists to prevent dropping it
+PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'session')" | grep -q 't'
+SESSION_TABLE_EXISTS=$?
+
+if [ $SESSION_TABLE_EXISTS -eq 0 ]; then
+  echo "Session table already exists, skipping creation."
+else
+  echo "Creating session table..."
+  PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE <<EOF
 CREATE TABLE IF NOT EXISTS "session" (
   "sid" varchar NOT NULL COLLATE "default",
   "sess" json NOT NULL,
@@ -84,29 +102,63 @@ CREATE TABLE IF NOT EXISTS "session" (
 );
 CREATE INDEX IF NOT EXISTS "IDX_session_expire" ON "session" ("expire");
 EOF
+  echo "Session table created successfully!"
+fi
+
+# Make sure express-session won't try to drop the table by setting session_table_noexists
+# This is a safeguard for connect-pg-simple's behavior
+export PG_SESSION_KEEP_EXISTING=true
 echo "Session table setup complete!"
 
 # Ensure upload directories exist with proper permissions
 echo "Setting up upload directories..."
-mkdir -p /app/uploads/videos
-mkdir -p /app/uploads/images
-mkdir -p /app/uploads/documents
-mkdir -p /app/uploads/presentations
-mkdir -p /app/uploads/thumbnails
-chmod -R 755 /app/uploads
+{
+  mkdir -p /app/uploads/videos
+  mkdir -p /app/uploads/images
+  mkdir -p /app/uploads/documents
+  mkdir -p /app/uploads/presentations
+  mkdir -p /app/uploads/thumbnails
+  
+  # Try to set permissions, but don't fail if it's a read-only filesystem
+  chmod -R 755 /app/uploads 2>/dev/null || echo "Warning: Could not set permissions for /app/uploads (read-only filesystem)"
+  
+  # If we couldn't write to /app/uploads, try /tmp as a fallback
+  if [ ! -w "/app/uploads" ]; then
+    echo "Warning: /app/uploads is not writable. Using /tmp as fallback."
+    # Create symbolic links from non-writable locations to writable ones
+    ln -sf /tmp/uploads/videos /app/uploads/videos 2>/dev/null || echo "Warning: Could not create symlink for videos"
+    ln -sf /tmp/uploads/images /app/uploads/images 2>/dev/null || echo "Warning: Could not create symlink for images"
+    ln -sf /tmp/uploads/documents /app/uploads/documents 2>/dev/null || echo "Warning: Could not create symlink for documents"
+    ln -sf /tmp/uploads/presentations /app/uploads/presentations 2>/dev/null || echo "Warning: Could not create symlink for presentations"
+    ln -sf /tmp/uploads/thumbnails /app/uploads/thumbnails 2>/dev/null || echo "Warning: Could not create symlink for thumbnails"
+  fi
+} || echo "Warning: Issues with upload directory setup (container restriction)"
 
 # Set file size limit for the container
 echo "Setting file size limits for uploads..."
 # Using try/catch pattern for each ulimit command to handle restricted containers gracefully
-ulimit -f 2000000 > /dev/null 2>&1 || echo "Unable to set file size limit (normal in restricted containers)"
-ulimit -n 8192 > /dev/null 2>&1 || echo "Unable to set open file limit (normal in restricted containers)"
-ulimit -c unlimited > /dev/null 2>&1 || echo "Unable to set core dump limit (normal in restricted containers)"
-ulimit -m unlimited > /dev/null 2>&1 || echo "Unable to set memory limit (normal in restricted containers)"
+ulimit -f 2000000 > /dev/null 2>&1 || echo "Warning: Unable to set file size limit (normal in restricted containers)"
+ulimit -n 8192 > /dev/null 2>&1 || echo "Warning: Unable to set open file limit (normal in restricted containers)"
+ulimit -c unlimited > /dev/null 2>&1 || echo "Warning: Unable to set core dump limit (normal in restricted containers)"
+ulimit -m unlimited > /dev/null 2>&1 || echo "Warning: Unable to set memory limit (normal in restricted containers)"
 echo "System limits configured where allowed by container security"
 
 # Make sure temporary directory exists with proper permissions
-mkdir -p /tmp/uploads
-chmod 777 /tmp/uploads
+{
+  mkdir -p /tmp/uploads
+  mkdir -p /tmp/uploads/videos
+  mkdir -p /tmp/uploads/images
+  mkdir -p /tmp/uploads/documents
+  mkdir -p /tmp/uploads/presentations
+  mkdir -p /tmp/uploads/thumbnails
+  chmod 777 /tmp/uploads 2>/dev/null || echo "Warning: Could not set permissions for /tmp/uploads (unusual restriction)"
+} || echo "Warning: Issues with temporary directory setup (container restriction)"
+
+# Set environment variable to inform the application about filesystem restrictions
+if [ ! -w "/app/uploads" ]; then
+  export RESTRICTED_FILESYSTEM="true"
+  echo "Setting RESTRICTED_FILESYSTEM=true due to filesystem limitations"
+fi
 
 # Configure Node.js for large file uploads
 export NODE_MAX_HTTP_HEADER_SIZE=81920 # Increase HTTP header size to 80KB

@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, pgEnum } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, pgEnum, varchar, json } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { relations } from "drizzle-orm";
@@ -109,6 +109,13 @@ export const mediaAccessRelations = relations(mediaAccess, ({ one }) => ({
   media: one(media, { fields: [mediaAccess.mediaId], references: [media.id] }),
   createdBy: one(users, { fields: [mediaAccess.createdById], references: [users.id], relationName: 'createdBy' })
 }));
+
+// Session store table used by express-session
+export const session = pgTable("session", {
+  sid: varchar("sid").primaryKey(),
+  sess: json("sess").notNull(),
+  expire: timestamp("expire", { precision: 6 }).notNull()
+});
 
 // Export types
 export type User = typeof users.$inferSelect;

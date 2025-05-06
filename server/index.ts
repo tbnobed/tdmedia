@@ -3,6 +3,8 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import cors from "cors";
 import { setupHealthChecks } from "./healthcheck";
+import fs from "fs";
+import path from "path";
 
 const app = express();
 
@@ -42,8 +44,37 @@ app.use(cors({
 app.use(express.json({ limit: '500mb' }));
 app.use(express.urlencoded({ extended: false, limit: '500mb' }));
 
-// Serve the uploads directory statically
-app.use('/uploads', express.static('uploads'));
+// Determine the uploads directory based on environment
+const isRestrictedFilesystem = process.env.RESTRICTED_FILESYSTEM === 'true';
+const uploadsPath = isRestrictedFilesystem ? '/tmp/uploads' : 'uploads';
+
+// Serve the uploads directory statically with specific cache control
+app.use('/uploads', express.static(uploadsPath, {
+  maxAge: '1d', // Cache for one day
+  setHeaders: (res, path) => {
+    // Add cache control headers but prevent caching of videos for better streaming control
+    if (path.endsWith('.mp4') || path.endsWith('.webm') || path.endsWith('.mov')) {
+      res.setHeader('Cache-Control', 'no-cache');
+    }
+  }
+}));
+
+// Add a fallback route for uploads if the primary location fails
+if (isRestrictedFilesystem) {
+  console.log('Using fallback static file serving for restricted filesystem');
+  app.use('/uploads', (req, res, next) => {
+    // This is a fallback handler in case the main static middleware fails
+    // It will only be reached if the file wasn't found in the primary location
+    const fallbackPath = req.path.startsWith('/') ? req.path.substring(1) : req.path;
+    const fullPath = path.join('/tmp/uploads', fallbackPath);
+    
+    if (fs.existsSync(fullPath)) {
+      res.sendFile(fullPath);
+    } else {
+      next();
+    }
+  });
+}
 
 app.use((req, res, next) => {
   const start = Date.now();

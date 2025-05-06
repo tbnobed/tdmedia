@@ -8,10 +8,32 @@ import { promisify } from 'util';
 
 const execAsync = promisify(exec);
 
+// Determine the base directory for uploads based on environment
+let uploadsDir = path.join(process.cwd(), 'uploads');
+
+// Check if we're in a restricted filesystem environment (set in docker-entrypoint.sh)
+const isRestrictedFilesystem = process.env.RESTRICTED_FILESYSTEM === 'true';
+if (isRestrictedFilesystem) {
+  console.log('Running in a restricted filesystem environment, using /tmp/uploads as fallback');
+  uploadsDir = '/tmp/uploads';
+}
+
 // Create uploads directory if it doesn't exist
-const uploadsDir = path.join(process.cwd(), 'uploads');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
+try {
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+} catch (error) {
+  console.error(`Failed to create uploads directory: ${error}`);
+  
+  // If we're not already using the fallback and we encountered an error, switch to fallback
+  if (uploadsDir !== '/tmp/uploads') {
+    console.log('Falling back to /tmp/uploads directory');
+    uploadsDir = '/tmp/uploads';
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+  }
 }
 
 // Create separate folders for different media types
@@ -21,10 +43,14 @@ const videosDir = path.join(uploadsDir, 'videos');
 const presentationsDir = path.join(uploadsDir, 'presentations');
 const thumbnailsDir = path.join(uploadsDir, 'thumbnails');
 
-// Ensure all subdirectories exist
+// Ensure all subdirectories exist, with error handling
 [docsDir, imagesDir, videosDir, presentationsDir, thumbnailsDir].forEach(dir => {
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
+  try {
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+  } catch (error) {
+    console.error(`Failed to create directory ${dir}: ${error}`);
   }
 });
 
