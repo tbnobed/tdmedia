@@ -19,16 +19,23 @@ interface StreamInfo {
 
 // Helper functions for media access control
 async function checkMediaAccess(userId: number, mediaId: number, isAdmin: boolean): Promise<boolean> {
-  // Special case for user ID 1 (default admin)
-  if (userId === 1) {
-    console.log(`Admin access granted for default admin user (ID: 1)`);
+  // If isAdmin flag is already set, trust it
+  if (isAdmin) {
+    console.log(`Admin access granted for user ${userId} (from session)`);
     return true;
   }
   
-  // Admins have access to all media
-  if (isAdmin) {
-    console.log(`Admin access granted for user ${userId}`);
-    return true;
+  // If session doesn't have admin status, check the database directly
+  // This handles cases where the session isn't properly maintained by proxies
+  try {
+    const user = await storage.getUser(userId);
+    if (user && user.isAdmin) {
+      console.log(`Admin access granted for user ${userId} (from database lookup)`);
+      return true;
+    }
+  } catch (error) {
+    console.error(`Error checking admin status for user ${userId}:`, error);
+    // Continue to check media access - don't let an error here block access
   }
   
   // Get media access for this user
@@ -515,12 +522,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // since the session may not be available
       let isAdmin = !!req.user?.isAdmin;
       
-      // If it's user ID 1, we know it's an admin (usually the default admin account)
-      // This workaround ensures admins can access media in production
-      if (userId === 1) {
-        isAdmin = true;
-        console.log(`Treating user ID 1 as admin for media access`);
-      }
+      // No need for special case handling - the checkMediaAccess function
+      // will now look up admin status directly from the database
+      console.log(`Checking access for user ${userId}, session admin status: ${isAdmin}`);
       
       const hasAccess = await checkMediaAccess(userId, id, isAdmin);
       
