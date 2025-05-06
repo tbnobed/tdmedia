@@ -37,6 +37,10 @@ async function comparePasswords(supplied: string, stored: string) {
 }
 
 export function setupAuth(app: Express) {
+  // Print diagnostic information about environment
+  console.log(`Setting up authentication in ${process.env.NODE_ENV || 'development'} environment`);
+  console.log(`Session secret exists: ${!!process.env.SESSION_SECRET}`);
+  
   // Strong, proper session configuration
   const sessionSettings: session.SessionOptions = {
     secret: process.env.SESSION_SECRET || "secure-media-cms-secret",
@@ -47,7 +51,8 @@ export function setupAuth(app: Express) {
     cookie: {
       maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
       httpOnly: true, 
-      secure: process.env.NODE_ENV === "production",
+      // Secure in production, but allow non-secure cookies in development
+      secure: process.env.NODE_ENV === "production" ? true : false,
       sameSite: "lax"
     }
   };

@@ -73,6 +73,19 @@ echo "Setting up default users..."
 chmod +x docker-setup-users.cjs
 node docker-setup-users.cjs
 
+# Set up session table if needed
+echo "Setting up session table for authentication..."
+PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE <<EOF
+CREATE TABLE IF NOT EXISTS "session" (
+  "sid" varchar NOT NULL COLLATE "default",
+  "sess" json NOT NULL,
+  "expire" timestamp(6) NOT NULL,
+  CONSTRAINT "session_pkey" PRIMARY KEY ("sid")
+);
+CREATE INDEX IF NOT EXISTS "IDX_session_expire" ON "session" ("expire");
+EOF
+echo "Session table setup complete!"
+
 # Ensure upload directories exist with proper permissions
 echo "Setting up upload directories..."
 mkdir -p /app/uploads/videos

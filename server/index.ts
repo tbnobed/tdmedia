@@ -6,11 +6,31 @@ import { setupHealthChecks } from "./healthcheck";
 
 const app = express();
 
+// Configure CORS origins based on environment
+const configureOrigins = () => {
+  const corsOrigins = process.env.CORS_ALLOWED_ORIGINS || '*';
+  
+  // Log the CORS configuration
+  console.log(`Configuring CORS with origins: ${corsOrigins}`);
+  
+  if (corsOrigins === '*') {
+    return true; // Allow all origins
+  }
+  
+  if (process.env.NODE_ENV === 'production') {
+    // Handle comma-separated list of domains
+    if (corsOrigins.includes(',')) {
+      return corsOrigins.split(',').map(origin => origin.trim());
+    }
+    return [corsOrigins, /\.replit\.app$/, /\.replit\.dev$/];
+  }
+  
+  return true; // Default to all origins in development
+};
+
 // Enable properly configured CORS with session credentials
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://trilogymedia.com', /\.replit\.app$/, /\.replit\.dev$/] // Limit to known domains in production
-    : true, // Allow all origins in development
+  origin: configureOrigins(),
   credentials: true, // Critical for cookies/sessions to work cross-domain
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Set-Cookie'],
