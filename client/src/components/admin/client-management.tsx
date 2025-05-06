@@ -306,9 +306,10 @@ export default function ClientManagement() {
                           variant="outline"
                           size="sm"
                           onClick={() => {
-                            // Navigate to user media access with this user selected
+                            // Store the selected client ID in localStorage
+                            localStorage.setItem('selectedClientId', client.id.toString());
+                            // Navigate to user media access tab
                             window.location.hash = "access";
-                            // TODO: Pre-select this user in the user media access component
                           }}
                         >
                           Manage Access

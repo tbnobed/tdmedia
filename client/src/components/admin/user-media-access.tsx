@@ -66,6 +66,16 @@ export default function UserMediaAccess() {
   const [selectedMedia, setSelectedMedia] = useState<number | null>(null);
   const [showAssignDialog, setShowAssignDialog] = useState(false);
 
+  // Check for pre-selected client ID from localStorage when component mounts
+  useEffect(() => {
+    const storedClientId = localStorage.getItem('selectedClientId');
+    if (storedClientId) {
+      setSelectedUser(parseInt(storedClientId));
+      // Clear it after use to avoid unexpected selections on future loads
+      localStorage.removeItem('selectedClientId');
+    }
+  }, []);
+
   // Query for all client users (non-admin)
   const {
     data: clients,
