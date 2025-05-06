@@ -7,6 +7,7 @@ import { z } from "zod";
 import fs from "fs";
 import path from "path";
 import { createHmac } from "crypto";
+import { sendWelcomeEmail } from "./email";
 import { db } from "@db";
 import { sql, InferSelectModel } from "drizzle-orm";
 import { upload, getFileTypeFromFilename, getFormattedFileSize, generateThumbnail, getVideoDuration } from './upload';
