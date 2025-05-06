@@ -302,6 +302,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Make sure the file path is absolute
       let filePath = mediaItem.fileUrl;
+      console.log('Original file URL:', filePath);
+      
       // Remove the leading slash if it exists and prepend the current directory
       if (filePath.startsWith('/')) {
         filePath = '.' + filePath;
@@ -309,9 +311,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         filePath = './' + filePath;
       }
       
+      console.log('Adjusted file path for thumbnail generation:', filePath);
+      
       // Check if the file exists
       if (!fs.existsSync(filePath)) {
-        return res.status(404).json({ message: "Video file not found" });
+        console.error(`Video file not found at path: ${filePath}`);
+        // Try alternative path formats
+        const altPath = path.join(process.cwd(), 'uploads', 'videos', path.basename(filePath));
+        console.log('Trying alternative path:', altPath);
+        
+        if (fs.existsSync(altPath)) {
+          filePath = altPath;
+          console.log('Found file at alternative path:', filePath);
+        } else {
+          return res.status(404).json({ message: "Video file not found" });
+        }
       }
       
       // Generate the thumbnail
@@ -324,11 +338,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
         });
       }
       
+      // Make sure thumbnail path is properly formatted for the browser
+      let thumbnailUrl = result.thumbnailPath || '';
+      
+      // Log thumbnail information for debugging
+      console.log('Generated thumbnail URL:', thumbnailUrl);
+      
       // Update the media item with the new thumbnail
       const updatedMedia = await storage.updateMedia(id, {
         ...mediaItem,
-        thumbnailUrl: result.thumbnailPath
+        thumbnailUrl
       });
+      
+      console.log('Updated media with thumbnail:', updatedMedia);
       
       res.status(200).json({
         message: "Thumbnail generated successfully",

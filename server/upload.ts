@@ -158,6 +158,16 @@ export async function generateThumbnail(videoId: number, videoFilePath: string):
     const thumbnailFilename = `thumbnail-${videoId}-${Date.now()}.jpg`;
     const thumbnailPath = path.join(thumbnailsDir, thumbnailFilename);
     
+    // Extract the base URL part from the video file path if it exists
+    let baseUrl = '';
+    if (videoFilePath.startsWith('http')) {
+      // If it's an absolute URL, extract the domain part
+      const url = new URL(videoFilePath);
+      baseUrl = `${url.protocol}//${url.host}`;
+    }
+    
+    console.log('Video file path for thumbnail generation:', videoFilePath);
+    
     // In a real implementation, we would use ffmpeg to extract a frame from the video
     // For now, we'll create a simple placeholder image that indicates this is a video thumbnail
     const placeholderSvg = `
@@ -174,8 +184,9 @@ export async function generateThumbnail(videoId: number, videoFilePath: string):
     // Write the SVG to a file
     fs.writeFileSync(thumbnailPath, placeholderSvg);
     
-    // Calculate relative path for the database
+    // Calculate relative path for the database (from the app root)
     const relativeThumbnailPath = `/uploads/thumbnails/${thumbnailFilename}`;
+    console.log('Generated thumbnail at:', relativeThumbnailPath);
     
     return {
       success: true,

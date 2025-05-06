@@ -1,3 +1,4 @@
+import React from "react";
 import { Media } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { getMediaTypeColor, getMediaMetadata, getMediaActionText, getMediaActionIcon } from "@/lib/media-utils";
@@ -90,7 +91,8 @@ export default function MediaList({ media, onOpenMedia }: MediaListProps) {
                     size="sm"
                     onClick={() => onOpenMedia(item)}
                   >
-                    <ActionIcon className="mr-1 h-4 w-4" /> {getMediaActionText(item.type)}
+                    {ActionIcon && React.createElement(ActionIcon, { className: "mr-1 h-4 w-4" })} 
+                    {getMediaActionText(item.type)}
                   </Button>
                 </div>
               </div>
