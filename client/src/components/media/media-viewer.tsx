@@ -95,7 +95,13 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
         
         <div className="bg-gray-900 aspect-video relative">
           {/* Watermark */}
-          <div className="watermark"></div>
+          <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
+            <div className="absolute inset-0 flex items-center justify-center opacity-10 select-none">
+              <div className="transform rotate-[-30deg] text-white whitespace-nowrap text-5xl font-bold tracking-wider">
+                TRILOGY DIGITAL TRILOGY DIGITAL TRILOGY DIGITAL
+              </div>
+            </div>
+          </div>
           
           {/* Video Player */}
           {activeViewer === "video" && (

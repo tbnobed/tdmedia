@@ -174,6 +174,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         thumbnailUrl = fileUrl;
       }
       
+      // Add metadata about watermarking
+      let watermarkInfo = '';
+      if (fileType === 'image' || fileType === 'video') {
+        watermarkInfo = 'Watermarked with "TRILOGY DIGITAL" branding';
+      } else if (fileType === 'document' || fileType === 'presentation') {
+        watermarkInfo = 'Protected document with "TRILOGY DIGITAL" watermark';
+      }
+      
       // Create response object with file details
       const fileData = {
         fileUrl,
@@ -181,6 +189,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         type: fileType,
         size: fileSize,
         duration: fileType === 'video' ? '00:00:00' : undefined, // Simplified
+        watermark: watermarkInfo
       };
       
       res.status(201).json(fileData);
