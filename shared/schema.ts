@@ -72,6 +72,18 @@ export const insertContactSchema = createInsertSchema(contacts, {
   message: (schema) => schema.min(10, "Message must be at least 10 characters")
 }).omit({ id: true, createdAt: true, isRead: true });
 
+// Media access assignments - links users to media they can access
+export const mediaAccess = pgTable("media_access", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  mediaId: integer("media_id").references(() => media.id).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdById: integer("created_by_id").references(() => users.id).notNull(),
+});
+
+export const insertMediaAccessSchema = createInsertSchema(mediaAccess, {})
+  .omit({ id: true, createdAt: true });
+
 // Define relations
 export const categoriesRelations = relations(categories, ({ many }) => ({
   media: many(media)
@@ -79,11 +91,23 @@ export const categoriesRelations = relations(categories, ({ many }) => ({
 
 export const mediaRelations = relations(media, ({ one, many }) => ({
   category: one(categories, { fields: [media.categoryId], references: [categories.id] }),
-  contacts: many(contacts)
+  contacts: many(contacts),
+  accessRights: many(mediaAccess)
 }));
 
 export const contactsRelations = relations(contacts, ({ one }) => ({
   media: one(media, { fields: [contacts.mediaId], references: [media.id] })
+}));
+
+export const usersRelations = relations(users, ({ many }) => ({
+  accessibleMedia: many(mediaAccess, { relationName: 'userAccess' }),
+  createdAccess: many(mediaAccess, { relationName: 'createdBy' })
+}));
+
+export const mediaAccessRelations = relations(mediaAccess, ({ one }) => ({
+  user: one(users, { fields: [mediaAccess.userId], references: [users.id], relationName: 'userAccess' }),
+  media: one(media, { fields: [mediaAccess.mediaId], references: [media.id] }),
+  createdBy: one(users, { fields: [mediaAccess.createdById], references: [users.id], relationName: 'createdBy' })
 }));
 
 // Export types
@@ -92,3 +116,5 @@ export type InsertUser = z.infer<typeof insertUserSchema>;
 export type Media = typeof media.$inferSelect;
 export type Category = typeof categories.$inferSelect;
 export type Contact = typeof contacts.$inferSelect;
+export type MediaAccess = typeof mediaAccess.$inferSelect;
+export type InsertMediaAccess = z.infer<typeof insertMediaAccessSchema>;
