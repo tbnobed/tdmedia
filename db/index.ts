@@ -1,8 +1,8 @@
 import * as schema from "@shared/schema";
 import { sql } from 'drizzle-orm';
 
-// Check if we're in production Docker environment
-const isProduction = process.env.NODE_ENV === 'production';
+// Check database connection type based on URL
+const isNeonDatabase = process.env.DATABASE_URL?.includes('neon.tech') || false;
 
 // Create database connection
 if (!process.env.DATABASE_URL) {
@@ -17,25 +17,10 @@ let db: any;
 
 // Initialize database connection
 async function initDb() {
-  if (isProduction) {
-    // In Docker production, use standard pg Pool
-    const pg = await import('pg');
-    const postgres = await import('postgres');
-    const { drizzle: drizzlePg } = await import('drizzle-orm/postgres-js');
+  if (isNeonDatabase) {
+    // For Neon Serverless PostgreSQL (cloud)
+    console.log('Using Neon serverless client');
     
-    // Ensure connection string exists
-    if (!process.env.DATABASE_URL) {
-      throw new Error("DATABASE_URL must be set for production environment");
-    }
-    
-    // Connect to PostgreSQL
-    pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
-    const sql = postgres.default(process.env.DATABASE_URL);
-    db = drizzlePg(sql, { schema });
-    
-    console.log('Using PostgreSQL client for production environment');
-  } else {
-    // In development, use Neon serverless driver
     const { Pool, neonConfig } = await import('@neondatabase/serverless');
     const { drizzle: drizzleNeon } = await import('drizzle-orm/neon-serverless');
     const ws = await import('ws');
@@ -45,8 +30,18 @@ async function initDb() {
     
     pool = new Pool({ connectionString: process.env.DATABASE_URL });
     db = drizzleNeon({ client: pool, schema });
+  } else {
+    // For standard PostgreSQL (local or Docker)
+    console.log('Using standard PostgreSQL client');
     
-    console.log('Using Neon serverless client for development environment');
+    const pg = await import('pg');
+    const postgres = await import('postgres');
+    const { drizzle: drizzlePg } = await import('drizzle-orm/postgres-js');
+    
+    // Connect to PostgreSQL
+    pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+    const pgClient = postgres.default(process.env.DATABASE_URL);
+    db = drizzlePg(pgClient, { schema });
   }
 }
 
