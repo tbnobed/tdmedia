@@ -41,6 +41,9 @@ The following environment variables can be set in the `.env` file:
 - `PORT`: Application port (default: 5000)
 - `SESSION_SECRET`: Secret for session encryption (default: trilogy_session_secret)
 
+#### Email Configuration
+- `SENDGRID_API_KEY`: SendGrid API key for sending emails (required for client onboarding email functionality)
+
 #### Default Users
 - `ADMIN_EMAIL`: Admin email (default: admin@example.com)
 - `ADMIN_PASSWORD`: Admin password (default: adminpassword)
@@ -109,3 +112,7 @@ The application provides a health check endpoint at `/api/healthcheck` that can 
 - Watermarked media streaming for preview
 - Contact form for client inquiries
 - Admin panel for content management
+- Client user management with automated onboarding
+- Welcome emails for new clients via SendGrid integration
+- Granular media access control for individual clients
+- Advanced navigation between admin dashboard tabs

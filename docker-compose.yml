@@ -37,6 +37,9 @@ services:
       # Database client configuration
       - USE_NEON_CLIENT=false  # Force using standard pg client instead of Neon
       
+      # Email configuration
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY:-}
+      
       # Large file upload configuration
       - NODE_MAX_HTTP_HEADER_SIZE=81920
       - UV_THREADPOOL_SIZE=32
