@@ -1,0 +1,73 @@
+/* CSS to hide fullscreen button for non-admin users */
+.client-video::-webkit-media-controls-fullscreen-button {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.client-video::-webkit-media-controls-panel {
+  display: flex !important;
+}
+
+.client-video::-webkit-media-controls-play-button,
+.client-video::-webkit-media-controls-timeline,
+.client-video::-webkit-media-controls-current-time-display,
+.client-video::-webkit-media-controls-time-remaining-display,
+.client-video::-webkit-media-controls-mute-button,
+.client-video::-webkit-media-controls-volume-slider {
+  display: inline-flex !important;
+}
+
+/* Override for Firefox */
+.client-video::-moz-media-controls-fullscreen-button {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Position a blocker over the fullscreen button */
+.fullscreen-blocker {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 40px; 
+  height: 40px;
+  background: transparent;
+  z-index: 100;
+  cursor: not-allowed;
+}
+
+/* Disable fullscreen and F11 */
+:-webkit-full-screen {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+}
+
+/* Special case for when the fullscreen is forced on */
+.client-video-container.fullscreen-disabled {
+  max-width: 100% !important;
+  max-height: 100% !important;
+  width: 100% !important;
+  height: auto !important;
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: none !important;
+  margin: 0 !important;
+}
+
+/* Ensure the video doesn't respond to browser fullscreen APIs */
+.client-video.fullscreen-disabled:fullscreen,
+.client-video.fullscreen-disabled:-webkit-full-screen,
+.client-video.fullscreen-disabled:-moz-full-screen,
+.client-video.fullscreen-disabled:-ms-fullscreen {
+  position: relative !important;
+  top: auto !important;
+  left: auto !important;
+  width: 100% !important;
+  height: auto !important;
+  transform: none !important;
+}

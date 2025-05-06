@@ -1,6 +1,7 @@
 import { useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
+import "./video-player.css";
 
 interface StreamInfo {
   streamUrl: string;
@@ -98,14 +99,100 @@ export default function VideoPlayer({
         return Promise.reject(new Error("Fullscreen is disabled for client users"));
       };
       
+      // Add event listener for key events that might trigger fullscreen (F11, etc.)
+      const handleKeyDown = (e: KeyboardEvent) => {
+        // Check for fullscreen key combinations
+        if (e.key === 'f' || e.key === 'F' || e.key === 'F11') {
+          console.log("Fullscreen keyboard shortcut blocked");
+          e.preventDefault();
+          e.stopPropagation();
+          return false;
+        }
+      };
+      
+      // Add the keyboard event listener to the video element
+      videoRef.current.addEventListener('keydown', handleKeyDown);
+      
       // Clean up on unmount
       return () => {
         if (videoRef.current) {
           videoRef.current.requestFullscreen = originalRequestFullscreen;
+          videoRef.current.removeEventListener('keydown', handleKeyDown);
         }
       };
     }
   }, [disableFullscreen, videoRef.current]);
+  
+  // Global fullscreen change detection and keyboard shortcut prevention
+  useEffect(() => {
+    if (disableFullscreen) {
+      // Handle fullscreen change events
+      const handleFullscreenChange = () => {
+        const isFullScreen = !!(
+          document.fullscreenElement ||
+          (document as any).webkitFullscreenElement ||
+          (document as any).mozFullScreenElement ||
+          (document as any).msFullscreenElement
+        );
+        
+        // If fullscreen is active but should be disabled, exit fullscreen
+        if (isFullScreen && videoRef.current) {
+          console.log("Exiting unwanted fullscreen");
+          if (document.exitFullscreen) {
+            document.exitFullscreen();
+          } else if ((document as any).webkitExitFullscreen) {
+            (document as any).webkitExitFullscreen();
+          } else if ((document as any).mozCancelFullScreen) {
+            (document as any).mozCancelFullScreen();
+          } else if ((document as any).msExitFullscreen) {
+            (document as any).msExitFullscreen();
+          }
+        }
+      };
+      
+      // Prevent keyboard shortcuts that might trigger fullscreen
+      const preventFullscreenKeys = (e: KeyboardEvent) => {
+        // F11 key for fullscreen
+        if (e.key === 'F11') {
+          e.preventDefault();
+          console.log("F11 fullscreen prevented for client users");
+          return false;
+        }
+        
+        // Cmd/Ctrl + Shift + F for fullscreen in some browsers
+        if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'f' || e.key === 'F')) {
+          e.preventDefault();
+          console.log("Ctrl+Shift+F fullscreen prevented for client users");
+          return false;
+        }
+        
+        // Alt + Enter for fullscreen in some applications
+        if (e.altKey && e.key === 'Enter') {
+          e.preventDefault();
+          console.log("Alt+Enter fullscreen prevented for client users");
+          return false;
+        }
+      };
+      
+      // Listen for fullscreen changes
+      document.addEventListener('fullscreenchange', handleFullscreenChange);
+      document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+      document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+      document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+      
+      // Listen for keyboard shortcuts
+      document.addEventListener('keydown', preventFullscreenKeys, true);
+      
+      return () => {
+        // Clean up event listeners
+        document.removeEventListener('fullscreenchange', handleFullscreenChange);
+        document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+        document.removeEventListener('mozfullscreenchange', handleFullscreenChange);
+        document.removeEventListener('MSFullscreenChange', handleFullscreenChange);
+        document.removeEventListener('keydown', preventFullscreenKeys, true);
+      };
+    }
+  }, [disableFullscreen]);
 
   if (isLoading) {
     return (
@@ -140,7 +227,7 @@ export default function VideoPlayer({
   });
   
   return (
-    <div className={`relative ${className}`} {...containerProps}>
+    <div className={`relative ${className} ${disableFullscreen ? 'client-video-container fullscreen-disabled' : ''}`} {...containerProps}>
       {/* Watermark overlay for full-size player */}
       {showWatermark && !small && (
         <div className="watermark-container absolute inset-0 pointer-events-none z-10">
@@ -164,28 +251,50 @@ export default function VideoPlayer({
         </div>
       )}
       
+      {/* Video player */}
       {streamInfo && (
-        <video
-          ref={videoRef}
-          className={`w-full ${small ? 'h-24 object-cover' : 'h-full'}`}
-          controls={controls}
-          controlsList={`nodownload ${disableFullscreen ? 'nofullscreen' : ''}`}
-          onContextMenu={preventRightClick}
-          autoPlay={autoPlay}
-          preload="auto"
-          playsInline
-          muted={muted}
-          disablePictureInPicture
-          disableRemotePlayback
-          // Critical: explicitly set allowFullScreen attribute based on our logic
-          {...(disableFullscreen ? { disablefullscreen: "true" } : {})}
-        >
-          <source 
-            src={`${window.TRILOGY_CONFIG?.apiBaseUrl || ''}${streamInfo.streamUrl}`} 
-            type="video/mp4" 
-          />
-          Your browser does not support the video tag.
-        </video>
+        <div className="relative">
+          <video
+            ref={videoRef}
+            className={`w-full ${small ? 'h-24 object-cover' : 'h-full'} ${disableFullscreen ? 'client-video fullscreen-disabled' : ''}`}
+            controls={controls}
+            controlsList={`nodownload ${disableFullscreen ? 'nofullscreen' : ''}`}
+            onContextMenu={preventRightClick}
+            autoPlay={autoPlay}
+            preload="auto"
+            playsInline
+            muted={muted}
+            disablePictureInPicture
+            disableRemotePlayback
+            // Set all possible fullscreen attributes to false for client users
+            {...(disableFullscreen ? { 
+              disablefullscreen: "true",
+              allowfullscreen: "false"
+            } : {
+              allowfullscreen: "true"
+            })}
+          >
+            <source 
+              src={`${window.TRILOGY_CONFIG?.apiBaseUrl || ''}${streamInfo.streamUrl}`} 
+              type="video/mp4" 
+            />
+            Your browser does not support the video tag.
+          </video>
+          
+          {/* Overlay element to block fullscreen button */}
+          {disableFullscreen && (
+            <div 
+              className="fullscreen-blocker" 
+              title="Fullscreen is disabled for client users"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                alert("Fullscreen is disabled for client users");
+                return false;
+              }}
+            />
+          )}
+        </div>
       )}
       
       {/* Small watermark in the preview version */}
