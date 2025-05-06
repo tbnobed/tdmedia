@@ -84,7 +84,7 @@
     @apply font-sans antialiased bg-background text-foreground;
   }
 
-  /* Custom watermark style */
+  /* Custom watermark styles */
   .watermark {
     position: absolute;
     top: 0;
@@ -95,6 +95,55 @@
     background-repeat: repeat;
     pointer-events: none;
     z-index: 10;
+  }
+  
+  /* Enhanced watermark styles */
+  .watermark-container {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 10;
+  }
+
+  .watermark-text {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.15;
+    user-select: none;
+  }
+
+  .watermark-text .watermark-content {
+    transform: rotate(-30deg);
+    color: white;
+    white-space: nowrap;
+    font-size: 2.5rem;
+    font-weight: bold;
+    letter-spacing: 0.1em;
+    text-shadow: 0 0 2px rgba(0,0,0,0.5);
+  }
+
+  .watermark-grid {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: repeat(4, 1fr);
+    opacity: 0.08;
+  }
+
+  .watermark-grid-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: rotate(-30deg);
+    color: white;
+    font-size: 1rem;
+    font-weight: 500;
+    user-select: none;
   }
   
   /* Prevent video download and right-click */

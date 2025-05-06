@@ -95,12 +95,24 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
         
         <div className="bg-gray-900 aspect-video relative">
           {/* Watermark */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
-            <div className="absolute inset-0 flex items-center justify-center opacity-10 select-none">
-              <div className="transform rotate-[-30deg] text-white whitespace-nowrap text-5xl font-bold tracking-wider">
+          <div className="watermark-container">
+            {/* Center large watermark text */}
+            <div className="watermark-text">
+              <div className="watermark-content">
                 TRILOGY DIGITAL TRILOGY DIGITAL TRILOGY DIGITAL
               </div>
             </div>
+            
+            {/* Grid watermark pattern for images and videos */}
+            {(activeViewer === "image" || activeViewer === "video") && (
+              <div className="watermark-grid">
+                {Array.from({ length: 16 }).map((_, index) => (
+                  <div key={index} className="watermark-grid-item">
+                    TRILOGY DIGITAL
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           
           {/* Video Player */}
@@ -134,8 +146,21 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
           {/* Document Viewer */}
           {activeViewer === "document" && (
             <div className={`w-full h-full bg-white relative ${isLoading ? 'hidden' : ''}`}>
+              {/* Special diagonal repeating watermark for documents */}
+              <div className="absolute inset-0 bg-black/5 overflow-hidden">
+                <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 gap-10 opacity-20">
+                  {Array.from({ length: 9 }).map((_, index) => (
+                    <div key={index} className="flex items-center justify-center">
+                      <div className="transform rotate-[-30deg] text-gray-700 text-lg font-semibold">
+                        TRILOGY DIGITAL
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
               <div className="w-full h-full flex items-center justify-center">
-                <div className="text-center">
+                <div className="text-center z-10">
                   <div className="text-5xl text-gray-400 flex justify-center mb-2">
                     {media.type === "document" ? (
                       <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -154,6 +179,9 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
                   </div>
                   <p className="mt-2 text-white bg-black/70 px-3 py-1 rounded">
                     Document preview is available for viewing only
+                  </p>
+                  <p className="mt-2 text-gray-600 text-sm">
+                    Content is protected and watermarked
                   </p>
                 </div>
               </div>

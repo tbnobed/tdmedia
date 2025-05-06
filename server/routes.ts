@@ -165,7 +165,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const baseUrl = process.env.NODE_ENV === 'production' 
         ? process.env.PUBLIC_URL || '' 
         : '';
-      const fileUrl = `${baseUrl}/uploads/${fileType}s/${file.filename}`;
+        
+      // Map file type to the correct directory path
+      let typeDirectory;
+      switch(fileType) {
+        case 'video':
+          typeDirectory = 'videos';
+          break;
+        case 'image':
+          typeDirectory = 'images';
+          break;
+        case 'document':
+          typeDirectory = 'documents';
+          break;
+        case 'presentation':
+          typeDirectory = 'presentations';
+          break;
+        default:
+          typeDirectory = 'uploads';
+      }
+      
+      const fileUrl = `${baseUrl}/uploads/${typeDirectory}/${file.filename}`;
       
       // Handle thumbnails for images and videos (simplified)
       let thumbnailUrl = '';
