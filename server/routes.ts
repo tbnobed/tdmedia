@@ -604,8 +604,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
         isAdmin: z.boolean()
       }).parse(userData);
       
-      // Create the user
-      const newUser = await storage.createUser(validatedData);
+      // Hash the password before saving the user
+      const hashedPassword = await hashPassword(validatedData.password);
+      
+      // Create the user with hashed password
+      const newUser = await storage.createUser({
+        ...validatedData,
+        password: hashedPassword
+      });
       
       // If media IDs were provided, assign them to the new user
       const mediaIds = req.body.mediaIds;
