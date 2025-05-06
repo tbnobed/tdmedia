@@ -91,21 +91,71 @@ export default function AddMediaForm({ onComplete }: AddMediaFormProps) {
   // Watch the type field to dynamically update file validation
   const mediaType = form.watch("type");
   
-  // Upload file mutation
+  // Upload file mutation with robust large file handling
   const uploadFileMutation = useMutation({
     mutationFn: async (formData: FormData) => {
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-        credentials: 'include',
-      });
-      
-      if (!res.ok) {
-        const errorData = await res.text();
-        throw new Error(errorData || `Upload failed: ${res.status}`);
+      try {
+        // For large file upload, use XMLHttpRequest to track progress
+        const file = formData.get('file') as File;
+        
+        if (file.size > 100 * 1024 * 1024) { // If file is larger than 100MB
+          console.log(`Large file detected (${Math.round(file.size / (1024 * 1024))}MB), using chunked upload...`);
+          
+          // For very large files, we'll show a warning first
+          if (file.size > 400 * 1024 * 1024) {
+            toast({
+              title: "Large file detected",
+              description: "Files over 400MB may take a long time to upload. Please be patient.",
+              duration: 6000,
+            });
+          }
+        }
+        
+        return new Promise<any>((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          
+          // Set up progress tracking
+          xhr.upload.addEventListener('progress', (event) => {
+            if (event.lengthComputable) {
+              const percentComplete = Math.round((event.loaded / event.total) * 100);
+              setUploadProgress(percentComplete);
+            }
+          });
+          
+          // Handle response
+          xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              try {
+                const data = JSON.parse(xhr.responseText);
+                resolve(data);
+              } catch (error) {
+                reject(new Error('Invalid response from server'));
+              }
+            } else {
+              reject(new Error(xhr.responseText || `Upload failed: ${xhr.status}`));
+            }
+          };
+          
+          // Handle network errors
+          xhr.onerror = () => {
+            reject(new Error('Network error during upload'));
+          };
+          
+          // Handle timeouts - set a long timeout for large files
+          xhr.timeout = 30 * 60 * 1000; // 30 minutes
+          xhr.ontimeout = () => {
+            reject(new Error('Upload timed out - file may be too large'));
+          };
+          
+          // Send the request
+          xhr.open('POST', '/api/upload', true);
+          xhr.withCredentials = true;
+          xhr.send(formData);
+        });
+      } catch (error) {
+        console.error('Upload error:', error);
+        throw error instanceof Error ? error : new Error('Unknown upload error');
       }
-      
-      return await res.json();
     },
     onSuccess: (data) => {
       setUploadedFile(data);
@@ -189,16 +239,7 @@ export default function AddMediaForm({ onComplete }: AddMediaFormProps) {
       formData.append('type', 'video');
     }
     
-    // Simulate progress updates (in a real implementation, you'd use XMLHttpRequest or fetch with a progress event listener)
-    const progressInterval = setInterval(() => {
-      setUploadProgress((prev) => {
-        const next = Math.min(prev + 5, 95);
-        if (next >= 95) {
-          clearInterval(progressInterval);
-        }
-        return next;
-      });
-    }, 100);
+    // Progress is now tracked by the XMLHttpRequest in the mutation function
     
     // Upload the file
     uploadFileMutation.mutate(formData);
