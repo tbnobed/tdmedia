@@ -581,6 +581,78 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Create a new client user
+  app.post("/api/users/clients", isAdmin, async (req, res) => {
+    try {
+      // Check if user with this email already exists
+      const existingUser = await storage.getUserByEmail(req.body.email);
+      if (existingUser) {
+        return res.status(400).json({ message: "A user with this email already exists" });
+      }
+      
+      // Prepare user data with client role
+      const userData = {
+        ...req.body,
+        isAdmin: false
+      };
+      
+      // Validate the data
+      const validatedData = z.object({
+        username: z.string().min(3),
+        email: z.string().email(),
+        password: z.string().min(6),
+        isAdmin: z.boolean()
+      }).parse(userData);
+      
+      // Create the user
+      const newUser = await storage.createUser(validatedData);
+      
+      // If media IDs were provided, assign them to the new user
+      const mediaIds = req.body.mediaIds;
+      if (Array.isArray(mediaIds) && mediaIds.length > 0) {
+        const adminId = req.user?.id || 0;
+        
+        // Assign each media to the user
+        for (const mediaId of mediaIds) {
+          await storage.assignMediaToUser(parseInt(mediaId), newUser.id, adminId);
+        }
+      }
+      
+      // Send welcome email if requested
+      if (req.body.sendWelcomeEmail === true) {
+        const success = await sendWelcomeEmail(
+          newUser.email,
+          newUser.username,
+          req.body.password, // Using original password before it was hashed
+          req.body.senderEmail
+        );
+        
+        if (!success) {
+          console.warn(`Failed to send welcome email to ${newUser.email}`);
+        } else {
+          console.log(`Welcome email sent to ${newUser.email}`);
+        }
+      }
+      
+      // Remove password from response
+      const { password, ...userWithoutPassword } = newUser;
+      
+      res.status(201).json({
+        user: userWithoutPassword,
+        emailSent: req.body.sendWelcomeEmail === true
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ errors: error.errors });
+      }
+      console.error("Error creating client:", error);
+      res.status(500).json({ 
+        message: "Failed to create client",
+        error: error instanceof Error ? error.message : String(error)
+      });
+    }
+  });
+  
   // Get all media assigned to a specific user
   app.get("/api/users/:userId/media", isAdmin, async (req, res) => {
     try {

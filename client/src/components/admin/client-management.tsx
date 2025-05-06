@@ -135,57 +135,38 @@ export default function ClientManagement() {
         message: 'Creating client account...',
       });
 
-      const { assignMedia, sendWelcomeEmail, ...userData } = data;
+      // Extract the media IDs to assign
+      const { assignMedia, ...userData } = data;
       
-      const createUserResponse = await apiRequest("POST", "/api/register", userData);
-      if (!createUserResponse.ok) {
-        throw new Error(await createUserResponse.text());
-      }
+      // Format data for the API
+      const requestData = {
+        ...userData,
+        mediaIds: assignMedia || [], // Pass the media IDs to assign in the request
+      };
       
-      const newUser = await createUserResponse.json();
-      
-      // If welcome email is enabled, send it
-      if (sendWelcomeEmail) {
-        setOnboardingStatus({
-          status: 'emailing',
-          message: 'Sending welcome email...',
-        });
-        
-        const emailResponse = await apiRequest("POST", "/api/welcome-email", {
-          userId: newUser.id,
-          password: data.password, // Need to pass the password for the welcome email
-        });
-        
-        if (!emailResponse.ok) {
-          throw new Error('Failed to send welcome email');
+      // Use the dedicated endpoint for client creation which handles everything
+      const createClientResponse = await apiRequest("POST", "/api/users/clients", requestData);
+      if (!createClientResponse.ok) {
+        const errorText = await createClientResponse.text();
+        try {
+          // Try to parse as JSON error
+          const errorJson = JSON.parse(errorText);
+          throw new Error(errorJson.message || 'Failed to create client');
+        } catch (e) {
+          // If not JSON, use the text directly
+          throw new Error(errorText || 'Failed to create client');
         }
       }
       
-      // If media is selected to assign, assign each one
-      if (assignMedia && assignMedia.length > 0) {
-        setOnboardingStatus({
-          status: 'assigning',
-          message: 'Assigning media access...',
-        });
-        
-        for (const mediaId of assignMedia) {
-          const assignResponse = await apiRequest("POST", "/api/media-access", {
-            mediaId,
-            userId: newUser.id,
-          });
-          
-          if (!assignResponse.ok) {
-            throw new Error('Failed to assign media');
-          }
-        }
-      }
+      const result = await createClientResponse.json();
       
       setOnboardingStatus({
         status: 'complete',
-        message: 'Client onboarded successfully!',
+        message: 'Client onboarded successfully!' + 
+          (result.emailSent ? ' Welcome email has been sent.' : ''),
       });
       
-      return newUser;
+      return result.user;
     },
     onSuccess: () => {
       // Invalidate queries to refresh data
@@ -463,7 +444,7 @@ export default function ClientManagement() {
                   <FormField
                     control={form.control}
                     name="assignMedia"
-                    render={() => (
+                    render={({ field }) => (
                       <FormItem>
                         <div className="mb-4">
                           <FormLabel className="text-base">Assign Media</FormLabel>
