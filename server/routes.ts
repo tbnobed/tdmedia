@@ -9,6 +9,7 @@ import path from "path";
 import { createHmac } from "crypto";
 import { db } from "@db";
 import { sql, InferSelectModel } from "drizzle-orm";
+import { upload, getFileTypeFromFilename, getFormattedFileSize } from './upload';
 
 // Extend Express Request to include user type
 declare global {
