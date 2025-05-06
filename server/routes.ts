@@ -1,6 +1,6 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
-import { setupAuth } from "./auth";
+import { setupAuth, hashPassword } from "./auth";
 import { storage } from "./storage";
 import { insertCategorySchema, insertMediaSchema, insertContactSchema, insertMediaAccessSchema, User, MediaAccess } from "@shared/schema";
 import { z } from "zod";
