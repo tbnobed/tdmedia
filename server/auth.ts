@@ -9,7 +9,15 @@ import { User } from "@shared/schema";
 
 declare global {
   namespace Express {
-    interface User extends User {}
+    // Define an interface for the user object in Passport sessions
+    interface User {
+      id: number;
+      username: string;
+      email: string;
+      password?: string;
+      isAdmin: boolean;
+      createdAt?: Date;
+    }
   }
 }
 
@@ -29,14 +37,16 @@ async function comparePasswords(supplied: string, stored: string) {
 }
 
 export function setupAuth(app: Express) {
+  // Strong, proper session configuration
   const sessionSettings: session.SessionOptions = {
     secret: process.env.SESSION_SECRET || "secure-media-cms-secret",
-    resave: false,
+    resave: false, 
     saveUninitialized: false,
     store: storage.sessionStore,
+    name: 'trilogyMedia.sid', // Named cookie helps identify our app's session
     cookie: {
-      maxAge: 1000 * 60 * 60 * 24, // 1 day
-      httpOnly: true,
+      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+      httpOnly: true, 
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax"
     }
@@ -97,13 +107,36 @@ export function setupAuth(app: Express) {
   });
 
   app.post("/api/login", (req, res, next) => {
-    passport.authenticate("local", (err, user, info) => {
-      if (err) return next(err);
-      if (!user) return res.status(401).json({ message: info?.message || "Invalid credentials" });
+    console.log('Login attempt for email:', req.body.email);
+    
+    passport.authenticate("local", (err: Error | null, user: Express.User | false, info: { message: string } | undefined) => {
+      if (err) {
+        console.error('Login error:', err);
+        return next(err);
+      }
       
-      req.login(user, (err) => {
-        if (err) return next(err);
-        return res.status(200).json(user);
+      if (!user) {
+        console.log('Authentication failed:', info?.message || 'Invalid credentials');
+        return res.status(401).json({ message: info?.message || "Invalid credentials" });
+      }
+      
+      req.login(user, (loginErr: Error | null) => {
+        if (loginErr) {
+          console.error('Session establishment error:', loginErr);
+          return next(loginErr);
+        }
+        
+        console.log('Login successful for user ID:', user.id);
+        
+        // Force session save to ensure it's stored before responding
+        req.session.save((saveErr: Error | null) => {
+          if (saveErr) {
+            console.error('Session save error:', saveErr);
+            return next(saveErr);
+          }
+          
+          return res.status(200).json(user);
+        });
       });
     })(req, res, next);
   });

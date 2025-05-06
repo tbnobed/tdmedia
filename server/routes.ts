@@ -41,22 +41,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Admin middleware - Check if user is admin
   const isAdmin = (req: Request, res: Response, next: Function) => {
+    // Check if request is authenticated
     if (!req.isAuthenticated()) {
-      return res.status(401).json({ message: "Unauthorized" });
+      console.log('Admin access attempt without authentication');
+      return res.status(401).json({ message: "Unauthorized - Please log in" });
     }
     
-    if (!req.user.isAdmin) {
+    // Check if authenticated user has admin privileges
+    if (!req.user?.isAdmin) {
+      console.log(`User ${req.user?.id} attempted admin access without permission`);
       return res.status(403).json({ message: "Forbidden - Admin access required" });
     }
     
+    // Admin check passed
+    console.log(`Admin access granted for user ${req.user.id}`);
     next();
   };
 
   // Auth middleware - Check if user is authenticated
   const isAuthenticated = (req: Request, res: Response, next: Function) => {
-    if (!req.isAuthenticated()) {
-      return res.status(401).json({ message: "Unauthorized" });
+    if (!req.isAuthenticated() || !req.user) {
+      console.log('Access attempt without valid authentication');
+      return res.status(401).json({ message: "Unauthorized - Please log in" });
     }
+    
+    // Authentication check passed
     next();
   };
 
