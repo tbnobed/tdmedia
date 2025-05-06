@@ -57,7 +57,7 @@ export default function MediaGrid({ media, onOpenMedia }: MediaGridProps) {
                     {item.thumbnailUrl ? (
                       <>
                         <img 
-                          src={item.thumbnailUrl?.startsWith('/') ? item.thumbnailUrl.substring(1) : item.thumbnailUrl} 
+                          src={`${window.TRILOGY_CONFIG?.apiBaseUrl || ''}/${item.thumbnailUrl?.startsWith('/') ? item.thumbnailUrl.substring(1) : item.thumbnailUrl}`}
                           alt={item.title} 
                           className="w-full h-full object-cover"
                           onError={(e) => {
@@ -88,7 +88,7 @@ export default function MediaGrid({ media, onOpenMedia }: MediaGridProps) {
                     </div>
                     {item.thumbnailUrl && (
                       <img 
-                        src={item.thumbnailUrl?.startsWith('/') ? item.thumbnailUrl.substring(1) : item.thumbnailUrl} 
+                        src={`${window.TRILOGY_CONFIG?.apiBaseUrl || ''}/${item.thumbnailUrl?.startsWith('/') ? item.thumbnailUrl.substring(1) : item.thumbnailUrl}`}
                         alt={item.title} 
                         className="w-full h-full object-cover"
                         onError={(e) => {
