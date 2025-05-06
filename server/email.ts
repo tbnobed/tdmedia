@@ -35,7 +35,8 @@ export async function sendWelcomeEmail(
   email: string, 
   username: string, 
   password: string, 
-  senderEmail = process.env.SENDGRID_FROM_EMAIL || 'alerts@obedtv.com'
+  senderEmail = process.env.SENDGRID_FROM_EMAIL || 'alerts@obedtv.com',
+  appDomain = process.env.APP_DOMAIN || 'app.trilogydigital.com'
 ): Promise<boolean> {
   const subject = 'Welcome to Trilogy Digital Media';
   
@@ -59,7 +60,7 @@ export async function sendWelcomeEmail(
         <p>You now have access to the media content that has been assigned to you. To access your content:</p>
         
         <ol>
-          <li>Go to our platform at <a href="https://app.trilogydigital.com">https://app.trilogydigital.com</a></li>
+          <li>Go to our platform at <a href="https://${appDomain}">https://${appDomain}</a></li>
           <li>Log in with the credentials provided above</li>
           <li>Navigate to the "My Media" section to view your assigned content</li>
         </ol>

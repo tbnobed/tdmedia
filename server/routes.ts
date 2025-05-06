@@ -630,7 +630,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
           newUser.email,
           newUser.username,
           req.body.password, // Using original password before it was hashed
-          process.env.SENDGRID_FROM_EMAIL // Use the environment variable
+          process.env.SENDGRID_FROM_EMAIL, // From email address
+          process.env.APP_DOMAIN // Application domain for login URL
         );
         
         if (!success) {
