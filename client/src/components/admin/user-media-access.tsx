@@ -112,7 +112,7 @@ export default function UserMediaAccess() {
         description: "The media has been assigned to the user successfully.",
       });
       // Invalidate queries to refresh data
-      queryClient.invalidateQueries({ queryKey: ["/api/users", selectedUser, "media"] });
+      queryClient.invalidateQueries({ queryKey: [`/api/users/${selectedUser}/media`] });
       setShowAssignDialog(false);
     },
     onError: (error: Error) => {
@@ -135,7 +135,7 @@ export default function UserMediaAccess() {
         description: "Media access has been removed successfully.",
       });
       // Invalidate queries to refresh data
-      queryClient.invalidateQueries({ queryKey: ["/api/users", selectedUser, "media"] });
+      queryClient.invalidateQueries({ queryKey: [`/api/users/${selectedUser}/media`] });
     },
     onError: (error: Error) => {
       toast({
