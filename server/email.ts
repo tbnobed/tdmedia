@@ -36,7 +36,7 @@ export async function sendWelcomeEmail(
   username: string, 
   password: string, 
   senderEmail = process.env.SENDGRID_FROM_EMAIL || 'alerts@obedtv.com',
-  appDomain = process.env.APP_DOMAIN || 'app.trilogydigital.com'
+  appDomain = process.env.APP_DOMAIN || 'tdev.obdtv.com'
 ): Promise<boolean> {
   const subject = 'Welcome to Trilogy Digital Media';
   

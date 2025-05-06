@@ -131,6 +131,7 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
                 mediaId={media.id} 
                 autoPlay={true}
                 showWatermark={true}
+                allowFullscreen={false}
                 onError={(e) => setError(e)}
                 onLoad={() => setIsLoading(false)}
               />
