@@ -12,12 +12,12 @@ window.TRILOGY_CONFIG = {
   }
 };
 
-// For Docker deployment with different domain/port
-if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
-  // If served from a different domain in production, we can update the config
-  const protocol = window.location.protocol;
-  const hostname = window.location.hostname;
-  
-  // In production Docker setup, the API is on the same domain
-  window.TRILOGY_CONFIG.apiBaseUrl = `${protocol}//${hostname}`;
-}
+// For any deployment (including Docker)
+const protocol = window.location.protocol;
+const hostname = window.location.hostname;
+const port = window.location.port ? `:${window.location.port}` : '';
+
+// Set the API base URL to the current origin (protocol + hostname + port)
+window.TRILOGY_CONFIG.apiBaseUrl = `${protocol}//${hostname}${port}`;
+
+console.log('API Base URL configured as:', window.TRILOGY_CONFIG.apiBaseUrl);

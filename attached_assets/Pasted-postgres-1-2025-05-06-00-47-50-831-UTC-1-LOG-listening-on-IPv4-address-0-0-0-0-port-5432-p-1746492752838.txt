@@ -1,0 +1,45 @@
+postgres-1  | 2025-05-06 00:47:50.831 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+postgres-1  | 2025-05-06 00:47:50.831 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+postgres-1  | 2025-05-06 00:47:50.834 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+postgres-1  | 2025-05-06 00:47:50.839 UTC [57] LOG:  database system was shut down at 2025-05-06 00:47:50 UTC
+postgres-1  | 2025-05-06 00:47:50.846 UTC [1] LOG:  database system is ready to accept connections
+app-1       | Waiting for PostgreSQL to become available...
+app-1       | postgres:5432 - accepting connections
+app-1       | PostgreSQL server is up and running!
+app-1       | Waiting for PostgreSQL authentication to be ready...
+app-1       | PostgreSQL authentication is ready!
+app-1       | PostgreSQL is fully ready!
+app-1       | Initializing database schema...
+app-1       | Initializing database schema...
+app-1       | Seeding default categories...
+app-1       | Categories seeded successfully
+app-1       | Seeding sample media...
+app-1       | Media seeded successfully
+app-1       | Database initialization completed successfully
+app-1       | Database schema initialized successfully!
+app-1       | Setting up default users...
+app-1       | Checking for admin user...
+app-1       | Creating admin user...
+app-1       | Admin user created successfully
+app-1       | Checking for client user...
+app-1       | Creating client user...
+app-1       | Client user created successfully
+app-1       | User setup completed successfully
+app-1       | Starting the application...
+app-1       |
+app-1       | > rest-express@1.0.0 start
+app-1       | > NODE_ENV=production node dist/index.js
+app-1       |
+app-1       | 12:47:55 AM [express] serving on port 5000
+app-1       | Using PostgreSQL client for production environment
+obtv-admin@dev-tdmedia:~/tdmedia$ docker ps a
+docker: 'docker ps' accepts no arguments
+
+Usage:  docker ps [OPTIONS]
+
+Run 'docker ps --help' for more information
+obtv-admin@dev-tdmedia:~/tdmedia$ docker ps
+CONTAINER ID   IMAGE                COMMAND                  CREATED         STATUS                     PORTS                                         NAMES
+59646fbb5581   tdmedia-app          "/app/docker-entrypo…"   4 minutes ago   Up 4 minutes (unhealthy)   0.0.0.0:5000->5000/tcp, [::]:5000->5000/tcp   tdmedia-app-1
+47ec26156e07   postgres:15-alpine   "docker-entrypoint.s…"   4 minutes ago   Up 4 minutes (healthy)     0.0.0.0:5432->5432/tcp, [::]:5432->5432/tcp   tdmedia-postgres-1
+obtv-admin@dev-tdmedia:~/tdmedia$
