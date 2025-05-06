@@ -79,7 +79,7 @@ export default function MediaGrid({ media, onOpenMedia }: MediaGridProps) {
                   className="w-full"
                   onClick={() => onOpenMedia(item)}
                 >
-                  {typeof ActionIcon === 'function' && <ActionIcon className="mr-2 h-4 w-4" />}
+                  {typeof ActionIcon === 'function' && <ActionIcon className="mr-2 h-4 w-4" />}{' '}
                   {getMediaActionText(item.type)}
                 </Button>
               </div>

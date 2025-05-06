@@ -31,9 +31,10 @@ import {
 } from "@/components/ui/alert-dialog";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Pencil, Trash2, Plus, Search, FileText, Video, Image, Presentation } from "lucide-react";
+import { Pencil, Trash2, Plus, Search, FileText, Video, Image, Presentation, Eye } from "lucide-react";
 import AddMediaForm from "./add-media-form";
 import EditMediaForm from "./edit-media-form";
+import MediaPreview from "./media-preview";
 
 export default function MediaManagement() {
   const { toast } = useToast();
@@ -41,6 +42,7 @@ export default function MediaManagement() {
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
   const [selectedMedia, setSelectedMedia] = useState<Media | null>(null);
 
   // Fetch all media
@@ -112,6 +114,12 @@ export default function MediaManagement() {
   // Handle thumbnail generation
   const handleGenerateThumbnail = (id: number) => {
     thumbnailMutation.mutate(id);
+  };
+  
+  // Handle preview media
+  const handlePreviewMedia = (media: Media) => {
+    setSelectedMedia(media);
+    setPreviewDialogOpen(true);
   };
 
   // Confirm delete
@@ -206,6 +214,15 @@ export default function MediaManagement() {
                       <div className="flex space-x-2">
                         <Button 
                           variant="outline" 
+                          size="sm"
+                          className="text-blue-600 hover:text-blue-800"
+                          title="View Media"
+                          onClick={() => handlePreviewMedia(item)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="outline" 
                           size="sm" 
                           onClick={() => handleEditMedia(item)}
                         >
@@ -298,6 +315,13 @@ export default function MediaManagement() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      
+      {/* Media Preview */}
+      <MediaPreview 
+        media={selectedMedia}
+        isOpen={previewDialogOpen}
+        onClose={() => setPreviewDialogOpen(false)}
+      />
     </div>
   );
 }
