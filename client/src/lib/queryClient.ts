@@ -2,8 +2,14 @@ import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
-    const text = (await res.text()) || res.statusText;
-    throw new Error(`${res.status}: ${text}`);
+    // Try to get detailed error message from the response
+    try {
+      const text = (await res.text()) || res.statusText;
+      throw new Error(`${res.status}: ${text}`);
+    } catch (err) {
+      // If we can't parse the response, throw a generic error with status
+      throw new Error(`Request failed with status ${res.status}`);
+    }
   }
 }
 
@@ -12,19 +18,30 @@ export async function apiRequest(
   url: string,
   data?: unknown | undefined,
 ): Promise<Response> {
-  // Use apiBaseUrl from config if available
-  const baseUrl = window.TRILOGY_CONFIG?.apiBaseUrl || '';
-  const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
-  
-  const res = await fetch(fullUrl, {
-    method,
-    headers: data ? { "Content-Type": "application/json" } : {},
-    body: data ? JSON.stringify(data) : undefined,
-    credentials: "include",
-  });
+  try {
+    // Use apiBaseUrl from config if available
+    const baseUrl = window.TRILOGY_CONFIG?.apiBaseUrl || '';
+    const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
+    
+    console.log(`Making ${method} request to: ${fullUrl}`);
+    
+    const res = await fetch(fullUrl, {
+      method,
+      headers: data ? { "Content-Type": "application/json" } : {},
+      body: data ? JSON.stringify(data) : undefined,
+      credentials: "include",
+    });
 
-  await throwIfResNotOk(res);
-  return res;
+    await throwIfResNotOk(res);
+    return res;
+  } catch (error) {
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      // Network error (connection refused, network offline, etc.)
+      throw new Error('NetworkError when attempting to fetch resource.');
+    }
+    // Re-throw any other errors
+    throw error;
+  }
 }
 
 type UnauthorizedBehavior = "returnNull" | "throw";
@@ -33,20 +50,32 @@ export const getQueryFn: <T>(options: {
 }) => QueryFunction<T> =
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
-    const baseUrl = window.TRILOGY_CONFIG?.apiBaseUrl || '';
-    const url = queryKey[0] as string;
-    const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
-    
-    const res = await fetch(fullUrl, {
-      credentials: "include",
-    });
+    try {
+      const baseUrl = window.TRILOGY_CONFIG?.apiBaseUrl || '';
+      const url = queryKey[0] as string;
+      const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
+      
+      console.log(`Making GET request to: ${fullUrl}`);
+      
+      const res = await fetch(fullUrl, {
+        credentials: "include",
+      });
 
-    if (unauthorizedBehavior === "returnNull" && res.status === 401) {
-      return null;
+      if (unauthorizedBehavior === "returnNull" && res.status === 401) {
+        return null;
+      }
+
+      await throwIfResNotOk(res);
+      return await res.json();
+    } catch (error) {
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        // Network error (connection refused, network offline, etc.)
+        console.error('Network error occurred:', error);
+        throw new Error('NetworkError when attempting to fetch resource.');
+      }
+      // Re-throw any other errors
+      throw error;
     }
-
-    await throwIfResNotOk(res);
-    return await res.json();
   };
 
 export const queryClient = new QueryClient({

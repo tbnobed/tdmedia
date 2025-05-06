@@ -137,6 +137,21 @@ export default function AuthPage() {
                     "Sign in"
                   )}
                 </Button>
+                
+                {loginMutation.isError && (
+                  <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
+                    <p className="font-medium mb-1 flex items-center">
+                      <ShieldAlert className="mr-1 h-4 w-4" /> 
+                      Login Error
+                    </p>
+                    <p>{loginMutation.error.message}</p>
+                    {loginMutation.error.message.includes('NetworkError') && (
+                      <p className="mt-1 text-xs">
+                        Please check your connection and try again. The server may be unavailable.
+                      </p>
+                    )}
+                  </div>
+                )}
               </form>
             </Form>
 
