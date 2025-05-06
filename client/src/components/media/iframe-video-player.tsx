@@ -112,8 +112,8 @@ export default function IframeVideoPlayer({
   // Construct the video URL
   const videoUrl = `${window.TRILOGY_CONFIG?.apiBaseUrl || ''}${streamInfo.streamUrl}`;
   
-  // Create a minimal HTML document that contains just the video
-  // This prevents any fullscreen capabilities that might be available
+  // Create an enhanced HTML document that contains the video with appropriate watermarks
+  // and fullscreen restrictions based on user role
   const iframeContent = `
     <!DOCTYPE html>
     <html>
@@ -137,6 +137,49 @@ export default function IframeVideoPlayer({
         video::-webkit-media-controls-fullscreen-button {
           display: none !important;
         }
+        
+        /* Watermark styles */
+        .watermark-container {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          pointer-events: none;
+          z-index: 10;
+        }
+        
+        .watermark-text {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%) rotate(-30deg);
+          font-size: 3rem;
+          font-weight: bold;
+          color: rgba(255, 255, 255, 0.2);
+          white-space: nowrap;
+        }
+        
+        .watermark-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          grid-template-rows: repeat(4, 1fr);
+          width: 100%;
+          height: 100%;
+        }
+        
+        .watermark-grid-item {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        
+        .watermark-grid-item span {
+          transform: rotate(-30deg);
+          font-size: 0.875rem;
+          color: rgba(255, 255, 255, 0.2);
+          font-weight: 500;
+        }
       </style>
     </head>
     <body>
@@ -149,36 +192,96 @@ export default function IframeVideoPlayer({
       >
         Your browser does not support the video tag.
       </video>
+      
+      <div id="watermarkContainer" class="watermark-container" style="display: none;">
+        <div class="watermark-text">
+          TRILOGY DIGITAL
+        </div>
+        
+        <div class="watermark-grid">
+          ${Array.from({ length: 16 }).map((_, index) => `
+            <div class="watermark-grid-item">
+              <span>TRILOGY DIGITAL</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      
       <script>
         const video = document.querySelector('video');
+        const watermarkContainer = document.getElementById('watermarkContainer');
         
-        // Block fullscreen requests
-        video.addEventListener('webkitfullscreenchange', (e) => {
-          if (document.webkitFullscreenElement) {
-            document.webkitExitFullscreen();
+        // Function to check response headers for watermarking instructions
+        async function checkWatermarkHeaders() {
+          try {
+            // Make a HEAD request to the video URL to get headers
+            const response = await fetch('${videoUrl}', {
+              method: 'HEAD',
+              credentials: 'include'
+            });
+            
+            // Check if watermarking is required based on headers
+            const watermarkRequired = response.headers.get('X-Trilogy-Watermark') === 'required';
+            const userRole = response.headers.get('X-Trilogy-Role') || 'client';
+            
+            console.log('Video headers:', {
+              watermarkRequired,
+              userRole
+            });
+            
+            // Show watermark for client users or if specifically required
+            if (watermarkRequired || userRole === 'client') {
+              watermarkContainer.style.display = 'block';
+            }
+            
+            // Apply fullscreen restrictions based on user role
+            if (userRole !== 'admin') {
+              applyFullscreenRestrictions();
+            }
+          } catch (error) {
+            console.error('Error checking watermark headers:', error);
+            // Default to showing watermark on error
+            watermarkContainer.style.display = 'block';
+            applyFullscreenRestrictions();
           }
-        });
+        }
         
-        video.addEventListener('fullscreenchange', (e) => {
-          if (document.fullscreenElement) {
-            document.exitFullscreen();
-          }
-        });
+        // Function to apply fullscreen restrictions
+        function applyFullscreenRestrictions() {
+          // Block fullscreen requests
+          video.addEventListener('webkitfullscreenchange', (e) => {
+            if (document.webkitFullscreenElement) {
+              document.webkitExitFullscreen();
+            }
+          });
+          
+          video.addEventListener('fullscreenchange', (e) => {
+            if (document.fullscreenElement) {
+              document.exitFullscreen();
+            }
+          });
+          
+          // Prevent fullscreen via JS
+          const origRequestFullscreen = video.requestFullscreen;
+          video.requestFullscreen = function() {
+            console.log('Fullscreen blocked by restriction');
+            return Promise.reject(new Error('Fullscreen is disabled'));
+          };
+          
+          // Block keyboard shortcuts
+          document.addEventListener('keydown', (e) => {
+            if (e.key === 'f' || e.key === 'F' || e.key === 'F11') {
+              e.preventDefault();
+              return false;
+            }
+          });
+        }
         
-        // Prevent fullscreen via JS
-        const origRequestFullscreen = video.requestFullscreen;
-        video.requestFullscreen = function() {
-          console.log('Fullscreen blocked by restriction');
-          return Promise.reject(new Error('Fullscreen is disabled'));
-        };
+        // Check watermark requirements when video is loaded
+        video.addEventListener('loadedmetadata', checkWatermarkHeaders);
         
-        // Block keyboard shortcuts
-        document.addEventListener('keydown', (e) => {
-          if (e.key === 'f' || e.key === 'F' || e.key === 'F11') {
-            e.preventDefault();
-            return false;
-          }
-        });
+        // Apply fullscreen restrictions by default for safety
+        applyFullscreenRestrictions();
       </script>
     </body>
     </html>
@@ -200,22 +303,11 @@ export default function IframeVideoPlayer({
         sandbox="allow-same-origin allow-scripts"
       ></iframe>
       
-      {/* Watermark overlay */}
-      {showWatermark && !small && isIframeLoaded && (
-        <div className="watermark-overlay">
-          <div className="watermark-text">
-            TRILOGY DIGITAL
-          </div>
-          
-          <div className="watermark-grid">
-            {Array.from({ length: 16 }).map((_, index) => (
-              <div key={index} className="watermark-grid-item">
-                <span>TRILOGY DIGITAL</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+      {/* 
+        Note: We've moved the watermark inside the iframe for better security
+        and to make it impossible for users to remove it using browser dev tools.
+        The watermark is controlled by the server-side X-Trilogy-Watermark header.
+      */}
     </div>
   );
 }

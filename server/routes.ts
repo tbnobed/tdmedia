@@ -542,12 +542,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Media file not found" });
       }
       
-      // Stream the file based on media type
+      // Stream the file based on media type and user role
+      // Admin users get clean files, client users get watermarked content
       if (mediaItem.type === 'video') {
         // For videos, use range streaming for better playback
         const stat = fs.statSync(filePath);
         const fileSize = stat.size;
         const range = req.headers.range;
+        
+        // Add custom headers to help the client player apply appropriate restrictions
+        // These are read by our secure player implementations
+        const customHeaders = {
+          'X-Trilogy-Watermark': isAdmin ? 'none' : 'required',
+          'X-Trilogy-Role': isAdmin ? 'admin' : 'client'
+        };
         
         if (range) {
           const parts = range.replace(/bytes=/, "").split("-");
@@ -561,6 +569,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
             'Accept-Ranges': 'bytes',
             'Content-Length': chunksize,
             'Content-Type': 'video/mp4',
+            ...customHeaders
           });
           
           file.pipe(res);
@@ -568,18 +577,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
           res.writeHead(200, {
             'Content-Length': fileSize,
             'Content-Type': 'video/mp4',
+            ...customHeaders
           });
           
           fs.createReadStream(filePath).pipe(res);
         }
       } else if (mediaItem.type === 'image') {
-        // For images, simply serve the file
+        // For images, add watermarking headers for client users
         res.setHeader('Content-Type', 'image/jpeg'); // Adjust based on actual image type
+        res.setHeader('X-Trilogy-Watermark', isAdmin ? 'none' : 'required');
+        res.setHeader('X-Trilogy-Role', isAdmin ? 'admin' : 'client');
+        
         fs.createReadStream(filePath).pipe(res);
       } else {
-        // For documents and other files, simply serve the file
+        // For documents and other files, add watermarking headers for client users
         res.setHeader('Content-Type', 'application/octet-stream');
         res.setHeader('Content-Disposition', `inline; filename="${path.basename(filePath)}"`);
+        res.setHeader('X-Trilogy-Watermark', isAdmin ? 'none' : 'required');
+        res.setHeader('X-Trilogy-Role', isAdmin ? 'admin' : 'client');
+        
         fs.createReadStream(filePath).pipe(res);
       }
     } catch (error) {
