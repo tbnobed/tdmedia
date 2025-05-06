@@ -1,9 +1,8 @@
-import React from "react";
 import { Media } from "@shared/schema";
 import { Button } from "@/components/ui/button";
-import { getMediaTypeColor, getMediaMetadata, getMediaActionText, getMediaActionIcon } from "@/lib/media-utils";
+import { getMediaTypeColor, getMediaMetadata, getMediaActionText } from "@/lib/media-utils";
 import VideoPlayer from "@/components/media/video-player";
-import * as LucideIcons from "lucide-react";
+import { FileQuestion, Play, Eye, FileText, Presentation, File } from "lucide-react";
 
 interface MediaListProps {
   media: Media[];
@@ -16,7 +15,7 @@ export default function MediaList({ media, onOpenMedia }: MediaListProps) {
       <div className="bg-white rounded-md shadow overflow-hidden">
         <div className="flex flex-col items-center justify-center py-12">
           <div className="bg-gray-100 rounded-full p-4 mb-4">
-            <LucideIcons.FileQuestion className="h-8 w-8 text-gray-400" />
+            <FileQuestion className="h-8 w-8 text-gray-400" />
           </div>
           <h3 className="text-lg font-medium text-gray-900">No media found</h3>
           <p className="mt-1 text-sm text-gray-500">Try adjusting your search or filter criteria</p>
@@ -30,7 +29,6 @@ export default function MediaList({ media, onOpenMedia }: MediaListProps) {
       <ul className="divide-y divide-gray-200">
         {media.map((item) => {
           const typeColor = getMediaTypeColor(item.type);
-          const ActionIcon = LucideIcons[getMediaActionIcon(item.type) as keyof typeof LucideIcons];
           
           return (
             <li key={item.id}>
@@ -46,7 +44,7 @@ export default function MediaList({ media, onOpenMedia }: MediaListProps) {
                         />
                         <div className="absolute inset-0 flex items-center justify-center">
                           <div className="bg-black bg-opacity-30 rounded-full p-2">
-                            <LucideIcons.Play className="h-4 w-4 text-white" />
+                            <Play className="h-4 w-4 text-white" />
                           </div>
                         </div>
                       </div>
@@ -68,7 +66,7 @@ export default function MediaList({ media, onOpenMedia }: MediaListProps) {
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <LucideIcons.File className="h-8 w-8 text-gray-400" />
+                        <File className="h-8 w-8 text-gray-400" />
                       </div>
                     )
                   )}
@@ -91,7 +89,10 @@ export default function MediaList({ media, onOpenMedia }: MediaListProps) {
                     size="sm"
                     onClick={() => onOpenMedia(item)}
                   >
-                    {ActionIcon && React.createElement(ActionIcon, { className: "mr-1 h-4 w-4" })} 
+                    {item.type === 'video' && <Play className="mr-1 h-4 w-4" />}
+                    {item.type === 'image' && <Eye className="mr-1 h-4 w-4" />}
+                    {item.type === 'document' && <FileText className="mr-1 h-4 w-4" />}
+                    {item.type === 'presentation' && <Presentation className="mr-1 h-4 w-4" />}
                     {getMediaActionText(item.type)}
                   </Button>
                 </div>
