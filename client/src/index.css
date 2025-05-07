@@ -5,73 +5,73 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 0 0% 7%;
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 0 0% 7%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 142.1 70% 45%;  /* #2B9B5D - Trilogy green */
-    --primary-foreground: 210 40% 98%;
-    --secondary: 115 65% 60%;  /* #8AE160 - Trilogy light green */
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 142.1 80% 40%;   /* #29914F - Trilogy dark green */
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --popover-foreground: 0 0% 7%;
+    --primary: 0 0% 0%;  /* #000000 - TBN Black */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 20%;  /* #333333 - TBN Dark Gray */
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 12%;  /* #1F1F1F - TBN Accent Dark Gray */
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 221.2 83.2% 53.3%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
     --radius: 0.5rem;
-    --chart-1: 221.2 83.2% 53.3%;
-    --chart-2: 262.1 83.3% 57.8%;
-    --chart-3: 142.1 76.2% 36.3%;
-    --chart-4: 358 75% 59%;
-    --chart-5: 32.1 94.6% 43.7%;
+    --chart-1: 0 0% 20%;
+    --chart-2: 0 0% 40%;
+    --chart-3: 0 0% 60%;
+    --chart-4: 0 0% 80%;
+    --chart-5: 0 0% 32%;
     --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 222.2 84% 4.9%;
-    --sidebar-primary: 221.2 83.2% 53.3%;
-    --sidebar-primary-foreground: 210 40% 98%;
-    --sidebar-accent: 262.1 83.3% 57.8%;
-    --sidebar-accent-foreground: 222.2 47.4% 11.2%;
-    --sidebar-border: 214.3 31.8% 91.4%;
-    --sidebar-ring: 221.2 83.2% 53.3%;
+    --sidebar-foreground: 0 0% 7%;
+    --sidebar-primary: 0 0% 0%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 20%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 89.8%;
+    --sidebar-ring: 0 0% 3.9%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 142.1 55% 32%;  /* Darker Trilogy green for dark mode */
+    --background: 0 0% 7%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 7%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 7%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 12%;  /* #1F1F1F - Darker TBN Black for dark mode */
     --primary-foreground: 0 0% 100%;
-    --secondary: 115 45% 48%;  /* Darker Trilogy light green for dark mode */
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 142.1 60% 25%;   /* Very dark Trilogy green for dark mode */
-    --accent-foreground: 210 40% 98%;
+    --secondary: 0 0% 25%;  /* #404040 - Darker TBN Gray for dark mode */
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 20%;  /* #333333 - TBN Accent Gray for dark mode */
+    --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
-    --chart-1: 217.2 91.2% 59.8%;
-    --chart-2: 262.1 83.3% 57.8%;
-    --chart-3: 142.1 76.2% 36.3%;
-    --chart-4: 358 75% 59%;
-    --chart-5: 32.1 94.6% 43.7%;
-    --sidebar-background: 222.2 84% 4.9%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 217.2 91.2% 59.8%;
-    --sidebar-primary-foreground: 222.2 47.4% 11.2%;
-    --sidebar-accent: 262.1 83.3% 57.8%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 217.2 32.6% 17.5%;
-    --sidebar-ring: 224.3 76.3% 48%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.9%;
+    --chart-1: 0 0% 83.9%;
+    --chart-2: 0 0% 63.9%;
+    --chart-3: 0 0% 43.9%;
+    --chart-4: 0 0% 23.9%;
+    --chart-5: 0 0% 53.9%;
+    --sidebar-background: 0 0% 7%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 0 0% 12%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 25%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 0 0% 14.9%;
+    --sidebar-ring: 0 0% 83.9%;
   }
 }
 
@@ -91,7 +91,7 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" opacity="0.2"><text x="50%" y="45%" font-family="Arial" font-size="20" font-weight="bold" text-anchor="middle" fill="white" transform="rotate(-45, 120, 120)">TRILOGY DIGITAL</text><text x="50%" y="60%" font-family="Arial" font-size="20" font-weight="bold" text-anchor="middle" fill="white" transform="rotate(-45, 120, 120)">PREVIEW ONLY</text></svg>');
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="240" height="240" opacity="0.2"><text x="50%" y="45%" font-family="Arial" font-size="20" font-weight="bold" text-anchor="middle" fill="white" transform="rotate(-45, 120, 120)">TBN</text><text x="50%" y="60%" font-family="Arial" font-size="20" font-weight="bold" text-anchor="middle" fill="white" transform="rotate(-45, 120, 120)">PREVIEW ONLY</text></svg>');
     background-repeat: repeat;
     pointer-events: none;
     z-index: 10;
