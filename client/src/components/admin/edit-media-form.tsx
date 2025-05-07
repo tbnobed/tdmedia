@@ -322,23 +322,23 @@ export default function EditMediaForm({ media, onComplete }: EditMediaFormProps)
           
           <FormField
             control={form.control}
-            name="categoryId"
+            name="playlistId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Category</FormLabel>
+                <FormLabel>Playlist</FormLabel>
                 <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value.toString()}
+                  onValueChange={(value) => field.onChange(parseInt(value, 10))}
+                  defaultValue={field.value?.toString() || ""}
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select a category" />
+                      <SelectValue placeholder="Select a playlist" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {categories?.map((category) => (
-                      <SelectItem key={category.id} value={category.id.toString()}>
-                        {category.name}
+                    {playlists?.map((playlist) => (
+                      <SelectItem key={playlist.id} value={playlist.id.toString()}>
+                        {playlist.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
