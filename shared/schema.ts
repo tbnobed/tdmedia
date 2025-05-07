@@ -1,4 +1,4 @@
-import { pgTable, text, serial, integer, boolean, timestamp, pgEnum, varchar, json } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, integer, boolean, timestamp, pgEnum, varchar, json, uniqueIndex } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { relations } from "drizzle-orm";
@@ -40,7 +40,7 @@ export const media = pgTable("media", {
   title: text("title").notNull(),
   description: text("description"),
   type: mediaTypeEnum("type").notNull(),
-  playlistId: integer("playlist_id").references(() => playlists.id).notNull(),
+  // Removing the direct playlistId field - we'll use a join table instead
   fileUrl: text("file_url").notNull(),
   thumbnailUrl: text("thumbnail_url"),
   duration: text("duration"),
@@ -73,6 +73,20 @@ export const insertContactSchema = createInsertSchema(contacts, {
 }).omit({ id: true, createdAt: true, isRead: true });
 
 // Media access assignments - links users to media they can access
+// Media-playlist join table for many-to-many relationship
+export const mediaPlaylists = pgTable("media_playlists", {
+  id: serial("id").primaryKey(),
+  mediaId: integer("media_id").references(() => media.id).notNull(),
+  playlistId: integer("playlist_id").references(() => playlists.id).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+// Create a unique index on the join table to prevent duplicates
+// Note: This will be applied when running the DB migrations
+
+export const insertMediaPlaylistSchema = createInsertSchema(mediaPlaylists, {})
+  .omit({ id: true, createdAt: true });
+
 export const mediaAccess = pgTable("media_access", {
   id: serial("id").primaryKey(),
   userId: integer("user_id").references(() => users.id).notNull(),
@@ -86,13 +100,18 @@ export const insertMediaAccessSchema = createInsertSchema(mediaAccess, {})
 
 // Define relations
 export const playlistsRelations = relations(playlists, ({ many }) => ({
-  media: many(media)
+  mediaPlaylists: many(mediaPlaylists),
 }));
 
-export const mediaRelations = relations(media, ({ one, many }) => ({
-  playlist: one(playlists, { fields: [media.playlistId], references: [playlists.id] }),
+export const mediaRelations = relations(media, ({ many }) => ({
+  playlists: many(mediaPlaylists),
   contacts: many(contacts),
   accessRights: many(mediaAccess)
+}));
+
+export const mediaPlaylistsRelations = relations(mediaPlaylists, ({ one }) => ({
+  media: one(media, { fields: [mediaPlaylists.mediaId], references: [media.id] }),
+  playlist: one(playlists, { fields: [mediaPlaylists.playlistId], references: [playlists.id] })
 }));
 
 export const contactsRelations = relations(contacts, ({ one }) => ({
@@ -126,3 +145,5 @@ export type InsertPlaylist = z.infer<typeof insertPlaylistSchema>;
 export type Contact = typeof contacts.$inferSelect;
 export type MediaAccess = typeof mediaAccess.$inferSelect;
 export type InsertMediaAccess = z.infer<typeof insertMediaAccessSchema>;
+export type MediaPlaylist = typeof mediaPlaylists.$inferSelect;
+export type InsertMediaPlaylist = z.infer<typeof insertMediaPlaylistSchema>;

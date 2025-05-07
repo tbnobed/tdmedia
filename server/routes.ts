@@ -305,14 +305,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Create a new media entry
+  // Create a new media entry with playlist associations
   app.post("/api/media", isAdmin, async (req, res) => {
     try {
       console.log("Received media creation request:", req.body);
-      const validatedData = insertMediaSchema.parse(req.body);
-      console.log("Validated data:", validatedData);
-      const newMedia = await storage.createMedia(validatedData);
+      // Extract playlistIds before validation since it's not part of the media schema
+      const { playlistIds, ...mediaData } = req.body;
+      
+      // Validate the media data
+      const validatedMediaData = insertMediaSchema.parse(mediaData);
+      console.log("Validated media data:", validatedMediaData);
+      
+      // Create the media entry
+      const newMedia = await storage.createMedia(validatedMediaData);
       console.log("Media created successfully:", newMedia);
+      
+      // If playlistIds were provided, create the associations
+      if (Array.isArray(playlistIds) && playlistIds.length > 0) {
+        console.log(`Creating ${playlistIds.length} playlist associations for media ID ${newMedia.id}`);
+        
+        // Create associations in the join table
+        for (const playlistId of playlistIds) {
+          try {
+            await db.insert(mediaPlaylists).values({
+              mediaId: newMedia.id,
+              playlistId: parseInt(playlistId.toString(), 10)
+            });
+          } catch (err) {
+            console.error(`Error creating media-playlist association for playlist ${playlistId}:`, err);
+            // Continue with other playlists even if one fails
+          }
+        }
+      }
+      
+      // Return the created media with its playlist associations
       res.status(201).json(newMedia);
     } catch (error) {
       if (error instanceof z.ZodError) {

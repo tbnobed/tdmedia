@@ -25,12 +25,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Loader2, Upload, FileText, FileImage, Video, PresentationIcon, Check, AlertTriangle } from "lucide-react";
 
 // Media form schema based on the insertMediaSchema
 const mediaFormSchema = insertMediaSchema.extend({
-  playlistId: z.coerce.number(),
+  playlistIds: z.array(z.coerce.number()).min(1, "Select at least one playlist"),
 });
 
 type MediaFormValues = z.infer<typeof mediaFormSchema>;
@@ -73,20 +74,13 @@ export default function AddMediaForm({ onComplete }: AddMediaFormProps) {
       title: "",
       description: "",
       type: "video",
-      playlistId: 1, // Default value that will be updated when playlists load
+      playlistIds: [], // Start with empty array, will be populated when user selects playlists
       fileUrl: "",
       thumbnailUrl: "",
       duration: "",
       size: "",
     },
   });
-  
-  // Update playlistId when playlists are loaded
-  useEffect(() => {
-    if (playlists && playlists.length > 0) {
-      form.setValue("playlistId", playlists[0].id);
-    }
-  }, [playlists, form]);
   
   // Watch the type field to dynamically update file validation
   const mediaType = form.watch("type");
@@ -323,27 +317,61 @@ export default function AddMediaForm({ onComplete }: AddMediaFormProps) {
           
           <FormField
             control={form.control}
-            name="playlistId"
+            name="playlistIds"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Playlist</FormLabel>
-                <Select
-                  onValueChange={(value) => field.onChange(parseInt(value, 10))}
-                  defaultValue={field.value.toString()}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a playlist" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {playlists?.map((playlist) => (
-                      <SelectItem key={playlist.id} value={playlist.id.toString()}>
-                        {playlist.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <FormLabel>Playlists</FormLabel>
+                <div className="relative">
+                  <Select
+                    onValueChange={(value) => {
+                      const id = parseInt(value, 10);
+                      // Add the id if it's not already in the array
+                      if (!field.value.includes(id)) {
+                        field.onChange([...field.value, id]);
+                      }
+                    }}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select playlists" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {playlists?.map((playlist) => (
+                        <SelectItem 
+                          key={playlist.id} 
+                          value={playlist.id.toString()}
+                          disabled={field.value.includes(playlist.id)}
+                        >
+                          {playlist.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                {/* Display selected playlists with remove option */}
+                {field.value.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {field.value.map((playlistId) => {
+                      const playlist = playlists.find(p => p.id === playlistId);
+                      return playlist ? (
+                        <Badge key={playlistId} variant="outline" className="flex items-center gap-1">
+                          {playlist.name}
+                          <button
+                            type="button"
+                            className="ml-1 rounded-full w-4 h-4 inline-flex items-center justify-center text-slate-400 hover:text-slate-500"
+                            onClick={() => {
+                              field.onChange(field.value.filter(id => id !== playlistId));
+                            }}
+                          >
+                            ×
+                          </button>
+                        </Badge>
+                      ) : null;
+                    })}
+                  </div>
+                )}
                 <FormMessage />
               </FormItem>
             )}
