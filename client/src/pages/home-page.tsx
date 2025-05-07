@@ -95,19 +95,19 @@ export default function HomePage() {
       
       <main className="flex-grow">
         {/* Welcome message */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
+        <div className="bg-gradient-to-r from-green-800 to-green-700 text-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div className="flex items-center">
               <Film className="h-10 w-10 mr-4" />
               <div>
                 <h1 className="text-3xl font-bold">
                   {user ? (
-                    <>Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 to-yellow-400">{user.username}</span>!</>
+                    <>Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-200 to-green-300">{user.username}</span>!</>
                   ) : (
                     <>Welcome to Trilogy Digital Media</>
                   )}
                 </h1>
-                <p className="mt-2 text-blue-100">
+                <p className="mt-2 text-green-100">
                   {user?.isAdmin 
                     ? "Manage and share content with your clients securely." 
                     : "Browse your personalized media library with secure playback."}

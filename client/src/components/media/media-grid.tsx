@@ -51,7 +51,7 @@ export default function MediaGrid({ media, onOpenMedia }: MediaGridProps) {
           return (
             <Card 
               key={item.id} 
-              className="overflow-hidden flex flex-col transition-all duration-300 hover:translate-y-[-8px] hover:shadow-xl shadow-md"
+              className="overflow-hidden flex flex-col transition-all duration-300 hover:translate-y-[-8px] hover:shadow-xl hover:shadow-green-100/50 shadow-md shadow-green-200/20"
             >
               <div className="relative aspect-video bg-gray-100 overflow-hidden">
                 <div className="absolute inset-0 flex items-center justify-center">
@@ -79,7 +79,7 @@ export default function MediaGrid({ media, onOpenMedia }: MediaGridProps) {
               
               <div className="border-t border-gray-200 p-4">
                 <Button 
-                  className="w-full shadow-sm hover:shadow transition-shadow"
+                  className="w-full shadow-sm hover:shadow transition-shadow bg-green-700 hover:bg-green-800 text-white"
                   onClick={() => onOpenMedia(item)}
                 >
                   {typeof ActionIcon === 'function' && <ActionIcon className="mr-2 h-4 w-4" />}{' '}
