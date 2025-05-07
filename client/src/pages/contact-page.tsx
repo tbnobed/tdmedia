@@ -102,16 +102,6 @@ export default function ContactPage() {
                   <p className="text-gray-600">support@trilogydigitalmedia.com</p>
                 </div>
               </div>
-              
-              <div className="flex items-center gap-3">
-                <div className="bg-primary/10 p-3 rounded-full">
-                  <MessageSquare className="h-6 w-6 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-medium text-gray-900">Live Chat</h3>
-                  <p className="text-gray-600">Available Monday-Friday, 9am-5pm ET</p>
-                </div>
-              </div>
             </div>
           </div>
           

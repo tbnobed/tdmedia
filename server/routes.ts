@@ -609,6 +609,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const validatedData = insertContactSchema.parse(req.body);
       const newContact = await storage.createContact(validatedData);
+      
+      // Import required functions
+      const { sendContactNotification } = await import('./email');
+      
+      // Send email notification
+      try {
+        const emailSent = await sendContactNotification(
+          validatedData.name,
+          validatedData.email,
+          validatedData.company,
+          validatedData.message
+        );
+        
+        if (emailSent) {
+          console.log(`Contact notification email sent successfully for contact ID: ${newContact.id}`);
+        } else {
+          console.warn(`Failed to send contact notification email for contact ID: ${newContact.id}`);
+        }
+      } catch (emailError) {
+        console.error('Error sending contact notification email:', emailError);
+        // Don't fail the request if email sending fails
+      }
+      
       res.status(201).json(newContact);
     } catch (error) {
       if (error instanceof z.ZodError) {
