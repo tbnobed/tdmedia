@@ -34,7 +34,6 @@ export default function Header() {
               <Link href="/">
                 <div className="flex items-center gap-2 cursor-pointer">
                   <img src="/images/tbn-logo.png" alt="TBN Logo" className="h-8" />
-                  <span className="text-xl font-bold text-white">TBN</span>
                 </div>
               </Link>
             </div>

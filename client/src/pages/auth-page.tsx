@@ -64,7 +64,7 @@ export default function AuthPage() {
               <div className="flex justify-center mb-4">
                 <img src="/images/tbn-logo.png" alt="TBN Logo" className="h-16" />
               </div>
-              <h1 className="text-3xl font-bold text-primary">TBN</h1>
+
               <p className="text-gray-600 mt-2">Secure content management system</p>
             </div>
 
@@ -170,7 +170,9 @@ export default function AuthPage() {
 
       <div className="hidden lg:flex lg:flex-1 bg-gradient-to-br from-black to-gray-800 items-center justify-center">
         <div className="max-w-lg p-8 text-white">
-          <h2 className="text-3xl font-bold mb-6">TBN</h2>
+          <div className="flex justify-center mb-6">
+            <img src="/images/tbn-logo.png" alt="TBN Logo" className="h-20" />
+          </div>
           <p className="text-lg mb-6">
             Access our curated media library of premium content. All media is watermarked and streamable for your review.
           </p>

@@ -104,7 +104,7 @@ export default function HomePage() {
                   {user ? (
                     <>Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-gray-300 to-white">{user.username}</span>!</>
                   ) : (
-                    <>Welcome to TBN</>
+                    <>Welcome</>
                   )}
                 </h1>
                 <p className="mt-1 sm:mt-2 text-sm sm:text-base text-gray-300">
