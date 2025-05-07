@@ -30,13 +30,25 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { 
   Users, 
   UserPlus, 
   Shield, 
   User, 
   UserCog, 
-  AlertCircle 
+  AlertCircle,
+  Trash2,
+  Loader2
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -77,6 +89,8 @@ export default function AdminUserManagement() {
   const { user } = useAuth();
   const [isCreateAdminOpen, setIsCreateAdminOpen] = useState(false);
   const [isUpdatePasswordOpen, setIsUpdatePasswordOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [adminToDelete, setAdminToDelete] = useState<any>(null);
   
   // Fetch all users
   const { data: users = [], isLoading, error } = useQuery({
@@ -144,6 +158,36 @@ export default function AdminUserManagement() {
       toast({
         title: "Error",
         description: error.message || "Failed to update password",
+        variant: "destructive",
+      });
+    },
+  });
+  
+  // Delete admin user mutation
+  const deleteAdminMutation = useMutation({
+    mutationFn: async (adminId: number) => {
+      const response = await apiRequest("DELETE", `/api/users/admins/${adminId}`);
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => null);
+        throw new Error(errorData?.message || 'Failed to delete admin user');
+      }
+      return adminId;
+    },
+    onSuccess: () => {
+      toast({
+        title: "Admin user deleted",
+        description: "The admin user has been removed successfully",
+      });
+      // Close the delete dialog
+      setDeleteDialogOpen(false);
+      setAdminToDelete(null);
+      // Refresh the users list
+      queryClient.invalidateQueries({ queryKey: ["/api/users"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error deleting admin user",
+        description: error.message,
         variant: "destructive",
       });
     },
@@ -243,6 +287,7 @@ export default function AdminUserManagement() {
                       <TableHead>Username</TableHead>
                       <TableHead>Email</TableHead>
                       <TableHead>Role</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -255,6 +300,25 @@ export default function AdminUserManagement() {
                             <Shield className="h-3 w-3 mr-1" />
                             Admin
                           </span>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {user && admin.id !== user.id && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                setAdminToDelete(admin);
+                                setDeleteDialogOpen(true);
+                              }}
+                              disabled={deleteAdminMutation.isPending && deleteAdminMutation.variables === admin.id}
+                            >
+                              {deleteAdminMutation.isPending && deleteAdminMutation.variables === admin.id ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              )}
+                            </Button>
+                          )}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -478,6 +542,49 @@ export default function AdminUserManagement() {
           </Form>
         </DialogContent>
       </Dialog>
+      
+      {/* Delete Admin Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Admin User</AlertDialogTitle>
+            <AlertDialogDescription>
+              {adminToDelete && (
+                <>
+                  Are you sure you want to delete the admin user <strong>{adminToDelete.username}</strong>?
+                  This action cannot be undone.
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel 
+              disabled={deleteAdminMutation.isPending}
+              onClick={() => setAdminToDelete(null)}
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={deleteAdminMutation.isPending}
+              onClick={() => {
+                if (adminToDelete) {
+                  deleteAdminMutation.mutate(adminToDelete.id);
+                }
+              }}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              {deleteAdminMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                <>Delete</>
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -743,6 +743,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
+  // Delete an admin user
+  app.delete("/api/users/admins/:id", isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      
+      // Check if user exists
+      const user = await storage.getUser(id);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      // Make sure the user is actually an admin
+      if (!user.isAdmin) {
+        return res.status(400).json({ message: "Specified user is not an admin" });
+      }
+      
+      // Don't allow deleting your own account
+      if (req.user?.id === id) {
+        return res.status(403).json({ message: "Cannot delete your own admin account" });
+      }
+      
+      // Delete the admin user
+      await storage.deleteUser(id);
+      
+      res.sendStatus(204); // Successful deletion (no content)
+    } catch (error) {
+      console.error("Error deleting admin user:", error);
+      res.status(500).json({ message: "Failed to delete admin user" });
+    }
+  });
+  
   // Update user credentials (for self-service password changes)
   app.put("/api/users/:id/credentials", isAuthenticated, async (req, res) => {
     try {
