@@ -204,10 +204,10 @@ export class DatabaseStorage implements IStorage {
     // Update media_playlists entries to point to the default playlist
     // First, get all media_playlist entries for the deleted playlist
     const mediaInDeletedPlaylist = await db.select({
-      mediaId: mediaPlaylists.mediaId
+      mediaId: mediaPlaylists.media_id
     })
     .from(mediaPlaylists)
-    .where(eq(mediaPlaylists.playlistId, id));
+    .where(eq(mediaPlaylists.playlist_id, id));
     
     // For each media in the deleted playlist, add an entry to the default playlist
     // (only if it doesn't already exist)
@@ -215,22 +215,22 @@ export class DatabaseStorage implements IStorage {
       const existingEntry = await db.select()
         .from(mediaPlaylists)
         .where(and(
-          eq(mediaPlaylists.mediaId, item.mediaId),
-          eq(mediaPlaylists.playlistId, defaultPlaylist.id)
+          eq(mediaPlaylists.media_id, item.mediaId),
+          eq(mediaPlaylists.playlist_id, defaultPlaylist.id)
         ))
         .limit(1);
       
       // Only add if not already in the default playlist
       if (existingEntry.length === 0) {
         await db.insert(mediaPlaylists).values({
-          mediaId: item.mediaId,
-          playlistId: defaultPlaylist.id
+          media_id: item.mediaId,
+          playlist_id: defaultPlaylist.id
         });
       }
     }
     
     // Delete all media_playlist entries for the deleted playlist
-    await db.delete(mediaPlaylists).where(eq(mediaPlaylists.playlistId, id));
+    await db.delete(mediaPlaylists).where(eq(mediaPlaylists.playlist_id, id));
       
     // Now we can safely delete the playlist
     await db.delete(playlists).where(eq(playlists.id, id));

@@ -76,8 +76,8 @@ export const insertContactSchema = createInsertSchema(contacts, {
 // Media-playlist join table for many-to-many relationship
 export const mediaPlaylists = pgTable("media_playlists", {
   id: serial("id").primaryKey(),
-  mediaId: integer("media_id").references(() => media.id).notNull(),
-  playlistId: integer("playlist_id").references(() => playlists.id).notNull(),
+  media_id: integer("media_id").references(() => media.id).notNull(),
+  playlist_id: integer("playlist_id").references(() => playlists.id).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -110,8 +110,8 @@ export const mediaRelations = relations(media, ({ many }) => ({
 }));
 
 export const mediaPlaylistsRelations = relations(mediaPlaylists, ({ one }) => ({
-  media: one(media, { fields: [mediaPlaylists.mediaId], references: [media.id] }),
-  playlist: one(playlists, { fields: [mediaPlaylists.playlistId], references: [playlists.id] })
+  media: one(media, { fields: [mediaPlaylists.media_id], references: [media.id] }),
+  playlist: one(playlists, { fields: [mediaPlaylists.playlist_id], references: [playlists.id] })
 }));
 
 export const contactsRelations = relations(contacts, ({ one }) => ({
