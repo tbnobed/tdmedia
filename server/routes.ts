@@ -345,8 +345,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         for (const playlistId of playlistIds) {
           try {
             await db.insert(mediaPlaylists).values({
-              mediaId: newMedia.id,
-              playlistId: parseInt(playlistId.toString(), 10)
+              media_id: newMedia.id,
+              playlist_id: parseInt(playlistId.toString(), 10)
             });
           } catch (err) {
             console.error(`Error creating media-playlist association for playlist ${playlistId}:`, err);
@@ -386,14 +386,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (Array.isArray(playlistIds)) {
         try {
           // First, delete existing associations
-          await db.delete(mediaPlaylists).where(eq(mediaPlaylists.mediaId, id));
+          await db.delete(mediaPlaylists).where(eq(mediaPlaylists.media_id, id));
           
           // Then create new associations
           if (playlistIds.length > 0) {
             for (const playlistId of playlistIds) {
               await db.insert(mediaPlaylists).values({
-                mediaId: id,
-                playlistId: parseInt(playlistId.toString(), 10)
+                media_id: id,
+                playlist_id: parseInt(playlistId.toString(), 10)
               });
             }
           }
@@ -429,7 +429,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Delete playlist associations
       try {
-        await db.delete(mediaPlaylists).where(eq(mediaPlaylists.mediaId, id));
+        await db.delete(mediaPlaylists).where(eq(mediaPlaylists.media_id, id));
         console.log("Removed all playlist associations for media ID:", id);
       } catch (playlistError) {
         console.error("Error removing playlist associations during deletion:", playlistError);

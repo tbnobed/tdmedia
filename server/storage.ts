@@ -344,14 +344,14 @@ export class DatabaseStorage implements IStorage {
     
     // Get the playlists associated with this media
     const playlistsData = await db.select({
-      playlistId: mediaPlaylists.playlistId,
-      mediaId: mediaPlaylists.mediaId,
+      playlistId: mediaPlaylists.playlist_id,
+      mediaId: mediaPlaylists.media_id,
       playlistName: playlists.name,
       playlistDescription: playlists.description
     })
     .from(mediaPlaylists)
-    .innerJoin(playlists, eq(mediaPlaylists.playlistId, playlists.id))
-    .where(eq(mediaPlaylists.mediaId, id));
+    .innerJoin(playlists, eq(mediaPlaylists.playlist_id, playlists.id))
+    .where(eq(mediaPlaylists.media_id, id));
     
     // Return the media with its playlists
     return {
