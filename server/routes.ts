@@ -172,17 +172,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const id = parseInt(req.params.id);
       
       // Execute raw SQL query to avoid column name issues
-      const mediaPlaylistsData = await db.execute(`
-        SELECT 
-          mp.id, 
-          mp.media_id as "mediaId", 
-          mp.playlist_id as "playlistId", 
-          p.name as "playlistName", 
-          p.description as "playlistDescription"
-        FROM media_playlists mp
-        INNER JOIN playlists p ON mp.playlist_id = p.id
-        WHERE mp.media_id = $1
-      `, [id]);
+      const mediaPlaylistsData = await db.execute({
+        text: `
+          SELECT 
+            mp.id, 
+            mp.media_id as "mediaId", 
+            mp.playlist_id as "playlistId", 
+            p.name as "playlistName", 
+            p.description as "playlistDescription"
+          FROM media_playlists mp
+          INNER JOIN playlists p ON mp.playlist_id = p.id
+          WHERE mp.media_id = $1
+        `,
+        values: [id]
+      });
       
       res.json(mediaPlaylistsData.rows);
     } catch (error) {
