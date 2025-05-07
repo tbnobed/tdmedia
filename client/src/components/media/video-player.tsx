@@ -335,11 +335,10 @@ export default function VideoPlayer({
             preload="auto"
             playsInline
             muted={muted}
-            disablePictureInPicture
             disableRemotePlayback
+            disablePictureInPicture
             // Set all possible fullscreen attributes to false for client users
             {...(disableFullscreen ? { 
-              disablePictureInPicture: true,
               allowFullScreen: false
             } : {
               allowFullScreen: true
