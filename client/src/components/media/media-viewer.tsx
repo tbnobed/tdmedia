@@ -104,26 +104,19 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
         </div>
         
         <div className="bg-gray-900 aspect-video relative">
-          {/* Watermark */}
-          <div className="watermark-container">
-            {/* Center large watermark text */}
-            <div className="watermark-text">
-              <div className="watermark-content">
-                TRILOGY DIGITAL TRILOGY DIGITAL TRILOGY DIGITAL
-              </div>
-            </div>
-            
-            {/* Grid watermark pattern for images and videos */}
-            {(activeViewer === "image" || activeViewer === "video") && (
+          {/* Watermark - only for images, we're using the iframe watermark for videos */}
+          {activeViewer === "image" && (
+            <div className="watermark-container">
+              {/* Grid watermark pattern for images only */}
               <div className="watermark-grid">
-                {Array.from({ length: 16 }).map((_, index) => (
+                {Array.from({ length: 9 }).map((_, index) => (
                   <div key={index} className="watermark-grid-item">
                     TRILOGY DIGITAL
                   </div>
                 ))}
               </div>
-            )}
-          </div>
+            </div>
+          )}
           
           {/* Video Player - Using iframe player for better fullscreen control */}
           {activeViewer === "video" && media && (
@@ -155,11 +148,11 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
           {activeViewer === "document" && (
             <div className={`w-full h-full bg-white relative ${isLoading ? 'hidden' : ''}`}>
               {/* Special diagonal repeating watermark for documents */}
-              <div className="absolute inset-0 bg-black/5 overflow-hidden">
-                <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 gap-10 opacity-20">
+              <div className="absolute inset-0 bg-black/3 overflow-hidden">
+                <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 gap-10 opacity-10">
                   {Array.from({ length: 9 }).map((_, index) => (
                     <div key={index} className="flex items-center justify-center">
-                      <div className="transform rotate-[-30deg] text-gray-700 text-lg font-semibold">
+                      <div className="transform rotate-[-30deg] text-gray-700 text-sm font-normal">
                         TRILOGY DIGITAL
                       </div>
                     </div>

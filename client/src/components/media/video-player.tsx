@@ -231,18 +231,11 @@ export default function VideoPlayer({
       {/* Watermark overlay for full-size player */}
       {showWatermark && !small && (
         <div className="watermark-container absolute inset-0 pointer-events-none z-10">
-          {/* Center large watermark text */}
-          <div className="watermark-text absolute inset-0 flex items-center justify-center z-10">
-            <div className="watermark-content text-white text-3xl font-bold opacity-20">
-              TRILOGY DIGITAL TRILOGY DIGITAL TRILOGY DIGITAL
-            </div>
-          </div>
-          
-          {/* Grid watermark pattern */}
-          <div className="watermark-grid absolute inset-0 grid grid-cols-4 grid-rows-4 opacity-20">
-            {Array.from({ length: 16 }).map((_, index) => (
+          {/* Grid watermark pattern - without central watermark to avoid duplication */}
+          <div className="watermark-grid absolute inset-0 grid grid-cols-3 grid-rows-3 opacity-5">
+            {Array.from({ length: 9 }).map((_, index) => (
               <div key={index} className="flex items-center justify-center">
-                <div className="transform rotate-[-30deg] text-white text-sm font-medium">
+                <div className="transform rotate-[-30deg] text-white text-xs font-normal">
                   TRILOGY DIGITAL
                 </div>
               </div>
@@ -299,7 +292,7 @@ export default function VideoPlayer({
       
       {/* Small watermark in the preview version */}
       {small && showWatermark && (
-        <div className="absolute top-1 right-1 text-white text-xs opacity-70 bg-black/30 px-1 rounded">
+        <div className="absolute top-1 right-1 text-white text-xs opacity-40 bg-black/20 px-1 rounded">
           TRILOGY
         </div>
       )}
