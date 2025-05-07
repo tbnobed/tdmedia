@@ -3,7 +3,7 @@ import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import MediaManagement from "@/components/admin/media-management";
-import CategoryManagement from "@/components/admin/category-management";
+import PlaylistManagement from "@/components/admin/playlist-management";
 import ContactManagement from "@/components/admin/contact-management";
 import UserMediaAccess from "@/components/admin/user-media-access";
 import ClientManagement from "@/components/admin/client-management";
