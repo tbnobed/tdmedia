@@ -352,10 +352,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Create associations in the join table
         for (const playlistId of playlistIds) {
           try {
-            await db.insert(mediaPlaylists).values({
-              media_id: newMedia.id,
-              playlist_id: parseInt(playlistId.toString(), 10)
-            });
+            const parsedPlaylistId = parseInt(playlistId.toString(), 10);
+            await executeRawSQL(`
+              INSERT INTO media_playlists (media_id, playlist_id)
+              VALUES ($1, $2)
+            `, [newMedia.id, parsedPlaylistId]);
           } catch (err) {
             console.error(`Error creating media-playlist association for playlist ${playlistId}:`, err);
             // Continue with other playlists even if one fails
@@ -394,15 +395,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (Array.isArray(playlistIds)) {
         try {
           // First, delete existing associations
-          await db.delete(mediaPlaylists).where(eq(mediaPlaylists.media_id, id));
+          await executeRawSQL(`
+            DELETE FROM media_playlists
+            WHERE media_id = $1
+          `, [id]);
           
           // Then create new associations
           if (playlistIds.length > 0) {
             for (const playlistId of playlistIds) {
-              await db.insert(mediaPlaylists).values({
-                media_id: id,
-                playlist_id: parseInt(playlistId.toString(), 10)
-              });
+              const parsedPlaylistId = parseInt(playlistId.toString(), 10);
+              await executeRawSQL(`
+                INSERT INTO media_playlists (media_id, playlist_id)
+                VALUES ($1, $2)
+              `, [id, parsedPlaylistId]);
             }
           }
         } catch (err) {
@@ -437,7 +442,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Delete playlist associations
       try {
-        await db.delete(mediaPlaylists).where(eq(mediaPlaylists.media_id, id));
+        await executeRawSQL(`
+          DELETE FROM media_playlists
+          WHERE media_id = $1
+        `, [id]);
         console.log("Removed all playlist associations for media ID:", id);
       } catch (playlistError) {
         console.error("Error removing playlist associations during deletion:", playlistError);
