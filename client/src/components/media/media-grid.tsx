@@ -70,7 +70,7 @@ export default function MediaGrid({ media, onOpenMedia }: MediaGridProps) {
                   onClick={() => onOpenMedia(item)}
                 >
                   <Button 
-                    className="mb-4 bg-green-700 hover:bg-green-800 text-white shadow-lg"
+                    className="mb-4 bg-gradient-to-r from-black to-gray-800 hover:from-gray-900 hover:to-gray-700 text-white shadow-lg"
                     size="sm"
                   >
                     {typeof ActionIcon === 'function' && <ActionIcon className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />}{' '}
@@ -92,7 +92,7 @@ export default function MediaGrid({ media, onOpenMedia }: MediaGridProps) {
               
               <div className="border-t border-gray-200 p-3 sm:p-4">
                 <Button 
-                  className="w-full shadow-sm hover:shadow transition-shadow bg-green-700 hover:bg-green-800 text-white text-xs sm:text-sm h-8 sm:h-10"
+                  className="w-full shadow-sm hover:shadow transition-shadow bg-gradient-to-r from-black to-gray-800 hover:from-gray-900 hover:to-gray-700 text-white text-xs sm:text-sm h-8 sm:h-10"
                   onClick={() => onOpenMedia(item)}
                 >
                   {typeof ActionIcon === 'function' && <ActionIcon className="mr-2 h-3 w-3 sm:h-4 sm:w-4" />}{' '}

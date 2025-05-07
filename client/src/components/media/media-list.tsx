@@ -62,7 +62,7 @@ export default function MediaList({ media, onOpenMedia }: MediaListProps) {
                     <Button
                       variant="default"
                       size="sm"
-                      className="bg-green-700 hover:bg-green-800 text-white shadow-lg"
+                      className="bg-gradient-to-r from-black to-gray-800 hover:from-gray-900 hover:to-gray-700 text-white shadow-lg"
                     >
                       <ActionIcon className="mr-1 h-4 w-4" />
                       {getMediaActionText(item.type)}
@@ -87,7 +87,7 @@ export default function MediaList({ media, onOpenMedia }: MediaListProps) {
                   <Button
                     variant="default"
                     size="sm"
-                    className="bg-green-700 hover:bg-green-800 text-white h-8 sm:h-9"
+                    className="bg-gradient-to-r from-black to-gray-800 hover:from-gray-900 hover:to-gray-700 text-white h-8 sm:h-9"
                     onClick={() => onOpenMedia(item)}
                   >
                     <ActionIcon className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />

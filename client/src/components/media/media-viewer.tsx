@@ -216,7 +216,7 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
               
               <Button 
                 onClick={handleContactClick}
-                className="text-xs sm:text-sm h-8 sm:h-10"
+                className="text-xs sm:text-sm h-8 sm:h-10 bg-gradient-to-r from-black to-gray-800 hover:from-gray-900 hover:to-gray-700 text-white"
                 size="sm"
               >
                 <Mail className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" /> 
