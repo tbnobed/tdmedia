@@ -252,6 +252,10 @@ export default function EditMediaForm({ media, onComplete }: EditMediaFormProps)
   
   // Form submission handler
   const onSubmit = (values: MediaFormValues) => {
+    // Add debug logs to see what's being sent
+    console.log("Submitting media update with values:", values);
+    console.log("Playlist IDs being sent:", values.playlistIds);
+    
     updateMediaMutation.mutate(values);
   };
   
