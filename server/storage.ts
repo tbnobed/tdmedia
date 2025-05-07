@@ -202,16 +202,18 @@ export class DatabaseStorage implements IStorage {
     }
     
     // Update media_playlists entries to point to the default playlist
-    // First, get all media_playlist entries for the deleted playlist
-    const mediaInDeletedPlaylist = await db.select({
-      mediaId: mediaPlaylists.media_id.media_id
-    })
-    .from(mediaPlaylists)
-    .where(eq(mediaPlaylists.playlist_id, id));
+    // First, get all media_playlist entries for the deleted playlist using raw SQL
+    const mediaInDeletedPlaylist = await db.execute(`
+      SELECT media_id as "mediaId" FROM media_playlists 
+      WHERE playlist_id = $1
+    `, [id]);
+    
+    // Convert to expected format
+    const mediaItems = mediaInDeletedPlaylist.rows;
     
     // For each media in the deleted playlist, add an entry to the default playlist
     // (only if it doesn't already exist)
-    for (const item of mediaInDeletedPlaylist) {
+    for (const item of mediaItems) {
       const existingEntry = await db.select()
         .from(mediaPlaylists)
         .where(and(
@@ -342,21 +344,22 @@ export class DatabaseStorage implements IStorage {
       return null;
     }
     
-    // Get the playlists associated with this media
-    const playlistsData = await db.select({
-      playlistId: mediaPlaylists.playlist_id,
-      mediaId: mediaPlaylists.media_id,
-      playlistName: playlists.name,
-      playlistDescription: playlists.description
-    })
-    .from(mediaPlaylists)
-    .innerJoin(playlists, eq(mediaPlaylists.playlist_id, playlists.id))
-    .where(eq(mediaPlaylists.media_id, id));
+    // Get the playlists associated with this media using raw SQL to avoid column name issues
+    const playlistsData = await db.execute(`
+      SELECT 
+        mp.media_id as "mediaId", 
+        mp.playlist_id as "playlistId", 
+        p.name as "playlistName", 
+        p.description as "playlistDescription"
+      FROM media_playlists mp
+      INNER JOIN playlists p ON mp.playlist_id = p.id
+      WHERE mp.media_id = $1
+    `, [id]);
     
     // Return the media with its playlists
     return {
       ...result,
-      playlists: playlistsData
+      playlists: playlistsData.rows
     };
   }
   

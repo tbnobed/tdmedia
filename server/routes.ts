@@ -2,7 +2,7 @@ import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { setupAuth, hashPassword, comparePasswords } from "./auth";
 import { storage } from "./storage";
-import { insertPlaylistSchema, insertMediaSchema, insertContactSchema, insertMediaAccessSchema, User, MediaAccess, mediaPlaylists } from "@shared/schema";
+import { insertPlaylistSchema, insertMediaSchema, insertContactSchema, insertMediaAccessSchema, User, MediaAccess, mediaPlaylists, playlists } from "@shared/schema";
 import { z } from "zod";
 import fs from "fs";
 import path from "path";
@@ -171,20 +171,20 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       
-      // Join with playlists table to get playlist details
-      const mediaPlaylistsData = await db.select({
-        id: mediaPlaylists.id,
-        mediaId: mediaPlaylists.media_id,
-        playlistId: mediaPlaylists.playlist_id,
-        createdAt: mediaPlaylists.createdAt,
-        playlistName: playlists.name,
-        playlistDescription: playlists.description
-      })
-      .from(mediaPlaylists)
-      .innerJoin(playlists, eq(mediaPlaylists.playlist_id, playlists.id))
-      .where(eq(mediaPlaylists.media_id, id));
+      // Execute raw SQL query to avoid column name issues
+      const mediaPlaylistsData = await db.execute(`
+        SELECT 
+          mp.id, 
+          mp.media_id as "mediaId", 
+          mp.playlist_id as "playlistId", 
+          p.name as "playlistName", 
+          p.description as "playlistDescription"
+        FROM media_playlists mp
+        INNER JOIN playlists p ON mp.playlist_id = p.id
+        WHERE mp.media_id = $1
+      `, [id]);
       
-      res.json(mediaPlaylistsData);
+      res.json(mediaPlaylistsData.rows);
     } catch (error) {
       console.error("Error fetching media playlists:", error);
       res.status(500).json({ message: "Failed to fetch playlists for media" });
