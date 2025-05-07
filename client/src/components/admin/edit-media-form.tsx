@@ -69,16 +69,24 @@ export default function EditMediaForm({ media, onComplete }: EditMediaFormProps)
   });
   
   // Fetch existing playlist associations for this media
-  const { data: mediaPlaylists = [] } = useQuery<{mediaId: number, playlistId: number}[]>({
+  const { data: mediaPlaylists = [], isLoading: isLoadingPlaylists } = useQuery<{mediaId: number, playlistId: number, playlistName: string}[]>({
     queryKey: ["/api/media", media.id, "playlists"],
     queryFn: async () => {
-      const res = await apiRequest("GET", `/api/media/${media.id}/playlists`);
-      return await res.json();
+      try {
+        const res = await apiRequest("GET", `/api/media/${media.id}/playlists`);
+        const data = await res.json();
+        console.log(`Fetched playlists for media ${media.id}:`, data);
+        return data;
+      } catch (error) {
+        console.error(`Error fetching playlists for media ${media.id}:`, error);
+        return [];
+      }
     }
   });
 
   // Extract playlist IDs from the media's playlist associations
   const existingPlaylistIds = mediaPlaylists.map(mp => mp.playlistId);
+  console.log("Existing playlist IDs:", existingPlaylistIds);
 
   // Edit media form
   const form = useForm<MediaFormValues>({
