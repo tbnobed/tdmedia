@@ -15,10 +15,15 @@ import trilogyLogo from "@/assets/trilogy-logo.svg";
 export default function Header() {
   const { user, logoutMutation } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
 
   const handleLogout = () => {
-    logoutMutation.mutate();
+    logoutMutation.mutate(undefined, {
+      onSuccess: () => {
+        // Redirect to the auth page after logout
+        setLocation('/auth');
+      }
+    });
   };
 
   return (

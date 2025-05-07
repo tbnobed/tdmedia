@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,6 +22,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/hooks/use-auth";
+import { useLocation } from "wouter";
 
 // Contact form schema
 const contactFormSchema = z.object({
@@ -34,9 +35,17 @@ const contactFormSchema = z.object({
 type ContactFormValues = z.infer<typeof contactFormSchema>;
 
 export default function ContactPage() {
-  const { user } = useAuth();
+  const { user, isLoading } = useAuth();
   const { toast } = useToast();
   const [submitted, setSubmitted] = useState(false);
+  const [, setLocation] = useLocation();
+  
+  // Redirect to auth page if user is not logged in
+  useEffect(() => {
+    if (!isLoading && !user) {
+      setLocation('/auth');
+    }
+  }, [user, isLoading, setLocation]);
   
   // Set up the form
   const form = useForm<ContactFormValues>({
@@ -78,6 +87,28 @@ export default function ContactPage() {
   const onSubmit = (values: ContactFormValues) => {
     contactMutation.mutate(values);
   };
+  
+  // Show loading state during authentication check
+  if (isLoading) {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <Header />
+        <main className="flex-grow flex items-center justify-center">
+          <div className="text-center">
+            <Loader2 className="h-10 w-10 animate-spin mx-auto text-primary" />
+            <p className="mt-4 text-gray-600">Loading...</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+  
+  // If user is null after loading is complete, the useEffect will redirect to auth page
+  // This is just a safety fallback in case the redirect doesn't happen immediately
+  if (!user && !isLoading) {
+    return null;
+  }
   
   return (
     <div className="flex flex-col min-h-screen">
