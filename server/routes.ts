@@ -8,7 +8,7 @@ import fs from "fs";
 import path from "path";
 import { createHmac } from "crypto";
 import { sendWelcomeEmail } from "./email";
-import { db } from "@db";
+import { db, executeRawSQL } from "@db";
 import { sql, InferSelectModel, eq, and } from "drizzle-orm";
 import { upload, getFileTypeFromFilename, getFormattedFileSize, generateThumbnail, getVideoDuration } from './upload';
 import { generateMediaAccessToken, generateStreamToken, verifyMediaAccessToken } from './token';
@@ -172,20 +172,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const id = parseInt(req.params.id);
       
       // Execute raw SQL query to avoid column name issues
-      const mediaPlaylistsData = await db.execute({
-        text: `
-          SELECT 
-            mp.id, 
-            mp.media_id as "mediaId", 
-            mp.playlist_id as "playlistId", 
-            p.name as "playlistName", 
-            p.description as "playlistDescription"
-          FROM media_playlists mp
-          INNER JOIN playlists p ON mp.playlist_id = p.id
-          WHERE mp.media_id = $1
-        `,
-        values: [id]
-      });
+      const mediaPlaylistsData = await executeRawSQL(`
+        SELECT 
+          mp.id, 
+          mp.media_id as "mediaId", 
+          mp.playlist_id as "playlistId", 
+          p.name as "playlistName", 
+          p.description as "playlistDescription"
+        FROM media_playlists mp
+        INNER JOIN playlists p ON mp.playlist_id = p.id
+        WHERE mp.media_id = $1
+      `, [id]);
       
       res.json(mediaPlaylistsData.rows);
     } catch (error) {

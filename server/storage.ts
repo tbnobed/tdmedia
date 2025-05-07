@@ -1,4 +1,4 @@
-import { db } from "@db";
+import { db, executeRawSQL } from "@db";
 import { users, media, playlists, contacts, mediaAccess, session as sessionTable, mediaPlaylists } from "@shared/schema";
 import { eq, and, like, desc, asc, inArray, ne } from "drizzle-orm";
 import session from "express-session";
@@ -203,13 +203,10 @@ export class DatabaseStorage implements IStorage {
     
     // Update media_playlists entries to point to the default playlist
     // First, get all media_playlist entries for the deleted playlist using raw SQL
-    const mediaInDeletedPlaylist = await db.execute({
-      text: `
-        SELECT media_id as "mediaId" FROM media_playlists 
-        WHERE playlist_id = $1
-      `,
-      values: [id]
-    });
+    const mediaInDeletedPlaylist = await executeRawSQL(`
+      SELECT media_id as "mediaId" FROM media_playlists 
+      WHERE playlist_id = $1
+    `, [id]);
     
     // Convert to expected format
     const mediaItems = mediaInDeletedPlaylist.rows;
@@ -348,19 +345,16 @@ export class DatabaseStorage implements IStorage {
     }
     
     // Get the playlists associated with this media using raw SQL to avoid column name issues
-    const playlistsData = await db.execute({
-      text: `
-        SELECT 
-          mp.media_id as "mediaId", 
-          mp.playlist_id as "playlistId", 
-          p.name as "playlistName", 
-          p.description as "playlistDescription"
-        FROM media_playlists mp
-        INNER JOIN playlists p ON mp.playlist_id = p.id
-        WHERE mp.media_id = $1
-      `,
-      values: [id]
-    });
+    const playlistsData = await executeRawSQL(`
+      SELECT 
+        mp.media_id as "mediaId", 
+        mp.playlist_id as "playlistId", 
+        p.name as "playlistName", 
+        p.description as "playlistDescription"
+      FROM media_playlists mp
+      INNER JOIN playlists p ON mp.playlist_id = p.id
+      WHERE mp.media_id = $1
+    `, [id]);
     
     // Return the media with its playlists
     return {
