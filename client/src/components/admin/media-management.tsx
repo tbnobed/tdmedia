@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { Media, Category, User } from "@shared/schema";
+import { Media, Playlist, User } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import VideoPlayer from "@/components/media/video-player";
@@ -60,9 +60,9 @@ export default function MediaManagement() {
     queryKey: ["/api/media"],
   });
   
-  // Fetch all categories
-  const { data: categories } = useQuery<Category[]>({
-    queryKey: ["/api/categories"],
+  // Fetch all playlists
+  const { data: playlists } = useQuery<Playlist[]>({
+    queryKey: ["/api/playlists"],
   });
   
   // Fetch all client users (non-admin)
@@ -251,7 +251,7 @@ export default function MediaManagement() {
               <TableRow>
                 <TableHead>Title</TableHead>
                 <TableHead>Type</TableHead>
-                <TableHead>Category</TableHead>
+                <TableHead>Playlist</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -276,7 +276,7 @@ export default function MediaManagement() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      {categories?.find(cat => cat.id === item.categoryId)?.name || 'Uncategorized'}
+                      {playlists?.find(playlist => playlist.id === item.playlistId)?.name || 'Uncategorized'}
                     </TableCell>
                     <TableCell>
                       <div className="flex space-x-2">
