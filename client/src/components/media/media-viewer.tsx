@@ -111,7 +111,7 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
               <div className="watermark-grid">
                 {Array.from({ length: 9 }).map((_, index) => (
                   <div key={index} className="watermark-grid-item text-xs sm:text-sm">
-                    TRILOGY DIGITAL
+                    TBN
                   </div>
                 ))}
               </div>
@@ -153,7 +153,7 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
                   {Array.from({ length: 9 }).map((_, index) => (
                     <div key={index} className="flex items-center justify-center">
                       <div className="transform rotate-[-30deg] text-gray-700 text-xs sm:text-sm font-normal">
-                        TRILOGY DIGITAL
+                        TBN
                       </div>
                     </div>
                   ))}

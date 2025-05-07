@@ -10,7 +10,7 @@ import MediaList from "@/components/media/media-list";
 import MediaViewer from "@/components/media/media-viewer";
 import ContactForm from "@/components/contact/contact-form";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Film } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function HomePage() {
   // Get user info for personalized welcome message
@@ -95,19 +95,19 @@ export default function HomePage() {
       
       <main className="flex-grow">
         {/* Welcome message */}
-        <div className="bg-gradient-to-r from-green-800 to-green-700 text-white">
+        <div className="bg-gradient-to-r from-gray-900 to-black text-white">
           <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-8 sm:py-12">
             <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-0">
-              <Film className="h-8 w-8 sm:h-10 sm:w-10 sm:mr-4" />
+              <img src="/images/tbn-logo.png" alt="TBN Logo" className="h-10 w-auto sm:h-12 sm:mr-4" />
               <div>
                 <h1 className="text-2xl sm:text-3xl font-bold">
                   {user ? (
-                    <>Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-200 to-green-300">{user.username}</span>!</>
+                    <>Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-gray-300 to-white">{user.username}</span>!</>
                   ) : (
-                    <>Welcome to Trilogy Digital Media</>
+                    <>Welcome to TBN</>
                   )}
                 </h1>
-                <p className="mt-1 sm:mt-2 text-sm sm:text-base text-green-100">
+                <p className="mt-1 sm:mt-2 text-sm sm:text-base text-gray-300">
                   {user?.isAdmin 
                     ? "Manage and share content with your clients securely." 
                     : "Browse your personalized media library with secure playback."}

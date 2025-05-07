@@ -8,9 +8,9 @@ if (process.env.SENDGRID_API_KEY) {
 }
 
 // Default configuration for emails - these should be set in environment variables
-export const DEFAULT_FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL || 'alerts@obedtv.com';
-export const CONTACT_NOTIFICATION_EMAIL = process.env.CONTACT_NOTIFICATION_EMAIL || 'support@trilogydigitalmedia.com';
-export const APP_DOMAIN = process.env.APP_DOMAIN || 'tdev.obdtv.com';
+export const DEFAULT_FROM_EMAIL = process.env.SENDGRID_FROM_EMAIL || 'alerts@tbn.com';
+export const CONTACT_NOTIFICATION_EMAIL = process.env.CONTACT_NOTIFICATION_EMAIL || 'support@tbn.com';
+export const APP_DOMAIN = process.env.APP_DOMAIN || 'tdev.tbn.com';
 
 interface EmailOptions {
   to: string;
@@ -92,10 +92,10 @@ export async function sendWelcomeEmail(
   email: string, 
   username: string, 
   password: string, 
-  senderEmail = process.env.SENDGRID_FROM_EMAIL || 'alerts@obedtv.com',
-  appDomain = process.env.APP_DOMAIN || 'tdev.obdtv.com'
+  senderEmail = process.env.SENDGRID_FROM_EMAIL || 'alerts@tbn.com',
+  appDomain = process.env.APP_DOMAIN || 'tdev.tbn.com'
 ): Promise<boolean> {
-  const subject = 'Welcome to Trilogy Digital Media';
+  const subject = 'Welcome to TBN';
   
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
