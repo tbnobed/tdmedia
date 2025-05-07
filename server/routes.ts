@@ -958,9 +958,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       // Only return media that this specific user has access to
       const search = req.query.search as string | undefined;
-      // Support both 'category' and 'categoryId' parameters for backward compatibility
+      // Support both 'category' and 'categoryId' parameters
       const categoryIdParam = (req.query.categoryId || req.query.category) as string | undefined;
       const sort = req.query.sort as string | undefined;
+      
+      // Log incoming parameters for debugging
+      console.log("Client media request params:", {
+        search,
+        categoryIdParam,
+        sort,
+        user: req.user?.id
+      });
       
       const categoryId = categoryIdParam ? parseInt(categoryIdParam) : undefined;
       

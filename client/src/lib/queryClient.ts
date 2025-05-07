@@ -62,7 +62,26 @@ export const getQueryFn: <T>(options: {
   async ({ queryKey }) => {
     try {
       const baseUrl = window.TRILOGY_CONFIG?.apiBaseUrl || '';
-      const url = queryKey[0] as string;
+      const endpoint = queryKey[0] as string;
+      
+      // Build URL params from the rest of the queryKey elements (if they exist and aren't undefined)
+      const params = new URLSearchParams();
+      if (queryKey.length > 1) {
+        for (let i = 1; i < queryKey.length; i++) {
+          // Skip undefined values
+          if (queryKey[i] !== undefined && queryKey[i] !== null) {
+            // Use parameter names based on common patterns
+            if (i === 1) params.append('search', String(queryKey[i]));
+            if (i === 2 && queryKey[i]) params.append('categoryId', String(queryKey[i]));
+            if (i === 3) params.append('sort', String(queryKey[i]));
+            if (i === 4) params.append('page', String(queryKey[i]));
+          }
+        }
+      }
+      
+      // Create full URL with query parameters
+      const queryString = params.toString();
+      const url = endpoint + (queryString ? `?${queryString}` : '');
       const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
       
       console.log(`Making GET request to: ${fullUrl}`);
