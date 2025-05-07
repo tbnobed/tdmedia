@@ -21,7 +21,7 @@ interface MediaGridProps {
 
 export default function MediaGrid({ media, onOpenMedia }: MediaGridProps) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
       {media.length === 0 ? (
         <div className="col-span-full flex flex-col items-center justify-center py-12">
           <div className="bg-gray-100 rounded-full p-4 mb-4">
@@ -49,7 +49,10 @@ export default function MediaGrid({ media, onOpenMedia }: MediaGridProps) {
           else ActionIcon = ArrowRight;
           
           return (
-            <Card key={item.id} className="overflow-hidden flex flex-col">
+            <Card 
+              key={item.id} 
+              className="overflow-hidden flex flex-col transition-all duration-300 hover:translate-y-[-8px] hover:shadow-xl shadow-md"
+            >
               <div className="relative aspect-video bg-gray-100 overflow-hidden">
                 <div className="absolute inset-0 flex items-center justify-center">
                   <TypeIcon className="h-10 w-10 text-gray-400" />
@@ -76,7 +79,7 @@ export default function MediaGrid({ media, onOpenMedia }: MediaGridProps) {
               
               <div className="border-t border-gray-200 p-4">
                 <Button 
-                  className="w-full"
+                  className="w-full shadow-sm hover:shadow transition-shadow"
                   onClick={() => onOpenMedia(item)}
                 >
                   {typeof ActionIcon === 'function' && <ActionIcon className="mr-2 h-4 w-4" />}{' '}

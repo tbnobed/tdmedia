@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Media } from "@shared/schema";
+import { useAuth } from "@/hooks/use-auth";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import MediaFilters from "@/components/media/media-filters";
@@ -9,9 +10,12 @@ import MediaList from "@/components/media/media-list";
 import MediaViewer from "@/components/media/media-viewer";
 import ContactForm from "@/components/contact/contact-form";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Film } from "lucide-react";
 
 export default function HomePage() {
+  // Get user info for personalized welcome message
+  const { user } = useAuth();
+  
   // State for view type
   const [viewType, setViewType] = useState<"grid" | "list">("grid");
   
@@ -90,13 +94,36 @@ export default function HomePage() {
       <Header />
       
       <main className="flex-grow">
+        {/* Welcome message */}
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div className="flex items-center">
+              <Film className="h-10 w-10 mr-4" />
+              <div>
+                <h1 className="text-3xl font-bold">
+                  {user ? (
+                    <>Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 to-yellow-400">{user.username}</span>!</>
+                  ) : (
+                    <>Welcome to Trilogy Digital Media</>
+                  )}
+                </h1>
+                <p className="mt-2 text-blue-100">
+                  {user?.isAdmin 
+                    ? "Manage and share content with your clients securely." 
+                    : "Browse your personalized media library with secure playback."}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        
         <MediaFilters
           onFilterChange={handleFilterChange}
           onViewChange={setViewType}
           view={viewType}
         />
         
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
           {isLoading ? (
             <div className="flex justify-center items-center py-12">
               <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary"></div>
