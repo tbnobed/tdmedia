@@ -60,11 +60,13 @@ export default function MediaManagement() {
     queryKey: ["/api/media"],
     queryFn: async () => {
       const mediaData = await getQueryFn()("/api/media");
+      console.log("Fetched media data:", mediaData);
       
       // For each media item, fetch its associated playlists
       const enhancedMediaData = await Promise.all(mediaData.map(async (item: any) => {
         try {
           const playlistsData = await getQueryFn()(`/api/media/${item.id}/playlists`);
+          console.log(`Fetched playlists for media ${item.id}:`, playlistsData);
           
           // Add playlist data to the media item
           return {
@@ -80,6 +82,7 @@ export default function MediaManagement() {
         }
       }));
       
+      console.log("Enhanced media data with playlists:", enhancedMediaData);
       return enhancedMediaData;
     }
   });
