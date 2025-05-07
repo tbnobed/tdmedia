@@ -152,7 +152,7 @@ export class DatabaseStorage implements IStorage {
   
   async deleteUser(id: number) {
     // First delete any media access entries for this user
-    await db.delete(mediaAccess).where(eq(mediaAccess.user_id, id));
+    await db.delete(mediaAccess).where(eq(mediaAccess.userId, id));
     
     // Then delete the user
     await db.delete(users).where(eq(users.id, id));
@@ -204,7 +204,7 @@ export class DatabaseStorage implements IStorage {
     // Update media_playlists entries to point to the default playlist
     // First, get all media_playlist entries for the deleted playlist
     const mediaInDeletedPlaylist = await db.select({
-      mediaId: mediaPlaylists.media_id.media_id
+      mediaId: mediaPlaylists.media_id
     })
     .from(mediaPlaylists)
     .where(eq(mediaPlaylists.playlist_id, id));
@@ -243,8 +243,8 @@ export class DatabaseStorage implements IStorage {
       // If a non-admin user ID is provided, get only the media they have access to
       const accessibleMediaIds = await db.select({ id: media.id })
         .from(media)
-        .innerJoin(mediaAccess, eq(media.id, mediaAccess.media_id))
-        .where(eq(mediaAccess.user_id, filters.userId));
+        .innerJoin(mediaAccess, eq(media.id, mediaAccess.mediaId))
+        .where(eq(mediaAccess.userId, filters.userId));
       
       // If user has no media access, return empty array
       if (accessibleMediaIds.length === 0) {
@@ -265,8 +265,8 @@ export class DatabaseStorage implements IStorage {
       if (filters.playlistId && filters.playlistId > 0) {
         // Join with mediaPlaylists to filter by playlist
         query = query
-          .innerJoin(mediaPlaylists, eq(media.id, mediaPlaylists.media_id))
-          .where(eq(mediaPlaylists.playlist_id, filters.playlistId));
+          .innerJoin(mediaPlaylists, eq(media.id, mediaPlaylists.mediaId))
+          .where(eq(mediaPlaylists.playlistId, filters.playlistId));
       }
       
       // Apply sorting
@@ -303,8 +303,8 @@ export class DatabaseStorage implements IStorage {
       if (filters.playlistId && filters.playlistId > 0) {
         // Join with mediaPlaylists to filter by playlist
         query = query
-          .innerJoin(mediaPlaylists, eq(media.id, mediaPlaylists.media_id))
-          .where(eq(mediaPlaylists.playlist_id, filters.playlistId));
+          .innerJoin(mediaPlaylists, eq(media.id, mediaPlaylists.mediaId))
+          .where(eq(mediaPlaylists.playlistId, filters.playlistId));
       }
       
       if (filters.sort) {
@@ -344,8 +344,8 @@ export class DatabaseStorage implements IStorage {
     
     // Get the playlists associated with this media
     const playlistsData = await db.select({
-      playlistId: mediaPlaylists.playlist_id.playlist_id,
-      mediaId: mediaPlaylists.media_id.media_id,
+      playlistId: mediaPlaylists.playlist_id,
+      mediaId: mediaPlaylists.media_id,
       playlistName: playlists.name,
       playlistDescription: playlists.description
     })
@@ -381,30 +381,30 @@ export class DatabaseStorage implements IStorage {
   async getMediaAccessByUser(userId: number) {
     return await db.select({
       id: mediaAccess.id,
-      mediaId: mediaAccess.media_id,
-      userId: mediaAccess.user_id,
+      mediaId: mediaAccess.mediaId,
+      userId: mediaAccess.userId,
       createdAt: mediaAccess.createdAt,
       createdById: mediaAccess.createdById,
       media: media
     })
     .from(mediaAccess)
-    .innerJoin(media, eq(mediaAccess.media_id, media.id))
-    .where(eq(mediaAccess.user_id, userId))
+    .innerJoin(media, eq(mediaAccess.mediaId, media.id))
+    .where(eq(mediaAccess.userId, userId))
     .orderBy(desc(mediaAccess.createdAt));
   }
   
   async getMediaAccessByMedia(mediaId: number) {
     return await db.select({
       id: mediaAccess.id,
-      mediaId: mediaAccess.media_id,
-      userId: mediaAccess.user_id,
+      mediaId: mediaAccess.mediaId,
+      userId: mediaAccess.userId,
       user: users,
       createdAt: mediaAccess.createdAt,
       createdById: mediaAccess.createdById
     })
     .from(mediaAccess)
-    .innerJoin(users, eq(mediaAccess.user_id, users.id))
-    .where(eq(mediaAccess.media_id, mediaId))
+    .innerJoin(users, eq(mediaAccess.userId, users.id))
+    .where(eq(mediaAccess.mediaId, mediaId))
     .orderBy(users.username);
   }
   
@@ -413,8 +413,8 @@ export class DatabaseStorage implements IStorage {
     const existing = await db.select()
       .from(mediaAccess)
       .where(and(
-        eq(mediaAccess.media_id, mediaId),
-        eq(mediaAccess.user_id, userId)
+        eq(mediaAccess.mediaId, mediaId),
+        eq(mediaAccess.userId, userId)
       ))
       .limit(1);
     
@@ -425,9 +425,9 @@ export class DatabaseStorage implements IStorage {
     // Create new access
     const [access] = await db.insert(mediaAccess)
       .values({
-        media_id: mediaId,
-        user_id: userId,
-        created_by_id: createdById
+        mediaId,
+        userId,
+        createdById
       })
       .returning();
     
@@ -437,8 +437,8 @@ export class DatabaseStorage implements IStorage {
   async removeMediaFromUser(mediaId: number, userId: number) {
     await db.delete(mediaAccess)
       .where(and(
-        eq(mediaAccess.media_id, mediaId),
-        eq(mediaAccess.user_id, userId)
+        eq(mediaAccess.mediaId, mediaId),
+        eq(mediaAccess.userId, userId)
       ));
   }
   
@@ -449,8 +449,8 @@ export class DatabaseStorage implements IStorage {
       email: users.email
     })
     .from(users)
-    .innerJoin(mediaAccess, eq(mediaAccess.user_id, users.id))
-    .where(eq(mediaAccess.media_id, mediaId))
+    .innerJoin(mediaAccess, eq(mediaAccess.userId, users.id))
+    .where(eq(mediaAccess.mediaId, mediaId))
     .orderBy(users.username);
     
     return results;
@@ -458,7 +458,7 @@ export class DatabaseStorage implements IStorage {
   
   // Remove all media access records for a specific media item
   async removeAllMediaAccess(mediaId: number) {
-    await db.delete(mediaAccess).where(eq(mediaAccess.media_id, mediaId));
+    await db.delete(mediaAccess).where(eq(mediaAccess.mediaId, mediaId));
   }
   
   // Contact methods
