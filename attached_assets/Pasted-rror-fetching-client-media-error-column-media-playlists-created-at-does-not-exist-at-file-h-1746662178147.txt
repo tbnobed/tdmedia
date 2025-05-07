@@ -1,0 +1,77 @@
+rror fetching client media: error: column media_playlists.created_at does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getMedia (/home/runner/workspace/server/storage.ts:333:14)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:1160:26) {
+  length: 197,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: 'Perhaps you meant to reference the column "media_playlists.createdAt".',
+  position: '290',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3729',
+  routine: 'errorMissingColumn'
+}
+11:55:28 PM [express] GET /api/client/media 500 in 248ms :: {"message":"Failed to fetch media"}
+Client media request params: { search: '', playlistIdParam: '5', sort: 'newest', user: 5 }
+Error fetching client media: error: column media_playlists.created_at does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getMedia (/home/runner/workspace/server/storage.ts:333:14)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:1160:26) {
+  length: 197,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: 'Perhaps you meant to reference the column "media_playlists.createdAt".',
+  position: '290',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3729',
+  routine: 'errorMissingColumn'
+}
+11:55:30 PM [express] GET /api/client/media 500 in 236ms :: {"message":"Failed to fetch media"}
+Client media request params: { search: '', playlistIdParam: '11', sort: 'newest', user: 5 }
+Error fetching client media: error: column media_playlists.created_at does not exist
+    at file:///home/runner/workspace/node_modules/@neondatabase/serverless/index.mjs:1345:74
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async NeonPreparedQuery.execute (/home/runner/workspace/node_modules/src/neon-serverless/session.ts:102:18)
+    at async DatabaseStorage.getMedia (/home/runner/workspace/server/storage.ts:333:14)
+    at async <anonymous> (/home/runner/workspace/server/routes.ts:1160:26) {
+  length: 197,
+  severity: 'ERROR',
+  code: '42703',
+  detail: undefined,
+  hint: 'Perhaps you meant to reference the column "media_playlists.createdAt".',
+  position: '290',
+  internalPosition: undefined,
+  internalQuery: undefined,
+  where: undefined,
+  schema: undefined,
+  table: undefined,
+  column: undefined,
+  dataType: undefined,
+  constraint: undefined,
+  file: 'parse_relation.c',
+  line: '3729',
+  routine: 'errorMissingColumn'
+}
+11:55:32 PM [express] GET /api/client/media 500 in 236ms :: {"message":"Failed to fetch media"}
