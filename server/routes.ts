@@ -445,6 +445,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Endpoint to get playlists for a specific media item
+  app.get("/api/media/:id/playlists", isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      
+      // Check if media exists and user has access
+      const hasAccess = await checkMediaAccess(req.user!.id, id, req.user!.isAdmin);
+      if (!hasAccess) {
+        return res.status(403).json({ message: "You don't have access to this media" });
+      }
+      
+      // Get playlists for this media
+      const playlistsData = await executeRawSQL(`
+        SELECT mp.id, mp.media_id AS "mediaId", mp.playlist_id AS "playlistId", p.name AS "playlistName"
+        FROM media_playlists mp
+        JOIN playlists p ON mp.playlist_id = p.id
+        WHERE mp.media_id = $1
+      `, [id]);
+      
+      res.json(playlistsData);
+    } catch (error) {
+      console.error("Error fetching media playlists:", error);
+      res.status(500).json({ message: "Failed to fetch media playlists" });
+    }
+  });
+
   app.delete("/api/media/:id", isAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id);

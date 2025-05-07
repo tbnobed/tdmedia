@@ -58,6 +58,30 @@ export default function MediaManagement() {
   // Fetch all media
   const { data: media, isLoading } = useQuery<Media[]>({
     queryKey: ["/api/media"],
+    queryFn: async () => {
+      const mediaData = await getQueryFn()("/api/media");
+      
+      // For each media item, fetch its associated playlists
+      const enhancedMediaData = await Promise.all(mediaData.map(async (item: any) => {
+        try {
+          const playlistsData = await getQueryFn()(`/api/media/${item.id}/playlists`);
+          
+          // Add playlist data to the media item
+          return {
+            ...item,
+            playlists: playlistsData.map((p: any) => ({
+              id: p.playlistId,
+              playlistName: p.playlistName
+            }))
+          };
+        } catch (error) {
+          console.error(`Failed to fetch playlists for media ${item.id}:`, error);
+          return {...item, playlists: []};
+        }
+      }));
+      
+      return enhancedMediaData;
+    }
   });
   
   // Fetch all playlists
