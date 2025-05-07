@@ -22,7 +22,7 @@ export default function HomePage() {
   // State for filters
   const [filters, setFilters] = useState({
     search: "",
-    categoryId: undefined as number | undefined,
+    playlistId: undefined as number | undefined,
     sort: "newest",
   });
   
@@ -44,7 +44,7 @@ export default function HomePage() {
     queryKey: [
       "/api/client/media", 
       filters.search, 
-      filters.categoryId, 
+      filters.playlistId, 
       filters.sort,
       page
     ],
@@ -62,7 +62,7 @@ export default function HomePage() {
   // Handler for filter changes
   const handleFilterChange = (newFilters: {
     search: string;
-    categoryId: number | undefined;
+    playlistId: number | undefined;
     sort: string;
   }) => {
     setFilters(newFilters);

@@ -72,7 +72,7 @@ export const getQueryFn: <T>(options: {
           if (queryKey[i] !== undefined && queryKey[i] !== null) {
             // Use parameter names based on common patterns
             if (i === 1) params.append('search', String(queryKey[i]));
-            if (i === 2 && queryKey[i]) params.append('categoryId', String(queryKey[i]));
+            if (i === 2 && queryKey[i]) params.append('playlistId', String(queryKey[i]));
             if (i === 3) params.append('sort', String(queryKey[i]));
             if (i === 4) params.append('page', String(queryKey[i]));
           }
