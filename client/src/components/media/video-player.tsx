@@ -289,11 +289,11 @@ export default function VideoPlayer({
     );
   }
 
-  // Set the allowFullscreen attribute at the container level
+  // Set the allowFullScreen attribute at the container level (with proper camelCase)
   // This is a critical attribute that browsers look for when allowing fullscreen mode
   const containerProps = disableFullscreen 
-    ? { allowFullscreen: "false" } 
-    : { allowFullscreen: "true" };
+    ? { allowFullScreen: false } 
+    : { allowFullScreen: true };
     
   // Log the current video player configuration
   console.log("VideoPlayer Config:", {
@@ -339,10 +339,10 @@ export default function VideoPlayer({
             disableRemotePlayback
             // Set all possible fullscreen attributes to false for client users
             {...(disableFullscreen ? { 
-              disablefullscreen: "true",
-              allowfullscreen: "false"
+              disablePictureInPicture: true,
+              allowFullScreen: false
             } : {
-              allowfullscreen: "true"
+              allowFullScreen: true
             })}
           >
             <source 

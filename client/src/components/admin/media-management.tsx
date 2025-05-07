@@ -276,7 +276,9 @@ export default function MediaManagement() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      {playlists?.find(playlist => playlist.id === item.playlistId)?.name || 'Uncategorized'}
+                      {item.playlists && item.playlists.length > 0 
+                        ? item.playlists.map(p => p.playlistName).join(', ') 
+                        : 'Uncategorized'}
                     </TableCell>
                     <TableCell>
                       <div className="flex space-x-2">
