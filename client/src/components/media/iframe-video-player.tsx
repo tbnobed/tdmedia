@@ -199,7 +199,7 @@ export default function IframeVideoPlayer({
         <div class="watermark-grid">
           ${Array.from({ length: 12 }).map((_, index) => `
             <div class="watermark-grid-item">
-              <span>TRILOGY DIGITAL</span>
+              <span>TBN</span>
             </div>
           `).join('')}
         </div>
@@ -231,8 +231,8 @@ export default function IframeVideoPlayer({
             });
             
             // Check if watermarking is required based on headers
-            const watermarkRequired = response.headers.get('X-Trilogy-Watermark') === 'required';
-            const userRole = response.headers.get('X-Trilogy-Role') || 'client';
+            const watermarkRequired = response.headers.get('X-TBN-Watermark') === 'required';
+            const userRole = response.headers.get('X-TBN-Role') || 'client';
             
             console.log('Video headers:', {
               watermarkRequired,
@@ -333,7 +333,7 @@ export default function IframeVideoPlayer({
       {/* 
         Note: We've moved the watermark inside the iframe for better security
         and to make it impossible for users to remove it using browser dev tools.
-        The watermark is controlled by the server-side X-Trilogy-Watermark header.
+        The watermark is controlled by the server-side X-TBN-Watermark header.
       */}
     </div>
   );

@@ -631,8 +631,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // Add custom headers to help the client player apply appropriate restrictions
         // These are read by our secure player implementations
         const customHeaders = {
-          'X-Trilogy-Watermark': isAdmin ? 'none' : 'required',
-          'X-Trilogy-Role': isAdmin ? 'admin' : 'client'
+          'X-TBN-Watermark': isAdmin ? 'none' : 'required',
+          'X-TBN-Role': isAdmin ? 'admin' : 'client'
         };
         
         if (range) {
@@ -663,8 +663,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } else if (mediaItem.type === 'image') {
         // For images, add watermarking headers for client users
         res.setHeader('Content-Type', 'image/jpeg'); // Adjust based on actual image type
-        res.setHeader('X-Trilogy-Watermark', isAdmin ? 'none' : 'required');
-        res.setHeader('X-Trilogy-Role', isAdmin ? 'admin' : 'client');
+        res.setHeader('X-TBN-Watermark', isAdmin ? 'none' : 'required');
+        res.setHeader('X-TBN-Role', isAdmin ? 'admin' : 'client');
         
         fs.createReadStream(filePath).pipe(res);
       } else {

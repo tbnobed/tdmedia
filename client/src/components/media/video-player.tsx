@@ -370,7 +370,7 @@ export default function VideoPlayer({
       {/* Small watermark in the preview version */}
       {small && showWatermark && (
         <div className="absolute top-1 right-1 text-white text-xs opacity-40 bg-black/20 px-1 rounded">
-          TRILOGY
+          TBN
         </div>
       )}
     </div>
