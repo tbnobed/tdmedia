@@ -44,11 +44,11 @@ export async function sendContactNotification(
   notificationEmail = CONTACT_NOTIFICATION_EMAIL,
   senderEmail = DEFAULT_FROM_EMAIL
 ): Promise<boolean> {
-  const subject = `[Trilogy Digital Media] New Contact Inquiry from ${name}`;
+  const subject = `[TBN] New Contact Inquiry from ${name}`;
   
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <div style="background-color: #0f172a; color: white; padding: 20px; text-align: center;">
+      <div style="background-color: #000000; color: white; padding: 20px; text-align: center;">
         <h1 style="margin: 0;">New Contact Form Submission</h1>
       </div>
       <div style="padding: 20px; border: 1px solid #e5e7eb; border-top: none;">
@@ -66,13 +66,13 @@ export async function sendContactNotification(
         </div>
         
         <p>
-          <a href="mailto:${email}" style="display: inline-block; background-color: #0f172a; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px;">Reply to Inquiry</a>
+          <a href="mailto:${email}" style="display: inline-block; background-color: #000000; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px;">Reply to Inquiry</a>
         </p>
         
       </div>
       <div style="padding: 15px; background-color: #f3f4f6; text-align: center; font-size: 12px; color: #6b7280;">
-        <p>&copy; ${new Date().getFullYear()} Trilogy Digital Media. All rights reserved.</p>
-        <p>This automated notification was sent from the Trilogy Digital Media platform.</p>
+        <p>&copy; ${new Date().getFullYear()} TBN. All rights reserved.</p>
+        <p>This automated notification was sent from the TBN platform.</p>
       </div>
     </div>
   `;
@@ -99,12 +99,12 @@ export async function sendWelcomeEmail(
   
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <div style="background-color: #0f172a; color: white; padding: 20px; text-align: center;">
-        <h1 style="margin: 0;">Trilogy Digital Media</h1>
+      <div style="background-color: #000000; color: white; padding: 20px; text-align: center;">
+        <h1 style="margin: 0;">TBN</h1>
       </div>
       <div style="padding: 20px; border: 1px solid #e5e7eb; border-top: none;">
         <h2>Welcome, ${username}!</h2>
-        <p>Thank you for joining Trilogy Digital Media. Your account has been created and is ready to use.</p>
+        <p>Thank you for joining TBN. Your account has been created and is ready to use.</p>
         
         <div style="background-color: #f9fafb; padding: 15px; margin: 15px 0; border-radius: 5px;">
           <p style="margin: 0;"><strong>Your login credentials:</strong></p>
@@ -124,11 +124,11 @@ export async function sendWelcomeEmail(
         
         <p>If you have any questions or need assistance, please don't hesitate to contact our team.</p>
         
-        <p>Best regards,<br>The Trilogy Digital Media Team</p>
+        <p>Best regards,<br>The TBN Team</p>
       </div>
       <div style="padding: 15px; background-color: #f3f4f6; text-align: center; font-size: 12px; color: #6b7280;">
-        <p>&copy; ${new Date().getFullYear()} Trilogy Digital Media. All rights reserved.</p>
-        <p>This email was sent to ${email} because you were registered as a client at Trilogy Digital Media.</p>
+        <p>&copy; ${new Date().getFullYear()} TBN. All rights reserved.</p>
+        <p>This email was sent to ${email} because you were registered as a client at TBN.</p>
       </div>
     </div>
   `;
