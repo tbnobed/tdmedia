@@ -380,11 +380,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       
+      console.log("Received PUT request for media ID:", id);
+      console.log("Request body:", req.body);
+      
       // Extract playlistIds before validation since it's not part of the media schema
       const { playlistIds, ...mediaData } = req.body;
       
+      console.log("Extracted playlistIds:", playlistIds);
+      console.log("Extracted mediaData:", mediaData);
+      
       // Validate the media data
       const validatedData = insertMediaSchema.parse(mediaData);
+      console.log("Validated media data:", validatedData);
+      
       const updatedMedia = await storage.updateMedia(id, validatedData);
       
       if (!updatedMedia) {
@@ -392,28 +400,39 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       // Update playlist associations if provided
+      console.log("Received request to update media playlists:", { mediaId: id, playlistIds });
+      
       if (Array.isArray(playlistIds)) {
         try {
           // First, delete existing associations
+          console.log(`Deleting existing playlist associations for media ID ${id}`);
           await executeRawSQL(`
             DELETE FROM media_playlists
             WHERE media_id = $1
           `, [id]);
+          console.log("Existing playlist associations deleted successfully");
           
           // Then create new associations
           if (playlistIds.length > 0) {
+            console.log(`Creating ${playlistIds.length} new playlist associations`);
             for (const playlistId of playlistIds) {
               const parsedPlaylistId = parseInt(playlistId.toString(), 10);
+              console.log(`Adding media ${id} to playlist ${parsedPlaylistId}`);
               await executeRawSQL(`
                 INSERT INTO media_playlists (media_id, playlist_id)
                 VALUES ($1, $2)
               `, [id, parsedPlaylistId]);
             }
+            console.log("All playlist associations created successfully");
+          } else {
+            console.log("No new playlist associations to create");
           }
         } catch (err) {
           console.error(`Error updating playlist associations for media ${id}:`, err);
           // Continue even if playlist association update fails
         }
+      } else {
+        console.log("No playlistIds provided or not an array:", playlistIds);
       }
       
       res.json(updatedMedia);

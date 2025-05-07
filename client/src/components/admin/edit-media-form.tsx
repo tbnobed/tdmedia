@@ -31,7 +31,7 @@ import { Loader2, Upload, FileText, FileImage, Video, PresentationIcon, Check, A
 
 // Media form schema based on the insertMediaSchema but extended for UI needs
 const mediaFormSchema = insertMediaSchema.extend({
-  playlistIds: z.array(z.number())
+  playlistIds: z.array(z.number()).default([])
 });
 
 type MediaFormValues = z.infer<typeof mediaFormSchema>;
@@ -347,9 +347,11 @@ export default function EditMediaForm({ media, onComplete }: EditMediaFormProps)
                   <Select
                     onValueChange={(value) => {
                       const id = parseInt(value, 10);
+                      // Ensure field.value is always an array
+                      const currentValues = Array.isArray(field.value) ? field.value : [];
                       // Add the id if it's not already in the array
-                      if (!field.value?.includes(id)) {
-                        field.onChange([...(field.value || []), id]);
+                      if (!currentValues.includes(id)) {
+                        field.onChange([...currentValues, id]);
                       }
                     }}
                   >
@@ -363,7 +365,7 @@ export default function EditMediaForm({ media, onComplete }: EditMediaFormProps)
                         <SelectItem 
                           key={playlist.id} 
                           value={playlist.id.toString()}
-                          disabled={field.value?.includes(playlist.id)}
+                          disabled={Array.isArray(field.value) && field.value.includes(playlist.id)}
                         >
                           {playlist.name}
                         </SelectItem>
@@ -373,7 +375,7 @@ export default function EditMediaForm({ media, onComplete }: EditMediaFormProps)
                 </div>
                 
                 {/* Display selected playlists with remove option */}
-                {field.value?.length > 0 && (
+                {Array.isArray(field.value) && field.value.length > 0 && (
                   <div className="mt-2 flex flex-wrap gap-2">
                     {field.value.map((playlistId) => {
                       const playlist = playlists?.find(p => p.id === playlistId);
@@ -384,7 +386,8 @@ export default function EditMediaForm({ media, onComplete }: EditMediaFormProps)
                             type="button"
                             className="ml-1 rounded-full w-4 h-4 inline-flex items-center justify-center text-slate-400 hover:text-slate-500"
                             onClick={() => {
-                              field.onChange(field.value.filter(id => id !== playlistId));
+                              const currentValues = Array.isArray(field.value) ? field.value : [];
+                              field.onChange(currentValues.filter(id => id !== playlistId));
                             }}
                           >
                             ×
