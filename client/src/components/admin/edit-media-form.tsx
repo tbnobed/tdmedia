@@ -30,7 +30,7 @@ import { Loader2, Upload, FileText, FileImage, Video, PresentationIcon, Check, A
 
 // Media form schema based on the insertMediaSchema
 const mediaFormSchema = insertMediaSchema.extend({
-  categoryId: z.coerce.number(),
+  playlistId: z.coerce.number(),
 });
 
 type MediaFormValues = z.infer<typeof mediaFormSchema>;
@@ -62,9 +62,9 @@ export default function EditMediaForm({ media, onComplete }: EditMediaFormProps)
     { value: "presentation", label: "Presentation" },
   ];
   
-  // Fetch categories for select dropdown
-  const { data: categories = [] } = useQuery<{id: number, name: string}[]>({
-    queryKey: ["/api/categories"],
+  // Fetch playlists for select dropdown
+  const { data: playlists = [] } = useQuery<{id: number, name: string}[]>({
+    queryKey: ["/api/playlists"],
   });
   
   // Edit media form
@@ -74,7 +74,7 @@ export default function EditMediaForm({ media, onComplete }: EditMediaFormProps)
       title: media.title,
       description: media.description || "",
       type: media.type,
-      categoryId: media.categoryId,
+      playlistId: media.playlistId,
       fileUrl: media.fileUrl,
       thumbnailUrl: media.thumbnailUrl || "",
       duration: media.duration || "",
@@ -248,7 +248,7 @@ export default function EditMediaForm({ media, onComplete }: EditMediaFormProps)
       title: media.title,
       description: media.description || "",
       type: media.type,
-      categoryId: media.categoryId,
+      playlistId: media.playlistId,
       fileUrl: media.fileUrl,
       thumbnailUrl: media.thumbnailUrl || "",
       duration: media.duration || "",
