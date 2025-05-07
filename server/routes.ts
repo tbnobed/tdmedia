@@ -2,7 +2,7 @@ import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { setupAuth, hashPassword, comparePasswords } from "./auth";
 import { storage } from "./storage";
-import { insertPlaylistSchema, insertMediaSchema, insertContactSchema, insertMediaAccessSchema, User, MediaAccess } from "@shared/schema";
+import { insertPlaylistSchema, insertMediaSchema, insertContactSchema, insertMediaAccessSchema, User, MediaAccess, mediaPlaylists } from "@shared/schema";
 import { z } from "zod";
 import fs from "fs";
 import path from "path";
@@ -163,6 +163,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting playlist:", error);
       res.status(500).json({ message: "Failed to delete playlist" });
+    }
+  });
+
+  // Get playlists for a specific media item
+  app.get("/api/media/:id/playlists", isAuthenticated, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      
+      // Query for all playlist associations for this media
+      const mediaPlaylistsData = await db.select()
+        .from(mediaPlaylists)
+        .where(sql`media_id = ${id}`);
+      
+      res.json(mediaPlaylistsData);
+    } catch (error) {
+      console.error("Error fetching media playlists:", error);
+      res.status(500).json({ message: "Failed to fetch playlists for media" });
     }
   });
 
@@ -353,11 +370,37 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.put("/api/media/:id", isAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      const validatedData = insertMediaSchema.parse(req.body);
+      
+      // Extract playlistIds before validation since it's not part of the media schema
+      const { playlistIds, ...mediaData } = req.body;
+      
+      // Validate the media data
+      const validatedData = insertMediaSchema.parse(mediaData);
       const updatedMedia = await storage.updateMedia(id, validatedData);
       
       if (!updatedMedia) {
         return res.status(404).json({ message: "Media not found" });
+      }
+      
+      // Update playlist associations if provided
+      if (Array.isArray(playlistIds)) {
+        try {
+          // First, delete existing associations
+          await db.delete(mediaPlaylists).where(sql`media_id = ${id}`);
+          
+          // Then create new associations
+          if (playlistIds.length > 0) {
+            for (const playlistId of playlistIds) {
+              await db.insert(mediaPlaylists).values({
+                mediaId: id,
+                playlistId: parseInt(playlistId.toString(), 10)
+              });
+            }
+          }
+        } catch (err) {
+          console.error(`Error updating playlist associations for media ${id}:`, err);
+          // Continue even if playlist association update fails
+        }
       }
       
       res.json(updatedMedia);
@@ -381,6 +424,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         console.log("Removed all media access records for media ID:", id);
       } catch (accessError) {
         console.error("Error removing media access during deletion:", accessError);
+        // Continue with deletion even if this fails
+      }
+
+      // Delete playlist associations
+      try {
+        await db.delete(mediaPlaylists).where(sql`media_id = ${id}`);
+        console.log("Removed all playlist associations for media ID:", id);
+      } catch (playlistError) {
+        console.error("Error removing playlist associations during deletion:", playlistError);
         // Continue with deletion even if this fails
       }
 

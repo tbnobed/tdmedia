@@ -28,9 +28,9 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Loader2, Upload, FileText, FileImage, Video, PresentationIcon, Check, AlertTriangle } from "lucide-react";
 
-// Media form schema based on the insertMediaSchema
+// Media form schema based on the insertMediaSchema but extended for UI needs
 const mediaFormSchema = insertMediaSchema.extend({
-  playlistId: z.coerce.number(),
+  playlistIds: z.array(z.number())
 });
 
 type MediaFormValues = z.infer<typeof mediaFormSchema>;
@@ -67,6 +67,18 @@ export default function EditMediaForm({ media, onComplete }: EditMediaFormProps)
     queryKey: ["/api/playlists"],
   });
   
+  // Fetch existing playlist associations for this media
+  const { data: mediaPlaylists = [] } = useQuery<{mediaId: number, playlistId: number}[]>({
+    queryKey: ["/api/media", media.id, "playlists"],
+    queryFn: async () => {
+      const res = await apiRequest("GET", `/api/media/${media.id}/playlists`);
+      return await res.json();
+    }
+  });
+
+  // Extract playlist IDs from the media's playlist associations
+  const existingPlaylistIds = mediaPlaylists.map(mp => mp.playlistId);
+
   // Edit media form
   const form = useForm<MediaFormValues>({
     resolver: zodResolver(mediaFormSchema),
@@ -74,7 +86,7 @@ export default function EditMediaForm({ media, onComplete }: EditMediaFormProps)
       title: media.title,
       description: media.description || "",
       type: media.type,
-      playlistId: media.playlistId,
+      playlistIds: existingPlaylistIds, // Use the existing playlist associations
       fileUrl: media.fileUrl,
       thumbnailUrl: media.thumbnailUrl || "",
       duration: media.duration || "",
@@ -242,19 +254,19 @@ export default function EditMediaForm({ media, onComplete }: EditMediaFormProps)
     updateMediaMutation.mutate(values);
   };
   
-  // Update form values when media changes
+  // Update form values when media or mediaPlaylists changes
   useEffect(() => {
     form.reset({
       title: media.title,
       description: media.description || "",
       type: media.type,
-      playlistId: media.playlistId,
+      playlistIds: existingPlaylistIds,
       fileUrl: media.fileUrl,
       thumbnailUrl: media.thumbnailUrl || "",
       duration: media.duration || "",
       size: media.size || "",
     });
-  }, [media, form]);
+  }, [media, form, existingPlaylistIds]);
   
   return (
     <Form {...form}>
@@ -322,27 +334,36 @@ export default function EditMediaForm({ media, onComplete }: EditMediaFormProps)
           
           <FormField
             control={form.control}
-            name="playlistId"
+            name="playlistIds"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Playlist</FormLabel>
-                <Select
-                  onValueChange={(value) => field.onChange(parseInt(value, 10))}
-                  defaultValue={field.value?.toString() || ""}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a playlist" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
+                <FormLabel>Playlists</FormLabel>
+                <div className="border rounded-md p-2 bg-white dark:bg-slate-950">
+                  <div className="text-sm">Select all playlists that should include this media:</div>
+                  <div className="mt-2 space-y-2">
                     {playlists?.map((playlist) => (
-                      <SelectItem key={playlist.id} value={playlist.id.toString()}>
-                        {playlist.name}
-                      </SelectItem>
+                      <div key={playlist.id} className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id={`playlist-${playlist.id}`}
+                          value={playlist.id}
+                          checked={field.value?.includes(playlist.id)}
+                          onChange={(e) => {
+                            const value = parseInt(e.target.value, 10);
+                            const newValues = e.target.checked
+                              ? [...(field.value || []), value]
+                              : (field.value || []).filter(id => id !== value);
+                            field.onChange(newValues);
+                          }}
+                          className="rounded border-slate-300 dark:border-slate-700 text-primary focus:ring-primary"
+                        />
+                        <label htmlFor={`playlist-${playlist.id}`} className="text-sm">
+                          {playlist.name}
+                        </label>
+                      </div>
                     ))}
-                  </SelectContent>
-                </Select>
+                  </div>
+                </div>
                 <FormMessage />
               </FormItem>
             )}
