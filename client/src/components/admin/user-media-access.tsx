@@ -63,10 +63,10 @@ interface Media {
 
 interface MediaAccess {
   id: number;
-  mediaId: number;
-  userId: number;
+  media_id: number;
+  user_id: number;
   createdAt: string;
-  createdById: number;
+  created_by_id: number;
   media: Media;
 }
 
@@ -211,7 +211,7 @@ export default function UserMediaAccess() {
   const getUnassignedMedia = () => {
     if (!allMedia || !userMedia) return [];
 
-    const assignedMediaIds = userMedia.map((item) => item.mediaId);
+    const assignedMediaIds = userMedia.map((item) => item.media_id);
     return allMedia.filter((media) => !assignedMediaIds.includes(media.id));
   };
 
@@ -337,7 +337,7 @@ export default function UserMediaAccess() {
                               <Button
                                 variant="destructive"
                                 size="sm"
-                                onClick={() => handleRemoveAccess(access.mediaId)}
+                                onClick={() => handleRemoveAccess(access.media_id)}
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>

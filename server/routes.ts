@@ -1032,12 +1032,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/media-access", isAdmin, async (req, res) => {
     try {
       const validatedData = insertMediaAccessSchema.parse(req.body);
-      const { mediaId, userId } = validatedData;
+      const { media_id, user_id } = validatedData;
       
       // isAdmin middleware ensures req.user is defined
       const createdById = req.user!.id;
       
-      const mediaAccess = await storage.assignMediaToUser(mediaId, userId, createdById);
+      const mediaAccess = await storage.assignMediaToUser(media_id, user_id, createdById);
       res.status(201).json(mediaAccess);
     } catch (error) {
       if (error instanceof z.ZodError) {

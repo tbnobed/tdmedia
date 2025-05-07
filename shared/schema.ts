@@ -89,14 +89,14 @@ export const insertMediaPlaylistSchema = createInsertSchema(mediaPlaylists, {})
 
 export const mediaAccess = pgTable("media_access", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").references(() => users.id).notNull(),
-  mediaId: integer("media_id").references(() => media.id).notNull(),
+  user_id: integer("user_id").references(() => users.id).notNull(),
+  media_id: integer("media_id").references(() => media.id).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-  createdById: integer("created_by_id").references(() => users.id).notNull(),
+  created_by_id: integer("created_by_id").references(() => users.id).notNull(),
 });
 
 export const insertMediaAccessSchema = createInsertSchema(mediaAccess, {})
-  .omit({ id: true, createdAt: true, createdById: true });
+  .omit({ id: true, createdAt: true, created_by_id: true });
 
 // Define relations
 export const playlistsRelations = relations(playlists, ({ many }) => ({
@@ -124,9 +124,9 @@ export const usersRelations = relations(users, ({ many }) => ({
 }));
 
 export const mediaAccessRelations = relations(mediaAccess, ({ one }) => ({
-  user: one(users, { fields: [mediaAccess.userId], references: [users.id], relationName: 'userAccess' }),
-  media: one(media, { fields: [mediaAccess.mediaId], references: [media.id] }),
-  createdBy: one(users, { fields: [mediaAccess.createdById], references: [users.id], relationName: 'createdBy' })
+  user: one(users, { fields: [mediaAccess.user_id], references: [users.id], relationName: 'userAccess' }),
+  media: one(media, { fields: [mediaAccess.media_id], references: [media.id] }),
+  createdBy: one(users, { fields: [mediaAccess.created_by_id], references: [users.id], relationName: 'createdBy' })
 }));
 
 // Session store table used by express-session
