@@ -91,15 +91,15 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
   
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-4xl p-0 overflow-hidden" onContextMenu={preventRightClick}>
-        <div className="absolute top-0 right-0 pt-4 pr-4 z-10">
+      <DialogContent className="max-w-4xl p-0 overflow-hidden w-[95vw] sm:w-auto" onContextMenu={preventRightClick}>
+        <div className="absolute top-0 right-0 pt-3 pr-3 sm:pt-4 sm:pr-4 z-10">
           <Button
             variant="ghost"
             size="icon"
-            className="rounded-full bg-white/80 backdrop-blur-sm hover:bg-white/90"
+            className="rounded-full bg-white/80 backdrop-blur-sm hover:bg-white/90 h-7 w-7 sm:h-8 sm:w-8"
             onClick={onClose}
           >
-            <X className="h-4 w-4" />
+            <X className="h-3 w-3 sm:h-4 sm:w-4" />
           </Button>
         </div>
         
@@ -110,7 +110,7 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
               {/* Grid watermark pattern for images only */}
               <div className="watermark-grid">
                 {Array.from({ length: 9 }).map((_, index) => (
-                  <div key={index} className="watermark-grid-item">
+                  <div key={index} className="watermark-grid-item text-xs sm:text-sm">
                     TRILOGY DIGITAL
                   </div>
                 ))}
@@ -152,7 +152,7 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
                 <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 gap-10 opacity-10">
                   {Array.from({ length: 9 }).map((_, index) => (
                     <div key={index} className="flex items-center justify-center">
-                      <div className="transform rotate-[-30deg] text-gray-700 text-sm font-normal">
+                      <div className="transform rotate-[-30deg] text-gray-700 text-xs sm:text-sm font-normal">
                         TRILOGY DIGITAL
                       </div>
                     </div>
@@ -161,10 +161,10 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
               </div>
               
               <div className="w-full h-full flex items-center justify-center">
-                <div className="text-center z-10">
-                  <div className="text-5xl text-gray-400 flex justify-center mb-2">
+                <div className="text-center z-10 px-3">
+                  <div className="text-4xl sm:text-5xl text-gray-400 flex justify-center mb-2">
                     {media.type === "document" ? (
-                      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="sm:w-12 sm:h-12">
                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                         <polyline points="14 2 14 8 20 8"></polyline>
                         <line x1="16" y1="13" x2="8" y2="13"></line>
@@ -172,16 +172,16 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
                         <polyline points="10 9 9 9 8 9"></polyline>
                       </svg>
                     ) : (
-                      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="sm:w-12 sm:h-12">
                         <path d="M2 3h20v14H2z"></path>
                         <path d="M12 21l5-5H7l5 5z"></path>
                       </svg>
                     )}
                   </div>
-                  <p className="mt-2 text-white bg-black/70 px-3 py-1 rounded">
+                  <p className="mt-2 text-white bg-black/70 px-2 py-1 rounded text-xs sm:text-sm sm:px-3">
                     Document preview is available for viewing only
                   </p>
-                  <p className="mt-2 text-gray-600 text-sm">
+                  <p className="mt-2 text-gray-600 text-xs sm:text-sm">
                     Content is protected and watermarked
                   </p>
                 </div>
@@ -192,30 +192,36 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
           {/* Loading state */}
           {isLoading && (
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary"></div>
+              <div className="animate-spin rounded-full h-10 w-10 sm:h-16 sm:w-16 border-t-2 border-b-2 border-primary"></div>
             </div>
           )}
         </div>
         
-        <div className="bg-white px-4 pt-5 pb-4 sm:p-6">
-          <DialogHeader>
-            <DialogTitle>{media.title}</DialogTitle>
-            <DialogDescription>{media.description}</DialogDescription>
+        <div className="bg-white px-3 pt-4 pb-3 sm:px-6 sm:pt-5 sm:pb-4">
+          <DialogHeader className="space-y-1 sm:space-y-2">
+            <DialogTitle className="text-lg sm:text-xl">{media.title}</DialogTitle>
+            <DialogDescription className="text-xs sm:text-sm">{media.description}</DialogDescription>
           </DialogHeader>
           
-          <div className="mt-4 pt-4 border-t border-gray-200">
-            <div className="flex items-center justify-between">
+          <div className="mt-3 pt-3 sm:mt-4 sm:pt-4 border-t border-gray-200">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div>
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${typeColor.bg} ${typeColor.text}`}>
+                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${typeColor.bg} ${typeColor.text}`}>
                   {media.type.charAt(0).toUpperCase() + media.type.slice(1)}
                 </span>
-                <span className="ml-2 text-sm text-gray-500">
+                <span className="ml-2 text-xs text-gray-500">
                   {media.duration || media.size || ""}
                 </span>
               </div>
               
-              <Button onClick={handleContactClick}>
-                <Mail className="mr-2 h-4 w-4" /> Contact about this content
+              <Button 
+                onClick={handleContactClick}
+                className="text-xs sm:text-sm h-8 sm:h-10"
+                size="sm"
+              >
+                <Mail className="mr-1 h-3 w-3 sm:mr-2 sm:h-4 sm:w-4" /> 
+                <span className="sm:inline">Contact about this content</span>
+                <span className="sm:hidden">Contact us</span>
               </Button>
             </div>
           </div>

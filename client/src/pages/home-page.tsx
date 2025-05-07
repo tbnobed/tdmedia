@@ -96,18 +96,18 @@ export default function HomePage() {
       <main className="flex-grow">
         {/* Welcome message */}
         <div className="bg-gradient-to-r from-green-800 to-green-700 text-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div className="flex items-center">
-              <Film className="h-10 w-10 mr-4" />
+          <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-8 sm:py-12">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-0">
+              <Film className="h-8 w-8 sm:h-10 sm:w-10 sm:mr-4" />
               <div>
-                <h1 className="text-3xl font-bold">
+                <h1 className="text-2xl sm:text-3xl font-bold">
                   {user ? (
                     <>Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-200 to-green-300">{user.username}</span>!</>
                   ) : (
                     <>Welcome to Trilogy Digital Media</>
                   )}
                 </h1>
-                <p className="mt-2 text-green-100">
+                <p className="mt-1 sm:mt-2 text-sm sm:text-base text-green-100">
                   {user?.isAdmin 
                     ? "Manage and share content with your clients securely." 
                     : "Browse your personalized media library with secure playback."}
@@ -123,10 +123,10 @@ export default function HomePage() {
           view={viewType}
         />
         
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-10">
           {isLoading ? (
-            <div className="flex justify-center items-center py-12">
-              <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary"></div>
+            <div className="flex justify-center items-center py-8 sm:py-12">
+              <div className="animate-spin rounded-full h-12 w-12 sm:h-16 sm:w-16 border-t-2 border-b-2 border-primary"></div>
             </div>
           ) : viewType === "grid" ? (
             <MediaGrid media={paginatedMedia} onOpenMedia={handleOpenMedia} />
@@ -136,43 +136,54 @@ export default function HomePage() {
           
           {/* Pagination */}
           {mediaData && mediaData.length > 0 && (
-            <div className="mt-6 flex justify-between items-center">
-              <div className="text-sm text-gray-700">
+            <div className="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+              <div className="text-xs sm:text-sm text-gray-700 text-center sm:text-left">
                 Showing <span className="font-medium">{startItem}</span> to{" "}
                 <span className="font-medium">{endItem}</span> of{" "}
                 <span className="font-medium">{totalItems}</span> results
               </div>
               
-              <div className="flex-1 flex justify-center sm:justify-end">
+              <div className="flex justify-center w-full sm:w-auto">
                 <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
                   <Button
                     variant="outline"
-                    size="icon"
+                    size="sm"
                     disabled={page === 1}
                     onClick={() => setPage(page - 1)}
-                    className="relative inline-flex items-center px-2 py-2 rounded-l-md"
+                    className="h-9 rounded-l-md"
                   >
                     <span className="sr-only">Previous</span>
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
                   
-                  {Array.from({ length: Math.min(totalPages, 5) }).map((_, i) => (
-                    <Button
-                      key={i}
-                      variant={page === i + 1 ? "default" : "outline"}
-                      className="relative inline-flex items-center px-4 py-2"
-                      onClick={() => setPage(i + 1)}
-                    >
-                      {i + 1}
-                    </Button>
-                  ))}
+                  {/* Mobile view: just show current/total */}
+                  <div className="sm:hidden flex items-center justify-center px-3 py-2 border border-gray-300 bg-white">
+                    <span className="text-xs font-medium text-gray-700">
+                      Page {page} of {totalPages}
+                    </span>
+                  </div>
+                  
+                  {/* Desktop view: show page numbers */}
+                  <div className="hidden sm:flex">
+                    {Array.from({ length: Math.min(totalPages, 5) }).map((_, i) => (
+                      <Button
+                        key={i}
+                        variant={page === i + 1 ? "default" : "outline"}
+                        className="h-9"
+                        size="sm"
+                        onClick={() => setPage(i + 1)}
+                      >
+                        {i + 1}
+                      </Button>
+                    ))}
+                  </div>
                   
                   <Button
                     variant="outline"
-                    size="icon"
+                    size="sm"
                     disabled={page === totalPages}
                     onClick={() => setPage(page + 1)}
-                    className="relative inline-flex items-center px-2 py-2 rounded-r-md"
+                    className="h-9 rounded-r-md"
                   >
                     <span className="sr-only">Next</span>
                     <ChevronRight className="h-4 w-4" />
