@@ -41,7 +41,7 @@ async function checkMediaAccess(userId: number, mediaId: number, isAdmin: boolea
   
   // Get media access for this user
   const mediaAccessList = await storage.getMediaAccessByUser(userId);
-  const hasAccess = mediaAccessList.some((access: { mediaId: number }) => access.mediaId === mediaId);
+  const hasAccess = mediaAccessList.some((access: { media_id: number }) => access.media_id === mediaId);
   
   if (hasAccess) {
     console.log(`Media access granted for user ${userId} to media ${mediaId}`);
@@ -174,7 +174,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Query for all playlist associations for this media
       const mediaPlaylistsData = await db.select()
         .from(mediaPlaylists)
-        .where(eq(mediaPlaylists.mediaId, id));
+        .where(eq(mediaPlaylists.media_id, id));
       
       res.json(mediaPlaylistsData);
     } catch (error) {
