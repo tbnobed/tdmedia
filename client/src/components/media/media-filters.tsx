@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Category } from "@shared/schema";
-import { Search, Grid, List, SlidersHorizontal, Filter } from "lucide-react";
+import { Search, Grid, List } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
 interface MediaFiltersProps {
@@ -41,73 +41,36 @@ export default function MediaFilters({ onFilterChange, onViewChange, view }: Med
     });
   }, [search, categoryId, sort, onFilterChange]);
   
-  // Handle search input with debounce
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearch(e.target.value);
-  };
-  
-  // Clear all filters
-  const handleClearFilters = () => {
-    setSearch("");
-    setCategoryId("all");
-    setSort("newest");
-  };
-  
   return (
-    <div className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-200 dark:border-gray-800">
+    <div className="bg-white shadow">
       <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Media Library</h1>
-          
-          {/* View Toggle */}
-          <div className="flex space-x-1 bg-gray-100 dark:bg-gray-800 p-1 rounded-md">
-            <Button
-              variant={view === "grid" ? "default" : "ghost"}
-              size="sm"
-              onClick={() => onViewChange("grid")}
-              className={`${view === "grid" ? "" : "text-gray-500 hover:text-gray-900 dark:hover:text-gray-300"}`}
-            >
-              <Grid className="h-4 w-4 mr-1" />
-              Grid
-            </Button>
-            <Button
-              variant={view === "list" ? "default" : "ghost"}
-              size="sm"
-              onClick={() => onViewChange("list")}
-              className={`${view === "list" ? "" : "text-gray-500 hover:text-gray-900 dark:hover:text-gray-300"}`}
-            >
-              <List className="h-4 w-4 mr-1" />
-              List
-            </Button>
-          </div>
-        </div>
+        <h1 className="text-2xl font-bold text-gray-900">Media Library</h1>
         
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+        <div className="mt-4 flex flex-wrap items-center gap-4">
           {/* Search */}
-          <div className="md:col-span-2">
+          <div className="w-full sm:w-auto sm:flex-grow max-w-md">
             <div className="relative rounded-md shadow-sm">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                <Search className="h-4 w-4 text-gray-400" />
               </div>
               <Input
                 type="text"
                 name="search"
-                placeholder="Search media by title or description..."
-                className="pl-10 bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700"
+                placeholder="Search media..."
+                className="pl-10"
                 value={search}
-                onChange={handleSearchChange}
+                onChange={(e) => setSearch(e.target.value)}
               />
             </div>
           </div>
           
           {/* Category Filter */}
-          <div>
+          <div className="w-full sm:w-auto">
             <Select
               value={categoryId}
               onValueChange={(value) => setCategoryId(value)}
             >
-              <SelectTrigger className="w-full bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-                <Filter className="h-4 w-4 mr-2 text-gray-500" />
+              <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="All Categories" />
               </SelectTrigger>
               <SelectContent>
@@ -122,60 +85,41 @@ export default function MediaFilters({ onFilterChange, onViewChange, view }: Med
           </div>
           
           {/* Sort */}
-          <div>
+          <div className="w-full sm:w-auto">
             <Select
               value={sort}
               onValueChange={(value) => setSort(value)}
             >
-              <SelectTrigger className="w-full bg-gray-50 dark:bg-gray-800 border-gray-200 dark:border-gray-700">
-                <SlidersHorizontal className="h-4 w-4 mr-2 text-gray-500" />
+              <SelectTrigger className="w-[150px]">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="newest">Newest First</SelectItem>
-                <SelectItem value="oldest">Oldest First</SelectItem>
+                <SelectItem value="newest">Newest</SelectItem>
+                <SelectItem value="oldest">Oldest</SelectItem>
                 <SelectItem value="a-z">A-Z</SelectItem>
                 <SelectItem value="z-a">Z-A</SelectItem>
               </SelectContent>
             </Select>
           </div>
-        </div>
-        
-        {/* Active Filters */}
-        {(search || categoryId !== "all" || sort !== "newest") && (
-          <div className="mt-4 flex items-center text-sm text-gray-500 dark:text-gray-400">
-            <span>Active filters:</span>
-            <div className="ml-2 flex flex-wrap gap-2">
-              {search && (
-                <div className="inline-flex items-center px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-800">
-                  <span className="mr-1">Search: {search}</span>
-                </div>
-              )}
-              {categoryId !== "all" && categories && (
-                <div className="inline-flex items-center px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-800">
-                  <span className="mr-1">Category: {categories.find(c => c.id.toString() === categoryId)?.name}</span>
-                </div>
-              )}
-              {sort !== "newest" && (
-                <div className="inline-flex items-center px-2 py-1 rounded-full bg-gray-100 dark:bg-gray-800">
-                  <span className="mr-1">Sort: {
-                    sort === "oldest" ? "Oldest First" :
-                    sort === "a-z" ? "A-Z" :
-                    sort === "z-a" ? "Z-A" : sort
-                  }</span>
-                </div>
-              )}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleClearFilters}
-                className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 h-6 px-2"
-              >
-                Clear all
-              </Button>
-            </div>
+          
+          {/* Grid/List View Toggle */}
+          <div className="w-full sm:w-auto sm:ml-auto flex space-x-2">
+            <Button
+              variant={view === "grid" ? "default" : "outline"}
+              size="icon"
+              onClick={() => onViewChange("grid")}
+            >
+              <Grid className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={view === "list" ? "default" : "outline"}
+              size="icon"
+              onClick={() => onViewChange("list")}
+            >
+              <List className="h-4 w-4" />
+            </Button>
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
