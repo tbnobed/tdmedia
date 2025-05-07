@@ -112,7 +112,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    opacity: 0.15;
+    opacity: 0.08;
     user-select: none;
   }
 
@@ -120,7 +120,7 @@
     transform: rotate(-30deg);
     color: white;
     white-space: nowrap;
-    font-size: 2.5rem;
+    font-size: 2rem;
     font-weight: bold;
     letter-spacing: 0.1em;
     text-shadow: 0 0 2px rgba(0,0,0,0.5);
@@ -130,9 +130,9 @@
     position: absolute;
     inset: 0;
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(4, 1fr);
-    opacity: 0.08;
+    opacity: 0.05;
   }
 
   .watermark-grid-item {

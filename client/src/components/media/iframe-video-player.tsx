@@ -154,15 +154,15 @@ export default function IframeVideoPlayer({
           top: 50%;
           left: 50%;
           transform: translate(-50%, -50%) rotate(-30deg);
-          font-size: 3rem;
+          font-size: 2.5rem;
           font-weight: bold;
-          color: rgba(255, 255, 255, 0.2);
+          color: rgba(255, 255, 255, 0.08);
           white-space: nowrap;
         }
         
         .watermark-grid {
           display: grid;
-          grid-template-columns: repeat(4, 1fr);
+          grid-template-columns: repeat(3, 1fr);
           grid-template-rows: repeat(4, 1fr);
           width: 100%;
           height: 100%;
@@ -176,9 +176,9 @@ export default function IframeVideoPlayer({
         
         .watermark-grid-item span {
           transform: rotate(-30deg);
-          font-size: 0.875rem;
-          color: rgba(255, 255, 255, 0.2);
-          font-weight: 500;
+          font-size: 0.8rem;
+          color: rgba(255, 255, 255, 0.06);
+          font-weight: 400;
         }
       </style>
     </head>
@@ -194,12 +194,10 @@ export default function IframeVideoPlayer({
       </video>
       
       <div id="watermarkContainer" class="watermark-container" style="display: none;">
-        <div class="watermark-text">
-          TRILOGY DIGITAL
-        </div>
+        <!-- We're removing the center watermark text to avoid duplication -->
         
         <div class="watermark-grid">
-          ${Array.from({ length: 16 }).map((_, index) => `
+          ${Array.from({ length: 12 }).map((_, index) => `
             <div class="watermark-grid-item">
               <span>TRILOGY DIGITAL</span>
             </div>
