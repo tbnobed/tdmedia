@@ -321,32 +321,57 @@ export default function AddMediaForm({ onComplete }: AddMediaFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Playlists</FormLabel>
-                <div className="border rounded-md p-2 bg-white dark:bg-slate-950">
-                  <div className="text-sm">Select all playlists that should include this media:</div>
-                  <div className="mt-2 space-y-2">
-                    {playlists?.map((playlist) => (
-                      <div key={playlist.id} className="flex items-center space-x-2">
-                        <input
-                          type="checkbox"
-                          id={`playlist-${playlist.id}`}
-                          value={playlist.id}
-                          checked={field.value?.includes(playlist.id)}
-                          onChange={(e) => {
-                            const value = parseInt(e.target.value, 10);
-                            const newValues = e.target.checked
-                              ? [...(field.value || []), value]
-                              : (field.value || []).filter(id => id !== value);
-                            field.onChange(newValues);
-                          }}
-                          className="rounded border-slate-300 dark:border-slate-700 text-primary focus:ring-primary"
-                        />
-                        <label htmlFor={`playlist-${playlist.id}`} className="text-sm">
+                <div className="relative">
+                  <Select
+                    onValueChange={(value) => {
+                      const id = parseInt(value, 10);
+                      // Add the id if it's not already in the array
+                      if (!field.value?.includes(id)) {
+                        field.onChange([...(field.value || []), id]);
+                      }
+                    }}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select playlists" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {playlists?.map((playlist) => (
+                        <SelectItem 
+                          key={playlist.id} 
+                          value={playlist.id.toString()}
+                          disabled={field.value?.includes(playlist.id)}
+                        >
                           {playlist.name}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
+                
+                {/* Display selected playlists with remove option */}
+                {field.value?.length > 0 && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {field.value.map((playlistId) => {
+                      const playlist = playlists?.find(p => p.id === playlistId);
+                      return playlist ? (
+                        <Badge key={playlistId} variant="outline" className="flex items-center gap-1">
+                          {playlist.name}
+                          <button
+                            type="button"
+                            className="ml-1 rounded-full w-4 h-4 inline-flex items-center justify-center text-slate-400 hover:text-slate-500"
+                            onClick={() => {
+                              field.onChange(field.value.filter(id => id !== playlistId));
+                            }}
+                          >
+                            ×
+                          </button>
+                        </Badge>
+                      ) : null;
+                    })}
+                  </div>
+                )}
                 <FormMessage />
               </FormItem>
             )}
