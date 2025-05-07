@@ -41,6 +41,7 @@ services:
       # Email configuration
       - SENDGRID_API_KEY=${SENDGRID_API_KEY:-}
       - SENDGRID_FROM_EMAIL=${SENDGRID_FROM_EMAIL:-alerts@obedtv.com}
+      - CONTACT_NOTIFICATION_EMAIL=${CONTACT_NOTIFICATION_EMAIL:-support@trilogydigitalmedia.com}
       - APP_DOMAIN=${APP_DOMAIN:-tdev.obdtv.com}
       - PG_SESSION_KEEP_EXISTING=true
       
