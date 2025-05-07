@@ -212,6 +212,7 @@ export default function ContactForm({ isOpen, onClose, media }: ContactFormProps
                 </Button>
                 <Button 
                   type="submit"
+                  className="bg-gradient-to-r from-black to-gray-800 hover:from-gray-900 hover:to-gray-700 text-white"
                   disabled={contactMutation.isPending}
                 >
                   {contactMutation.isPending ? (

@@ -130,7 +130,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <h3 className="font-medium text-gray-900">Email</h3>
-                  <p className="text-gray-600">support@trilogydigitalmedia.com</p>
+                  <p className="text-gray-600">support@tbn.com</p>
                 </div>
               </div>
             </div>
@@ -147,7 +147,7 @@ export default function ContactPage() {
                       Thank you for contacting us. We've received your message and will get back to you as soon as possible.
                     </p>
                     <Button 
-                      className="mt-6" 
+                      className="mt-6 bg-gradient-to-r from-black to-gray-800 hover:from-gray-900 hover:to-gray-700 text-white" 
                       onClick={() => setSubmitted(false)}
                     >
                       Send Another Message
@@ -219,7 +219,7 @@ export default function ContactPage() {
                       <div className="pt-4">
                         <Button 
                           type="submit"
-                          className="w-full"
+                          className="w-full bg-gradient-to-r from-black to-gray-800 hover:from-gray-900 hover:to-gray-700 text-white"
                           disabled={contactMutation.isPending}
                         >
                           {contactMutation.isPending ? (
