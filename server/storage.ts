@@ -265,10 +265,17 @@ export class DatabaseStorage implements IStorage {
       }
       
       if (filters.playlistId && filters.playlistId > 0) {
-        // Join with mediaPlaylists to filter by playlist
-        query = query
-          .innerJoin(mediaPlaylists, eq(media.id, mediaPlaylists.media_id))
-          .where(eq(mediaPlaylists.playlist_id, filters.playlistId));
+        // Use raw SQL to avoid column naming inconsistencies
+        const results = await executeRawSQL(`
+          SELECT m.* FROM media m
+          INNER JOIN media_playlists mp ON m.id = mp.media_id
+          WHERE mp.playlist_id = $1
+          AND m.id = ANY($2)
+          ${filters.search ? "AND m.title LIKE $3" : ""}
+          ORDER BY m.created_at DESC
+        `, [filters.playlistId, mediaIds, filters.search ? `%${filters.search}%` : undefined]);
+        
+        return results.rows;
       }
       
       // Apply sorting
@@ -303,10 +310,16 @@ export class DatabaseStorage implements IStorage {
       }
       
       if (filters.playlistId && filters.playlistId > 0) {
-        // Join with mediaPlaylists to filter by playlist
-        query = query
-          .innerJoin(mediaPlaylists, eq(media.id, mediaPlaylists.media_id))
-          .where(eq(mediaPlaylists.playlist_id, filters.playlistId));
+        // Use raw SQL to avoid column naming inconsistencies
+        const results = await executeRawSQL(`
+          SELECT m.* FROM media m
+          INNER JOIN media_playlists mp ON m.id = mp.media_id
+          WHERE mp.playlist_id = $1
+          ${filters.search ? "AND m.title LIKE $2" : ""}
+          ORDER BY m.created_at DESC
+        `, [filters.playlistId, filters.search ? `%${filters.search}%` : undefined]);
+        
+        return results.rows;
       }
       
       if (filters.sort) {
