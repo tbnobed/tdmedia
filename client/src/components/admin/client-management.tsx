@@ -191,13 +191,19 @@ export default function ClientManagement() {
       const createClientResponse = await apiRequest("POST", "/api/users/clients", requestData);
       if (!createClientResponse.ok) {
         const errorText = await createClientResponse.text();
+        console.error("Client creation API error:", {
+          status: createClientResponse.status,
+          statusText: createClientResponse.statusText,
+          body: errorText
+        });
+        
         try {
           // Try to parse as JSON error
           const errorJson = JSON.parse(errorText);
-          throw new Error(errorJson.message || 'Failed to create client');
+          throw new Error(errorJson.message || `Failed to create client: ${createClientResponse.status}`);
         } catch (e) {
           // If not JSON, use the text directly
-          throw new Error(errorText || 'Failed to create client');
+          throw new Error(errorText || `Failed to create client: ${createClientResponse.status}`);
         }
       }
       
