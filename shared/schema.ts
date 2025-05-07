@@ -19,16 +19,16 @@ export const insertUserSchema = createInsertSchema(users, {
   password: (schema) => schema.min(8, "Password must be at least 8 characters")
 }).omit({ id: true, isAdmin: true, createdAt: true });
 
-// Media categories
-export const categories = pgTable("categories", {
+// Media playlists
+export const playlists = pgTable("playlists", {
   id: serial("id").primaryKey(),
   name: text("name").notNull().unique(),
   description: text("description"),
   createdAt: timestamp("created_at").defaultNow().notNull()
 });
 
-export const insertCategorySchema = createInsertSchema(categories, {
-  name: (schema) => schema.min(2, "Category name must be at least 2 characters")
+export const insertPlaylistSchema = createInsertSchema(playlists, {
+  name: (schema) => schema.min(2, "Playlist name must be at least 2 characters")
 }).omit({ id: true, createdAt: true });
 
 // Media type enum
@@ -40,7 +40,7 @@ export const media = pgTable("media", {
   title: text("title").notNull(),
   description: text("description"),
   type: mediaTypeEnum("type").notNull(),
-  categoryId: integer("category_id").references(() => categories.id).notNull(),
+  playlistId: integer("playlist_id").references(() => playlists.id).notNull(),
   fileUrl: text("file_url").notNull(),
   thumbnailUrl: text("thumbnail_url"),
   duration: text("duration"),
@@ -85,12 +85,12 @@ export const insertMediaAccessSchema = createInsertSchema(mediaAccess, {})
   .omit({ id: true, createdAt: true, createdById: true });
 
 // Define relations
-export const categoriesRelations = relations(categories, ({ many }) => ({
+export const playlistsRelations = relations(playlists, ({ many }) => ({
   media: many(media)
 }));
 
 export const mediaRelations = relations(media, ({ one, many }) => ({
-  category: one(categories, { fields: [media.categoryId], references: [categories.id] }),
+  playlist: one(playlists, { fields: [media.playlistId], references: [playlists.id] }),
   contacts: many(contacts),
   accessRights: many(mediaAccess)
 }));
@@ -121,7 +121,8 @@ export const session = pgTable("session", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type Media = typeof media.$inferSelect;
-export type Category = typeof categories.$inferSelect;
+export type Playlist = typeof playlists.$inferSelect;
+export type InsertPlaylist = z.infer<typeof insertPlaylistSchema>;
 export type Contact = typeof contacts.$inferSelect;
 export type MediaAccess = typeof mediaAccess.$inferSelect;
 export type InsertMediaAccess = z.infer<typeof insertMediaAccessSchema>;

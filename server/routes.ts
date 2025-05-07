@@ -2,7 +2,7 @@ import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { setupAuth, hashPassword, comparePasswords } from "./auth";
 import { storage } from "./storage";
-import { insertCategorySchema, insertMediaSchema, insertContactSchema, insertMediaAccessSchema, User, MediaAccess } from "@shared/schema";
+import { insertPlaylistSchema, insertMediaSchema, insertContactSchema, insertMediaAccessSchema, User, MediaAccess } from "@shared/schema";
 import { z } from "zod";
 import fs from "fs";
 import path from "path";
@@ -110,59 +110,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
     next();
   };
 
-  // Categories endpoints
-  app.get("/api/categories", async (req, res) => {
+  // Playlists endpoints
+  app.get("/api/playlists", async (req, res) => {
     try {
-      const categories = await storage.getCategories();
-      res.json(categories);
+      const playlists = await storage.getPlaylists();
+      res.json(playlists);
     } catch (error) {
-      console.error("Error fetching categories:", error);
-      res.status(500).json({ message: "Failed to fetch categories" });
+      console.error("Error fetching playlists:", error);
+      res.status(500).json({ message: "Failed to fetch playlists" });
     }
   });
 
-  app.post("/api/categories", isAdmin, async (req, res) => {
+  app.post("/api/playlists", isAdmin, async (req, res) => {
     try {
-      const validatedData = insertCategorySchema.parse(req.body);
-      const newCategory = await storage.createCategory(validatedData);
-      res.status(201).json(newCategory);
-    } catch (error) {
-      if (error instanceof z.ZodError) {
-        return res.status(400).json({ errors: error.errors });
-      }
-      console.error("Error creating category:", error);
-      res.status(500).json({ message: "Failed to create category" });
-    }
-  });
-
-  app.put("/api/categories/:id", isAdmin, async (req, res) => {
-    try {
-      const id = parseInt(req.params.id);
-      const validatedData = insertCategorySchema.parse(req.body);
-      const updatedCategory = await storage.updateCategory(id, validatedData);
-      
-      if (!updatedCategory) {
-        return res.status(404).json({ message: "Category not found" });
-      }
-      
-      res.json(updatedCategory);
+      const validatedData = insertPlaylistSchema.parse(req.body);
+      const newPlaylist = await storage.createPlaylist(validatedData);
+      res.status(201).json(newPlaylist);
     } catch (error) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ errors: error.errors });
       }
-      console.error("Error updating category:", error);
-      res.status(500).json({ message: "Failed to update category" });
+      console.error("Error creating playlist:", error);
+      res.status(500).json({ message: "Failed to create playlist" });
     }
   });
 
-  app.delete("/api/categories/:id", isAdmin, async (req, res) => {
+  app.put("/api/playlists/:id", isAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
-      await storage.deleteCategory(id);
+      const validatedData = insertPlaylistSchema.parse(req.body);
+      const updatedPlaylist = await storage.updatePlaylist(id, validatedData);
+      
+      if (!updatedPlaylist) {
+        return res.status(404).json({ message: "Playlist not found" });
+      }
+      
+      res.json(updatedPlaylist);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ errors: error.errors });
+      }
+      console.error("Error updating playlist:", error);
+      res.status(500).json({ message: "Failed to update playlist" });
+    }
+  });
+
+  app.delete("/api/playlists/:id", isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      await storage.deletePlaylist(id);
       res.sendStatus(204);
     } catch (error) {
-      console.error("Error deleting category:", error);
-      res.status(500).json({ message: "Failed to delete category" });
+      console.error("Error deleting playlist:", error);
+      res.status(500).json({ message: "Failed to delete playlist" });
     }
   });
 
@@ -170,17 +170,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/media", isAuthenticated, async (req, res) => {
     try {
       const search = req.query.search as string | undefined;
-      const categoryIdParam = req.query.category as string | undefined;
+      const playlistIdParam = req.query.playlist as string | undefined;
       const sort = req.query.sort as string | undefined;
       
-      const categoryId = categoryIdParam ? parseInt(categoryIdParam) : undefined;
+      const playlistId = playlistIdParam ? parseInt(playlistIdParam) : undefined;
       
       // Only pass the userId for non-admin users to filter content
       // Admin users should see all content
       const userId = req.user!.isAdmin ? undefined : req.user!.id;
       console.log(`Fetching media for user ${req.user!.id}, isAdmin: ${req.user!.isAdmin}, filtering by userId: ${userId || 'none (admin view)'}`);
       
-      const mediaItems = await storage.getMedia({ search, categoryId, sort, userId });
+      const mediaItems = await storage.getMedia({ search, playlistId, sort, userId });
       res.json(mediaItems);
     } catch (error) {
       console.error("Error fetching media:", error);

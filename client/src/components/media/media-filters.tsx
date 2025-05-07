@@ -8,14 +8,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Category } from "@shared/schema";
+import { Playlist } from "@shared/schema";
 import { Search, Grid, List } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 
 interface MediaFiltersProps {
   onFilterChange: (filters: { 
     search: string;
-    categoryId: number | undefined;
+    playlistId: number | undefined;
     sort: string;
   }) => void;
   onViewChange: (view: "grid" | "list") => void;
@@ -24,22 +24,22 @@ interface MediaFiltersProps {
 
 export default function MediaFilters({ onFilterChange, onViewChange, view }: MediaFiltersProps) {
   const [search, setSearch] = useState("");
-  const [categoryId, setCategoryId] = useState<string>("all");
+  const [playlistId, setPlaylistId] = useState<string>("all");
   const [sort, setSort] = useState("newest");
   
-  // Fetch categories
-  const { data: categories } = useQuery<Category[]>({
-    queryKey: ["/api/categories"],
+  // Fetch playlists
+  const { data: playlists } = useQuery<Playlist[]>({
+    queryKey: ["/api/playlists"],
   });
   
   // Apply filters when any filter value changes
   useEffect(() => {
     onFilterChange({
       search,
-      categoryId: categoryId === "all" ? undefined : parseInt(categoryId),
+      playlistId: playlistId === "all" ? undefined : parseInt(playlistId),
       sort,
     });
-  }, [search, categoryId, sort, onFilterChange]);
+  }, [search, playlistId, sort, onFilterChange]);
   
   return (
     <div className="bg-white shadow">
@@ -86,20 +86,20 @@ export default function MediaFilters({ onFilterChange, onViewChange, view }: Med
             </div>
           </div>
           
-          {/* Category Filter */}
+          {/* Playlist Filter */}
           <div>
             <Select
-              value={categoryId}
-              onValueChange={(value) => setCategoryId(value)}
+              value={playlistId}
+              onValueChange={(value) => setPlaylistId(value)}
             >
               <SelectTrigger className="h-9 sm:h-10 w-full">
-                <SelectValue placeholder="All Categories" />
+                <SelectValue placeholder="All Playlists" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Categories</SelectItem>
-                {categories?.map((category) => (
-                  <SelectItem key={category.id} value={category.id.toString()}>
-                    {category.name}
+                <SelectItem value="all">All Playlists</SelectItem>
+                {playlists?.map((playlist) => (
+                  <SelectItem key={playlist.id} value={playlist.id.toString()}>
+                    {playlist.name}
                   </SelectItem>
                 ))}
               </SelectContent>

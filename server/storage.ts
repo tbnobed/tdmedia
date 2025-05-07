@@ -1,5 +1,5 @@
 import { db } from "@db";
-import { users, media, categories, contacts, mediaAccess, session as sessionTable } from "@shared/schema";
+import { users, media, playlists, contacts, mediaAccess, session as sessionTable } from "@shared/schema";
 import { eq, and, like, desc, asc, inArray, ne } from "drizzle-orm";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
@@ -19,12 +19,12 @@ export interface IStorage {
   getNonAdminUsers(): Promise<any[]>;
   updateUserCredentials(userId: number, newPasswordHash: string): Promise<any>;
   
-  // Category methods
-  getCategories(): Promise<any[]>;
-  getCategory(id: number): Promise<any>;
-  createCategory(categoryData: any): Promise<any>;
-  updateCategory(id: number, categoryData: any): Promise<any>;
-  deleteCategory(id: number): Promise<void>;
+  // Playlist methods
+  getPlaylists(): Promise<any[]>;
+  getPlaylist(id: number): Promise<any>;
+  createPlaylist(playlistData: any): Promise<any>;
+  updatePlaylist(id: number, playlistData: any): Promise<any>;
+  deletePlaylist(id: number): Promise<void>;
   
   // Media methods
   getMedia(filters?: { search?: string, categoryId?: number, sort?: string, userId?: number }): Promise<any[]>;
@@ -158,60 +158,60 @@ export class DatabaseStorage implements IStorage {
     await db.delete(users).where(eq(users.id, id));
   }
   
-  // Category methods
-  async getCategories() {
-    return await db.select().from(categories).orderBy(categories.name);
+  // Playlist methods
+  async getPlaylists() {
+    return await db.select().from(playlists).orderBy(playlists.name);
   }
   
-  async getCategory(id: number) {
-    const result = await db.select().from(categories).where(eq(categories.id, id)).limit(1);
+  async getPlaylist(id: number) {
+    const result = await db.select().from(playlists).where(eq(playlists.id, id)).limit(1);
     return result[0] || null;
   }
   
-  async createCategory(categoryData: any) {
-    const [category] = await db.insert(categories).values(categoryData).returning();
-    return category;
+  async createPlaylist(playlistData: any) {
+    const [playlist] = await db.insert(playlists).values(playlistData).returning();
+    return playlist;
   }
   
-  async updateCategory(id: number, categoryData: any) {
-    const [category] = await db.update(categories)
-      .set(categoryData)
-      .where(eq(categories.id, id))
+  async updatePlaylist(id: number, playlistData: any) {
+    const [playlist] = await db.update(playlists)
+      .set(playlistData)
+      .where(eq(playlists.id, id))
       .returning();
-    return category;
+    return playlist;
   }
   
-  async deleteCategory(id: number) {
-    // First check if there's a default category we can move media to
-    let defaultCategory = await db.query.categories.findFirst({
+  async deletePlaylist(id: number) {
+    // First check if there's a default playlist we can move media to
+    let defaultPlaylist = await db.query.playlists.findFirst({
       where: and(
-        ne(categories.id, id),
-        eq(categories.name, "Uncategorized")
+        ne(playlists.id, id),
+        eq(playlists.name, "Uncategorized")
       )
     });
     
-    // If no default category exists, create one
-    if (!defaultCategory) {
-      const [newCategory] = await db.insert(categories)
+    // If no default playlist exists, create one
+    if (!defaultPlaylist) {
+      const [newPlaylist] = await db.insert(playlists)
         .values({
           name: "Uncategorized",
-          description: "Default category for uncategorized media"
+          description: "Default playlist for uncategorized media"
         })
         .returning();
-      defaultCategory = newCategory;
+      defaultPlaylist = newPlaylist;
     }
     
-    // Move all media from the to-be-deleted category to the default category
+    // Move all media from the to-be-deleted playlist to the default playlist
     await db.update(media)
-      .set({ categoryId: defaultCategory.id })
-      .where(eq(media.categoryId, id));
+      .set({ playlistId: defaultPlaylist.id })
+      .where(eq(media.playlistId, id));
       
-    // Now we can safely delete the category
-    await db.delete(categories).where(eq(categories.id, id));
+    // Now we can safely delete the playlist
+    await db.delete(playlists).where(eq(playlists.id, id));
   }
   
   // Media methods
-  async getMedia(filters: { search?: string, categoryId?: number, sort?: string, userId?: number } = {}) {
+  async getMedia(filters: { search?: string, playlistId?: number, sort?: string, userId?: number } = {}) {
     // For regular clients, we need to limit media to what they have access to
     if (filters.userId) {
       // If a non-admin user ID is provided, get only the media they have access to
@@ -236,8 +236,8 @@ export class DatabaseStorage implements IStorage {
         query = query.where(like(media.title, `%${filters.search}%`));
       }
       
-      if (filters.categoryId && filters.categoryId > 0) {
-        query = query.where(eq(media.categoryId, filters.categoryId));
+      if (filters.playlistId && filters.playlistId > 0) {
+        query = query.where(eq(media.playlistId, filters.playlistId));
       }
       
       // Apply sorting
@@ -271,8 +271,8 @@ export class DatabaseStorage implements IStorage {
         query = query.where(like(media.title, `%${filters.search}%`));
       }
       
-      if (filters.categoryId && filters.categoryId > 0) {
-        query = query.where(eq(media.categoryId, filters.categoryId));
+      if (filters.playlistId && filters.playlistId > 0) {
+        query = query.where(eq(media.playlistId, filters.playlistId));
       }
       
       if (filters.sort) {
@@ -304,7 +304,7 @@ export class DatabaseStorage implements IStorage {
     const result = await db.query.media.findFirst({
       where: eq(media.id, id),
       with: {
-        category: true
+        playlist: true
       }
     });
     
