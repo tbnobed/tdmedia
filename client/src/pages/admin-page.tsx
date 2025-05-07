@@ -21,14 +21,14 @@ export default function AdminPage() {
   useEffect(() => {
     // Remove the # character and get the tab name
     const hash = window.location.hash.substring(1);
-    if (hash && ["media", "categories", "clients", "access", "contacts", "admins"].includes(hash)) {
+    if (hash && ["media", "playlists", "clients", "access", "contacts", "admins"].includes(hash)) {
       setActiveTab(hash);
     }
     
     // Set up listener for hash changes
     const handleHashChange = () => {
       const newHash = window.location.hash.substring(1);
-      if (newHash && ["media", "categories", "clients", "access", "contacts", "admins"].includes(newHash)) {
+      if (newHash && ["media", "playlists", "clients", "access", "contacts", "admins"].includes(newHash)) {
         setActiveTab(newHash);
       }
     };
@@ -58,7 +58,7 @@ export default function AdminPage() {
             <Shield className="h-8 w-8 text-primary mr-4" />
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
-              <p className="text-sm text-gray-500">Manage content, categories, and user inquiries</p>
+              <p className="text-sm text-gray-500">Manage content, playlists, and user inquiries</p>
             </div>
           </div>
         </div>
@@ -75,7 +75,7 @@ export default function AdminPage() {
                 <FileText className="h-4 w-4" />
                 <span>Media</span>
               </TabsTrigger>
-              <TabsTrigger value="categories" className="flex items-center space-x-2">
+              <TabsTrigger value="playlists" className="flex items-center space-x-2">
                 <ListMusic className="h-4 w-4" />
                 <span>Playlists</span>
               </TabsTrigger>
@@ -105,7 +105,7 @@ export default function AdminPage() {
               </div>
             </TabsContent>
             
-            <TabsContent value="categories">
+            <TabsContent value="playlists">
               <div className="bg-white rounded-lg shadow">
                 <div className="p-6">
                   <PlaylistManagement />
