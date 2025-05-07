@@ -171,10 +171,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       const id = parseInt(req.params.id);
       
-      // Query for all playlist associations for this media
-      const mediaPlaylistsData = await db.select()
-        .from(mediaPlaylists)
-        .where(eq(mediaPlaylists.media_id, id));
+      // Join with playlists table to get playlist details
+      const mediaPlaylistsData = await db.select({
+        id: mediaPlaylists.id,
+        mediaId: mediaPlaylists.media_id,
+        playlistId: mediaPlaylists.playlist_id,
+        createdAt: mediaPlaylists.createdAt,
+        playlistName: playlists.name,
+        playlistDescription: playlists.description
+      })
+      .from(mediaPlaylists)
+      .innerJoin(playlists, eq(mediaPlaylists.playlist_id, playlists.id))
+      .where(eq(mediaPlaylists.media_id, id));
       
       res.json(mediaPlaylistsData);
     } catch (error) {
