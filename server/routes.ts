@@ -671,8 +671,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         // For documents and other files, add watermarking headers for client users
         res.setHeader('Content-Type', 'application/octet-stream');
         res.setHeader('Content-Disposition', `inline; filename="${path.basename(filePath)}"`);
-        res.setHeader('X-Trilogy-Watermark', isAdmin ? 'none' : 'required');
-        res.setHeader('X-Trilogy-Role', isAdmin ? 'admin' : 'client');
+        res.setHeader('X-TBN-Watermark', isAdmin ? 'none' : 'required');
+        res.setHeader('X-TBN-Role', isAdmin ? 'admin' : 'client');
         
         fs.createReadStream(filePath).pipe(res);
       }

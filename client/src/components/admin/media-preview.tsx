@@ -22,7 +22,7 @@ export default function MediaPreview({ media, isOpen, onClose }: MediaPreviewPro
   const [error, setError] = useState<Error | null>(null);
   
   // Get the base URL for the API
-  const apiBaseUrl = window.TRILOGY_CONFIG?.apiBaseUrl || '';
+  const apiBaseUrl = window.TBN_CONFIG?.apiBaseUrl || '';
 
   if (!media) return null;
 

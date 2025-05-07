@@ -1,6 +1,4 @@
-// Global type declarations
-
-interface TrilogyConfig {
+interface TBNConfig {
   apiBaseUrl: string;
   version: string;
   features: {
@@ -9,6 +7,11 @@ interface TrilogyConfig {
   };
 }
 
-interface Window {
-  TRILOGY_CONFIG?: TrilogyConfig;
+declare global {
+  interface Window {
+    TBN_CONFIG: TBNConfig;
+    TRILOGY_CONFIG: TBNConfig; // For backward compatibility
+  }
 }
+
+export {};

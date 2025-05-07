@@ -38,7 +38,7 @@ export default function IframeVideoPlayer({
     queryKey: [`/api/stream/${mediaId}`],
     enabled: !!mediaId,
     queryFn: async () => {
-      const baseUrl = window.TRILOGY_CONFIG?.apiBaseUrl || '';
+      const baseUrl = window.TBN_CONFIG?.apiBaseUrl || '';
       const url = `/api/stream/${mediaId}`;
       const fullUrl = `${baseUrl}${url}`;
       
@@ -110,7 +110,7 @@ export default function IframeVideoPlayer({
   }
   
   // Construct the video URL
-  const videoUrl = `${window.TRILOGY_CONFIG?.apiBaseUrl || ''}${streamInfo.streamUrl}`;
+  const videoUrl = `${window.TBN_CONFIG?.apiBaseUrl || ''}${streamInfo.streamUrl}`;
   
   // Create an enhanced HTML document that contains the video with appropriate watermarks
   // and fullscreen restrictions based on user role

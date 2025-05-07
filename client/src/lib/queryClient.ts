@@ -20,7 +20,7 @@ export async function apiRequest(
 ): Promise<Response> {
   try {
     // Use apiBaseUrl from config if available
-    const baseUrl = window.TRILOGY_CONFIG?.apiBaseUrl || '';
+    const baseUrl = window.TBN_CONFIG?.apiBaseUrl || '';
     const fullUrl = url.startsWith('http') ? url : `${baseUrl}${url}`;
     
     console.log(`Making ${method} request to: ${fullUrl}`);
@@ -61,7 +61,7 @@ export const getQueryFn: <T>(options: {
   ({ on401: unauthorizedBehavior }) =>
   async ({ queryKey }) => {
     try {
-      const baseUrl = window.TRILOGY_CONFIG?.apiBaseUrl || '';
+      const baseUrl = window.TBN_CONFIG?.apiBaseUrl || '';
       const endpoint = queryKey[0] as string;
       
       // Build URL params from the rest of the queryKey elements (if they exist and aren't undefined)
