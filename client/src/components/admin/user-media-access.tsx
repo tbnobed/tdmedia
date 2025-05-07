@@ -34,8 +34,18 @@ import {
 } from "@/components/ui/dialog";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { getQueryFn, apiRequest, queryClient } from "@/lib/queryClient";
-import { Loader2, UserCheck, Users, FileText, Plus, Trash2 } from "lucide-react";
-import { getMediaTypeIcon } from "@/lib/media-utils";
+import { 
+  Loader2, 
+  UserCheck, 
+  Users, 
+  FileText, 
+  Plus, 
+  Trash2, 
+  PlayCircle, 
+  Image, 
+  File, 
+  Presentation 
+} from "lucide-react";
 
 interface User {
   id: number;
@@ -213,6 +223,22 @@ export default function UserMediaAccess() {
       </div>
     );
   }
+
+  // Get media type icon component based on type
+  const getMediaTypeIcon = (type: string) => {
+    switch(type) {
+      case 'video':
+        return <PlayCircle className="h-4 w-4" />;
+      case 'image':
+        return <Image className="h-4 w-4" />;
+      case 'document':
+        return <FileText className="h-4 w-4" />;
+      case 'presentation':
+        return <Presentation className="h-4 w-4" />;
+      default:
+        return <File className="h-4 w-4" />;
+    }
+  };
 
   const unassignedMedia = getUnassignedMedia();
 
