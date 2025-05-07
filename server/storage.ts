@@ -1,5 +1,5 @@
 import { db } from "@db";
-import { users, media, playlists, contacts, mediaAccess, session as sessionTable } from "@shared/schema";
+import { users, media, playlists, contacts, mediaAccess, session as sessionTable, mediaPlaylists } from "@shared/schema";
 import { eq, and, like, desc, asc, inArray, ne } from "drizzle-orm";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
@@ -201,10 +201,36 @@ export class DatabaseStorage implements IStorage {
       defaultPlaylist = newPlaylist;
     }
     
-    // Move all media from the to-be-deleted playlist to the default playlist
-    await db.update(media)
-      .set({ playlistId: defaultPlaylist.id })
-      .where(eq(media.playlistId, id));
+    // Update media_playlists entries to point to the default playlist
+    // First, get all media_playlist entries for the deleted playlist
+    const mediaInDeletedPlaylist = await db.select({
+      mediaId: mediaPlaylists.mediaId
+    })
+    .from(mediaPlaylists)
+    .where(eq(mediaPlaylists.playlistId, id));
+    
+    // For each media in the deleted playlist, add an entry to the default playlist
+    // (only if it doesn't already exist)
+    for (const item of mediaInDeletedPlaylist) {
+      const existingEntry = await db.select()
+        .from(mediaPlaylists)
+        .where(and(
+          eq(mediaPlaylists.mediaId, item.mediaId),
+          eq(mediaPlaylists.playlistId, defaultPlaylist.id)
+        ))
+        .limit(1);
+      
+      // Only add if not already in the default playlist
+      if (existingEntry.length === 0) {
+        await db.insert(mediaPlaylists).values({
+          mediaId: item.mediaId,
+          playlistId: defaultPlaylist.id
+        });
+      }
+    }
+    
+    // Delete all media_playlist entries for the deleted playlist
+    await db.delete(mediaPlaylists).where(eq(mediaPlaylists.playlistId, id));
       
     // Now we can safely delete the playlist
     await db.delete(playlists).where(eq(playlists.id, id));
@@ -237,7 +263,10 @@ export class DatabaseStorage implements IStorage {
       }
       
       if (filters.playlistId && filters.playlistId > 0) {
-        query = query.where(eq(media.playlistId, filters.playlistId));
+        // Join with mediaPlaylists to filter by playlist
+        query = query
+          .innerJoin(mediaPlaylists, eq(media.id, mediaPlaylists.mediaId))
+          .where(eq(mediaPlaylists.playlistId, filters.playlistId));
       }
       
       // Apply sorting
@@ -272,7 +301,10 @@ export class DatabaseStorage implements IStorage {
       }
       
       if (filters.playlistId && filters.playlistId > 0) {
-        query = query.where(eq(media.playlistId, filters.playlistId));
+        // Join with mediaPlaylists to filter by playlist
+        query = query
+          .innerJoin(mediaPlaylists, eq(media.id, mediaPlaylists.mediaId))
+          .where(eq(mediaPlaylists.playlistId, filters.playlistId));
       }
       
       if (filters.sort) {
@@ -301,14 +333,31 @@ export class DatabaseStorage implements IStorage {
   }
   
   async getMediaById(id: number) {
+    // Get the media item
     const result = await db.query.media.findFirst({
-      where: eq(media.id, id),
-      with: {
-        playlist: true
-      }
+      where: eq(media.id, id)
     });
     
-    return result || null;
+    if (!result) {
+      return null;
+    }
+    
+    // Get the playlists associated with this media
+    const playlists = await db.select({
+      playlistId: mediaPlaylists.playlistId,
+      mediaId: mediaPlaylists.mediaId,
+      playlistName: playlists.name,
+      playlistDescription: playlists.description
+    })
+    .from(mediaPlaylists)
+    .innerJoin(playlists, eq(mediaPlaylists.playlistId, playlists.id))
+    .where(eq(mediaPlaylists.mediaId, id));
+    
+    // Return the media with its playlists
+    return {
+      ...result,
+      playlists
+    };
   }
   
   async createMedia(mediaData: any) {
