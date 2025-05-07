@@ -343,7 +343,7 @@ export class DatabaseStorage implements IStorage {
     }
     
     // Get the playlists associated with this media
-    const playlists = await db.select({
+    const playlistsData = await db.select({
       playlistId: mediaPlaylists.playlistId,
       mediaId: mediaPlaylists.mediaId,
       playlistName: playlists.name,
@@ -356,7 +356,7 @@ export class DatabaseStorage implements IStorage {
     // Return the media with its playlists
     return {
       ...result,
-      playlists
+      playlists: playlistsData
     };
   }
   
