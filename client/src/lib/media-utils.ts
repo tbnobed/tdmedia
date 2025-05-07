@@ -24,28 +24,28 @@ export function getMediaTypeColor(type: string): {
   switch (type) {
     case 'video':
       return {
-        bg: 'bg-blue-100',
-        text: 'text-blue-800'
+        bg: 'bg-gray-900',
+        text: 'text-blue-300'
       };
     case 'document':
       return {
-        bg: 'bg-red-100',
-        text: 'text-red-800'
+        bg: 'bg-gray-900',
+        text: 'text-red-300'
       };
     case 'image':
       return {
-        bg: 'bg-green-100',
-        text: 'text-green-800'
+        bg: 'bg-gray-900',
+        text: 'text-gray-300'
       };
     case 'presentation':
       return {
-        bg: 'bg-purple-100',
-        text: 'text-purple-800'
+        bg: 'bg-gray-900',
+        text: 'text-purple-300'
       };
     default:
       return {
-        bg: 'bg-gray-100',
-        text: 'text-gray-800'
+        bg: 'bg-gray-900',
+        text: 'text-gray-300'
       };
   }
 }

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="300" height="100" viewBox="0 0 300 100" xmlns="http://www.w3.org/2000/svg">
+  <g>
+    <!-- T -->
+    <rect x="0" y="0" width="100" height="100" fill="#000000"/>
+    <path d="M20 20 L80 20 L80 35 L58 35 L58 80 L42 80 L42 35 L20 35 Z" fill="#FFFFFF"/>
+    
+    <!-- B -->
+    <rect x="100" y="0" width="100" height="100" fill="#000000"/>
+    <path d="M125 20 L160 20 Q170 20 175 25 Q180 30 180 40 Q180 46 177 50 Q174 54 170 55 Q178 56 182 60 Q186 64 186 72 Q186 76 184 80 Q182 84 178 86 Q174 88 170 89 Q166 90 160 90 L125 90 Z M140 35 L140 47 L157 47 Q160 47 162 45 Q164 43 164 40 Q164 37 162 36 Q160 35 157 35 Z M140 60 L140 75 L160 75 Q164 75 166 73 Q168 71 168 67 Q168 64 166 62 Q164 60 160 60 Z" fill="#FFFFFF"/>
+    
+    <!-- N -->
+    <rect x="200" y="0" width="100" height="100" fill="#000000"/>
+    <path d="M225 20 L240 20 L240 60 L275 20 L290 20 L290 80 L275 80 L275 40 L240 80 L225 80 Z" fill="#FFFFFF"/>
+  </g>
+</svg>
