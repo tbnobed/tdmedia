@@ -9,7 +9,7 @@ import path from "path";
 import { createHmac } from "crypto";
 import { sendWelcomeEmail } from "./email";
 import { db } from "@db";
-import { sql, InferSelectModel } from "drizzle-orm";
+import { sql, InferSelectModel, eq, and } from "drizzle-orm";
 import { upload, getFileTypeFromFilename, getFormattedFileSize, generateThumbnail, getVideoDuration } from './upload';
 import { generateMediaAccessToken, generateStreamToken, verifyMediaAccessToken } from './token';
 
@@ -174,7 +174,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Query for all playlist associations for this media
       const mediaPlaylistsData = await db.select()
         .from(mediaPlaylists)
-        .where(sql`media_id = ${id}`);
+        .where(eq(mediaPlaylists.mediaId, id));
       
       res.json(mediaPlaylistsData);
     } catch (error) {
@@ -386,7 +386,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (Array.isArray(playlistIds)) {
         try {
           // First, delete existing associations
-          await db.delete(mediaPlaylists).where(sql`media_id = ${id}`);
+          await db.delete(mediaPlaylists).where(eq(mediaPlaylists.mediaId, id));
           
           // Then create new associations
           if (playlistIds.length > 0) {
@@ -429,7 +429,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       // Delete playlist associations
       try {
-        await db.delete(mediaPlaylists).where(sql`media_id = ${id}`);
+        await db.delete(mediaPlaylists).where(eq(mediaPlaylists.mediaId, id));
         console.log("Removed all playlist associations for media ID:", id);
       } catch (playlistError) {
         console.error("Error removing playlist associations during deletion:", playlistError);
