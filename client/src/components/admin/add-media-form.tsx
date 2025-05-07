@@ -30,7 +30,7 @@ import { Loader2, Upload, FileText, FileImage, Video, PresentationIcon, Check, A
 
 // Media form schema based on the insertMediaSchema
 const mediaFormSchema = insertMediaSchema.extend({
-  categoryId: z.coerce.number(),
+  playlistId: z.coerce.number(),
 });
 
 type MediaFormValues = z.infer<typeof mediaFormSchema>;
@@ -61,9 +61,9 @@ export default function AddMediaForm({ onComplete }: AddMediaFormProps) {
     { value: "presentation", label: "Presentation" },
   ];
   
-  // Fetch categories for select dropdown
-  const { data: categories = [] } = useQuery<{id: number, name: string}[]>({
-    queryKey: ["/api/categories"],
+  // Fetch playlists for select dropdown
+  const { data: playlists = [] } = useQuery<{id: number, name: string}[]>({
+    queryKey: ["/api/playlists"],
   });
   
   // Add media form
@@ -73,7 +73,7 @@ export default function AddMediaForm({ onComplete }: AddMediaFormProps) {
       title: "",
       description: "",
       type: "video",
-      categoryId: 1, // Default value that will be updated when categories load
+      playlistId: 1, // Default value that will be updated when playlists load
       fileUrl: "",
       thumbnailUrl: "",
       duration: "",
@@ -81,12 +81,12 @@ export default function AddMediaForm({ onComplete }: AddMediaFormProps) {
     },
   });
   
-  // Update categoryId when categories are loaded
+  // Update playlistId when playlists are loaded
   useEffect(() => {
-    if (categories && categories.length > 0) {
-      form.setValue("categoryId", categories[0].id);
+    if (playlists && playlists.length > 0) {
+      form.setValue("playlistId", playlists[0].id);
     }
-  }, [categories, form]);
+  }, [playlists, form]);
   
   // Watch the type field to dynamically update file validation
   const mediaType = form.watch("type");
@@ -323,23 +323,23 @@ export default function AddMediaForm({ onComplete }: AddMediaFormProps) {
           
           <FormField
             control={form.control}
-            name="categoryId"
+            name="playlistId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Category</FormLabel>
+                <FormLabel>Playlist</FormLabel>
                 <Select
                   onValueChange={(value) => field.onChange(parseInt(value, 10))}
                   defaultValue={field.value.toString()}
                 >
                   <FormControl>
                     <SelectTrigger>
-                      <SelectValue placeholder="Select a category" />
+                      <SelectValue placeholder="Select a playlist" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {categories?.map((category) => (
-                      <SelectItem key={category.id} value={category.id.toString()}>
-                        {category.name}
+                    {playlists?.map((playlist) => (
+                      <SelectItem key={playlist.id} value={playlist.id.toString()}>
+                        {playlist.name}
                       </SelectItem>
                     ))}
                   </SelectContent>

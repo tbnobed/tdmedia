@@ -989,19 +989,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       // Only return media that this specific user has access to
       const search = req.query.search as string | undefined;
-      // Support both 'category' and 'categoryId' parameters
-      const categoryIdParam = (req.query.categoryId || req.query.category) as string | undefined;
+      // Support both 'playlist' and 'playlistId' parameters (and legacy 'category' and 'categoryId' for backwards compatibility)
+      const playlistIdParam = (req.query.playlistId || req.query.playlist || req.query.categoryId || req.query.category) as string | undefined;
       const sort = req.query.sort as string | undefined;
       
       // Log incoming parameters for debugging
       console.log("Client media request params:", {
         search,
-        categoryIdParam,
+        playlistIdParam,
         sort,
         user: req.user?.id
       });
       
-      const categoryId = categoryIdParam ? parseInt(categoryIdParam) : undefined;
+      const playlistId = playlistIdParam ? parseInt(playlistIdParam) : undefined;
       
       // isAuthenticated middleware ensures req.user is defined
       const userId = req.user!.id;
@@ -1009,10 +1009,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Only show media items the user has access to (if not admin)
       const filters: { 
         search?: string; 
-        categoryId?: number; 
+        playlistId?: number; 
         sort?: string;
         userId?: number;
-      } = { search, categoryId, sort };
+      } = { search, playlistId, sort };
       
       if (!req.user!.isAdmin) {
         Object.assign(filters, { userId });
