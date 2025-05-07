@@ -10,7 +10,7 @@ import ClientManagement from "@/components/admin/client-management";
 import AdminUserManagement from "@/components/admin/admin-user-management";
 import { useAuth } from "@/hooks/use-auth";
 import { useLocation } from "wouter";
-import { Shield, FileText, FolderTree, Mail, Users, UserPlus, UserCog } from "lucide-react";
+import { Shield, FileText, ListMusic, Mail, Users, UserPlus, UserCog } from "lucide-react";
 
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState("media");
@@ -76,8 +76,8 @@ export default function AdminPage() {
                 <span>Media</span>
               </TabsTrigger>
               <TabsTrigger value="categories" className="flex items-center space-x-2">
-                <FolderTree className="h-4 w-4" />
-                <span>Categories</span>
+                <ListMusic className="h-4 w-4" />
+                <span>Playlists</span>
               </TabsTrigger>
               <TabsTrigger value="clients" className="flex items-center space-x-2">
                 <UserPlus className="h-4 w-4" />
@@ -108,7 +108,7 @@ export default function AdminPage() {
             <TabsContent value="categories">
               <div className="bg-white rounded-lg shadow">
                 <div className="p-6">
-                  <CategoryManagement />
+                  <PlaylistManagement />
                 </div>
               </div>
             </TabsContent>
