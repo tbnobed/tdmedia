@@ -344,8 +344,8 @@ export class DatabaseStorage implements IStorage {
     
     // Get the playlists associated with this media
     const playlistsData = await db.select({
-      playlistId: mediaPlaylists.playlist_id.playlist_id,
-      mediaId: mediaPlaylists.media_id.media_id,
+      playlistId: mediaPlaylists.playlist_id,
+      mediaId: mediaPlaylists.media_id,
       playlistName: playlists.name,
       playlistDescription: playlists.description
     })
