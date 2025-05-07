@@ -83,8 +83,50 @@ export default function VideoPlayer({
     }
   }, [streamInfo, onLoad]);
   
-  // Prevent right-click on media content
+  // Enhanced right-click prevention on media content
   const preventRightClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    
+    // Show a message to clients so they know downloads are disabled
+    if (!user?.isAdmin) {
+      const warning = "Content downloading is disabled. This media is watermarked for your preview only.";
+      console.log(warning);
+      
+      // Display a warning message when right-click is attempted
+      if (window.getSelection) window.getSelection()?.removeAllRanges();
+      
+      // Show warning tooltip instead of alert
+      const tooltip = document.createElement('div');
+      tooltip.className = 'right-click-warning';
+      tooltip.textContent = 'Downloads are disabled. This content is watermarked for preview only.';
+      tooltip.style.position = 'absolute';
+      tooltip.style.background = 'rgba(0, 0, 0, 0.8)';
+      tooltip.style.color = 'white';
+      tooltip.style.padding = '8px 12px';
+      tooltip.style.borderRadius = '4px';
+      tooltip.style.fontSize = '14px';
+      tooltip.style.zIndex = '9999';
+      tooltip.style.pointerEvents = 'none';
+      
+      document.body.appendChild(tooltip);
+      
+      // Position tooltip near cursor
+      const mouseX = e.clientX;
+      const mouseY = e.clientY;
+      tooltip.style.left = `${mouseX + 10}px`;
+      tooltip.style.top = `${mouseY + 10}px`;
+      
+      // Remove tooltip after 2 seconds
+      setTimeout(() => {
+        document.body.removeChild(tooltip);
+      }, 2000);
+    }
+    
+    return false;
+  };
+  
+  // Disable drag and drop capabilities
+  const preventDragStart = (e: React.DragEvent) => {
     e.preventDefault();
     return false;
   };
@@ -123,6 +165,41 @@ export default function VideoPlayer({
     }
   }, [disableFullscreen, videoRef.current]);
   
+  // Add global right-click prevention when video is loaded for non-admin users
+  useEffect(() => {
+    if (!user?.isAdmin && videoRef.current && streamInfo) {
+      // Add global document level right-click prevention
+      const globalRightClickHandler = (e: MouseEvent) => {
+        e.preventDefault();
+        console.log("Global right-click prevented in video player");
+        return false;
+      };
+      
+      // Add global copy/drag prevention
+      const globalCopyHandler = (e: ClipboardEvent) => {
+        e.preventDefault();
+        return false;
+      };
+      
+      const globalDragHandler = (e: DragEvent) => {
+        e.preventDefault();
+        return false;
+      };
+      
+      // Add event listeners
+      document.addEventListener('contextmenu', globalRightClickHandler);
+      document.addEventListener('copy', globalCopyHandler);
+      document.addEventListener('dragstart', globalDragHandler);
+      
+      // Cleanup when component unmounts
+      return () => {
+        document.removeEventListener('contextmenu', globalRightClickHandler);
+        document.removeEventListener('copy', globalCopyHandler);
+        document.removeEventListener('dragstart', globalDragHandler);
+      };
+    }
+  }, [user?.isAdmin, videoRef.current, streamInfo]);
+
   // Global fullscreen change detection and keyboard shortcut prevention
   useEffect(() => {
     if (disableFullscreen) {
@@ -253,6 +330,7 @@ export default function VideoPlayer({
             controls={controls}
             controlsList={`nodownload ${disableFullscreen ? 'nofullscreen' : ''}`}
             onContextMenu={preventRightClick}
+            onDragStart={preventDragStart}
             autoPlay={autoPlay}
             preload="auto"
             playsInline

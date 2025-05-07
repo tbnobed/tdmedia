@@ -209,6 +209,18 @@ export default function IframeVideoPlayer({
         const video = document.querySelector('video');
         const watermarkContainer = document.getElementById('watermarkContainer');
         
+        // Prevent right-click on the entire document
+        document.addEventListener('contextmenu', function(e) {
+          e.preventDefault();
+          return false;
+        }, false);
+        
+        // Prevent drag and drop of video elements
+        document.addEventListener('dragstart', function(e) {
+          e.preventDefault();
+          return false;
+        }, false);
+        
         // Function to check response headers for watermarking instructions
         async function checkWatermarkHeaders() {
           try {
@@ -273,6 +285,12 @@ export default function IframeVideoPlayer({
               return false;
             }
           });
+          
+          // Additional download prevention
+          video.oncontextmenu = function(e) { 
+            e.preventDefault(); 
+            return false; 
+          };
         }
         
         // Check watermark requirements when video is loaded
@@ -280,6 +298,17 @@ export default function IframeVideoPlayer({
         
         // Apply fullscreen restrictions by default for safety
         applyFullscreenRestrictions();
+        
+        // Detect and block any attempts to download or save the video
+        video.addEventListener('copy', function(e) {
+          e.preventDefault();
+          return false;
+        });
+        
+        video.addEventListener('cut', function(e) {
+          e.preventDefault();
+          return false;
+        });
       </script>
     </body>
     </html>
