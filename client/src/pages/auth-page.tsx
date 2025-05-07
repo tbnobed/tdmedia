@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, ShieldAlert } from "lucide-react";
-import trilogyLogo from "@/assets/trilogy-logo.svg";
+// Import is not needed as we're using a direct path to the image
 
 // Login form schema
 const loginSchema = z.object({
@@ -62,9 +62,9 @@ export default function AuthPage() {
           <CardContent className="pt-6">
             <div className="text-center mb-8">
               <div className="flex justify-center mb-4">
-                <img src={trilogyLogo} alt="Trilogy Digital Media Logo" className="h-16 w-16" />
+                <img src="/images/tbn-logo.png" alt="TBN Logo" className="h-16" />
               </div>
-              <h1 className="text-3xl font-bold text-primary">Trilogy Digital Media</h1>
+              <h1 className="text-3xl font-bold text-primary">TBN</h1>
               <p className="text-gray-600 mt-2">Secure content management system</p>
             </div>
 
@@ -168,9 +168,9 @@ export default function AuthPage() {
         </Card>
       </div>
 
-      <div className="hidden lg:flex lg:flex-1 bg-gradient-to-br from-[#2B9B5D] to-[#8AE160] items-center justify-center">
+      <div className="hidden lg:flex lg:flex-1 bg-gradient-to-br from-black to-gray-800 items-center justify-center">
         <div className="max-w-lg p-8 text-white">
-          <h2 className="text-3xl font-bold mb-6">Trilogy Digital Media</h2>
+          <h2 className="text-3xl font-bold mb-6">TBN</h2>
           <p className="text-lg mb-6">
             Access our curated media library of premium content. All media is watermarked and streamable for your review.
           </p>
