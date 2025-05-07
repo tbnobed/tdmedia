@@ -1,6 +1,6 @@
 import { db } from "@db";
 import { users, media, categories, contacts, mediaAccess, session as sessionTable } from "@shared/schema";
-import { eq, and, like, desc, asc, inArray } from "drizzle-orm";
+import { eq, and, like, desc, asc, inArray, ne } from "drizzle-orm";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
 import { pool } from "@db";
@@ -182,6 +182,31 @@ export class DatabaseStorage implements IStorage {
   }
   
   async deleteCategory(id: number) {
+    // First check if there's a default category we can move media to
+    let defaultCategory = await db.query.categories.findFirst({
+      where: and(
+        ne(categories.id, id),
+        eq(categories.name, "Uncategorized")
+      )
+    });
+    
+    // If no default category exists, create one
+    if (!defaultCategory) {
+      const [newCategory] = await db.insert(categories)
+        .values({
+          name: "Uncategorized",
+          description: "Default category for uncategorized media"
+        })
+        .returning();
+      defaultCategory = newCategory;
+    }
+    
+    // Move all media from the to-be-deleted category to the default category
+    await db.update(media)
+      .set({ categoryId: defaultCategory.id })
+      .where(eq(media.categoryId, id));
+      
+    // Now we can safely delete the category
     await db.delete(categories).where(eq(categories.id, id));
   }
   

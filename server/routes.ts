@@ -958,7 +958,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     try {
       // Only return media that this specific user has access to
       const search = req.query.search as string | undefined;
-      const categoryIdParam = req.query.category as string | undefined;
+      // Support both 'category' and 'categoryId' parameters for backward compatibility
+      const categoryIdParam = (req.query.categoryId || req.query.category) as string | undefined;
       const sort = req.query.sort as string | undefined;
       
       const categoryId = categoryIdParam ? parseInt(categoryIdParam) : undefined;
