@@ -381,10 +381,10 @@ export class DatabaseStorage implements IStorage {
   async getMediaAccessByUser(userId: number) {
     return await db.select({
       id: mediaAccess.id,
-      mediaId: mediaAccess.media_id,
-      userId: mediaAccess.user_id,
+      media_id: mediaAccess.media_id,
+      user_id: mediaAccess.user_id,
       createdAt: mediaAccess.createdAt,
-      createdById: mediaAccess.createdById,
+      created_by_id: mediaAccess.created_by_id,
       media: media
     })
     .from(mediaAccess)
@@ -396,11 +396,11 @@ export class DatabaseStorage implements IStorage {
   async getMediaAccessByMedia(mediaId: number) {
     return await db.select({
       id: mediaAccess.id,
-      mediaId: mediaAccess.media_id,
-      userId: mediaAccess.user_id,
+      media_id: mediaAccess.media_id,
+      user_id: mediaAccess.user_id,
       user: users,
       createdAt: mediaAccess.createdAt,
-      createdById: mediaAccess.createdById
+      created_by_id: mediaAccess.created_by_id
     })
     .from(mediaAccess)
     .innerJoin(users, eq(mediaAccess.user_id, users.id))

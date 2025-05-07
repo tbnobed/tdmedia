@@ -1049,10 +1049,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
   
   // Remove media access from a user
-  app.delete("/api/media-access/:mediaId/:userId", isAdmin, async (req, res) => {
+  app.delete("/api/media-access/:media_id/:user_id", isAdmin, async (req, res) => {
     try {
-      const mediaId = parseInt(req.params.mediaId);
-      const userId = parseInt(req.params.userId);
+      const mediaId = parseInt(req.params.media_id);
+      const userId = parseInt(req.params.user_id);
       
       await storage.removeMediaFromUser(mediaId, userId);
       res.sendStatus(204);
