@@ -27,7 +27,7 @@ export interface IStorage {
   deletePlaylist(id: number): Promise<void>;
   
   // Media methods
-  getMedia(filters?: { search?: string, categoryId?: number, sort?: string, userId?: number }): Promise<any[]>;
+  getMedia(filters?: { search?: string, playlistId?: number, sort?: string, userId?: number }): Promise<any[]>;
   getMediaById(id: number): Promise<any>;
   createMedia(mediaData: any): Promise<any>;
   updateMedia(id: number, mediaData: any): Promise<any>;
