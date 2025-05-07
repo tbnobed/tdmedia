@@ -71,8 +71,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Health check endpoint for Docker
   app.get("/api/healthcheck", async (req, res) => {
     try {
-      // Check database connection
-      await db.execute(sql`SELECT 1`);
+      // Check database connection using our helper function
+      await executeRawSQL("SELECT 1");
       res.status(200).json({ status: "ok", message: "Service is healthy" });
     } catch (error) {
       console.error("Health check failed:", error);

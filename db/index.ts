@@ -38,13 +38,18 @@ if (isDocker || process.env.USE_NEON_CLIENT === 'false') {
 }
 
 // Function to help with SQL query execution for both Neon and regular PostgreSQL
-async function executeRawSQL(queryText, values = []) {
+async function executeRawSQL(queryText: string, values: any[] = []) {
   if (isNeonClient) {
     // For Neon client, we must use pool.query directly
     return await pool.query(queryText, values);
   } else {
-    // For standard PostgreSQL with drizzle
-    return await db.execute(sql.raw(queryText, values));
+    // For standard PostgreSQL with drizzle, we need to construct the SQL query with parameter placeholders
+    // This is a simplified approach and may need to be expanded for more complex queries
+    const query = {
+      text: queryText,
+      values: values
+    };
+    return await db.execute(query);
   }
 }
 
