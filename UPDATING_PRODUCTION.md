@@ -88,9 +88,11 @@ docker compose up -d
    ```
 
 2. Verify the database migration was successful by checking for these messages in the logs:
-   - "Playlists table successfully created/migrated" or "SUCCESS: Tables created successfully through direct SQL"
-   - "Media-playlists junction table successfully created" or "All required tables verified successfully!"
-   - "Database schema initialized successfully!"
+   - "Configuration: Retry count=5, Retry delay=3s, Force direct creation=true" - confirms initialization configuration
+   - "Direct SQL table creation executed as first step" - confirms first-phase table creation
+   - "SUCCESS: Direct SQL creation verified - playlists table exists!" - confirms table verification
+   - "All required tables verified successfully!" - confirms tables are ready for use
+   - "Database schema initialization completed successfully" - confirms the entire process completed
 
 3. Log in to the admin panel and verify that:
    - The "Playlists" tab appears in the admin dashboard
@@ -193,13 +195,27 @@ docker compose up -d
   - Enhanced table verification with automatic recovery handles any migration timing issues
   - Multiple failsafe mechanisms ensure tables are created even if Drizzle migration encounters issues
 
-- **Environment Variables**: New environment variables have been added to control the migration process:
+- **Environment Variables**: New environment variables have been added to control the migration and database initialization process:
   ```
+  # Playlist Migration Controls
   ENABLE_PLAYLIST_MIGRATION=true      # Enable migration from categories to playlists
   PRESERVE_CATEGORIES_TABLE=false     # Whether to keep categories table after migration
   CREATE_DEFAULT_PLAYLIST=true        # Create default 'Uncategorized' playlist
   DRIZZLE_ALWAYS_MIGRATE=true         # Always run migrations on startup
+  
+  # Database Initialization Configuration (New)
+  DB_INIT_RETRY_COUNT=5               # Number of retry attempts for table verification
+  DB_INIT_RETRY_DELAY=3               # Delay in seconds between retry attempts
+  FORCE_DIRECT_TABLE_CREATION=true    # Use direct SQL for table creation (recommended for reliability)
   ```
+
+- **Enhanced Docker Deployment Process**: This update includes significant improvements to the Docker deployment process:
+  - Multi-layer approach to database initialization for maximum reliability
+  - Configurable retry mechanism for table verification with detailed logging
+  - Direct SQL table creation option that can be enabled/disabled via environment variables
+  - Automatic recovery systems to handle edge cases during initialization
+  - Better handling of session table persistence to prevent login disruptions
+  - Improved error handling and reporting during the initialization process
 
 - The session table might be recreated during the update. This will invalidate any existing user sessions, requiring users to log in again.
 - Make sure your firewall allows outbound connections to SendGrid's SMTP servers if you plan to use the email functionality.

@@ -48,51 +48,51 @@ try {
       connectionString: process.env.DATABASE_URL
     });
   
-  try {
-    // Create tables directly with SQL first
-    const directCreateTablesSQL = `
-    -- Create playlists table if it doesn't exist
-    CREATE TABLE IF NOT EXISTS playlists (
-      id SERIAL PRIMARY KEY,
-      name TEXT NOT NULL UNIQUE,
-      description TEXT,
-      created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
-    );
-    
-    -- Create media_playlists table if it doesn't exist
-    CREATE TABLE IF NOT EXISTS media_playlists (
-      id SERIAL PRIMARY KEY,
-      media_id INTEGER NOT NULL REFERENCES media(id) ON DELETE CASCADE,
-      playlist_id INTEGER NOT NULL REFERENCES playlists(id) ON DELETE CASCADE,
-      created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
-    );
-    
-    -- Create indexes
-    CREATE INDEX IF NOT EXISTS idx_media_playlists_media_id ON media_playlists(media_id);
-    CREATE INDEX IF NOT EXISTS idx_media_playlists_playlist_id ON media_playlists(playlist_id);
-    
-    -- Create default 'Uncategorized' playlist if it doesn't exist
-    INSERT INTO playlists (name, description)
-    SELECT 'Uncategorized', 'Default category for uncategorized media'
-    WHERE NOT EXISTS (SELECT 1 FROM playlists WHERE name = 'Uncategorized');
-    `;
-    
-    await directPool.query(directCreateTablesSQL);
-    log('Direct SQL table creation executed as first step.');
-    
-    // Check if it worked
-    const tableCheck = await directPool.query("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'playlists')");
-    if (tableCheck.rows[0].exists) {
-      log('SUCCESS: Direct SQL creation verified - playlists table exists!');
-    } else {
-      log('WARNING: Direct SQL creation did not create playlists table.');
+    try {
+      // Create tables directly with SQL first
+      const directCreateTablesSQL = `
+      -- Create playlists table if it doesn't exist
+      CREATE TABLE IF NOT EXISTS playlists (
+        id SERIAL PRIMARY KEY,
+        name TEXT NOT NULL UNIQUE,
+        description TEXT,
+        created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+      );
+      
+      -- Create media_playlists table if it doesn't exist
+      CREATE TABLE IF NOT EXISTS media_playlists (
+        id SERIAL PRIMARY KEY,
+        media_id INTEGER NOT NULL REFERENCES media(id) ON DELETE CASCADE,
+        playlist_id INTEGER NOT NULL REFERENCES playlists(id) ON DELETE CASCADE,
+        created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+      );
+      
+      -- Create indexes
+      CREATE INDEX IF NOT EXISTS idx_media_playlists_media_id ON media_playlists(media_id);
+      CREATE INDEX IF NOT EXISTS idx_media_playlists_playlist_id ON media_playlists(playlist_id);
+      
+      -- Create default 'Uncategorized' playlist if it doesn't exist
+      INSERT INTO playlists (name, description)
+      SELECT 'Uncategorized', 'Default category for uncategorized media'
+      WHERE NOT EXISTS (SELECT 1 FROM playlists WHERE name = 'Uncategorized');
+      `;
+      
+      await directPool.query(directCreateTablesSQL);
+      log('Direct SQL table creation executed as first step.');
+      
+      // Check if it worked
+      const tableCheck = await directPool.query("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'playlists')");
+      if (tableCheck.rows[0].exists) {
+        log('SUCCESS: Direct SQL creation verified - playlists table exists!');
+      } else {
+        log('WARNING: Direct SQL creation did not create playlists table.');
+      }
+    } catch (directSqlError) {
+      log(`Warning during direct SQL creation: ${directSqlError.message}`);
+      log('Will continue with Drizzle migration...');
+    } finally {
+      directPool.end();
     }
-  } catch (directSqlError) {
-    log(`Warning during direct SQL creation: ${directSqlError.message}`);
-    log('Will continue with Drizzle migration...');
-  } finally {
-    directPool.end();
-  }
   }
   
   // Run drizzle-kit to generate SQL for schema
