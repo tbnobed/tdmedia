@@ -267,7 +267,10 @@ export class DatabaseStorage implements IStorage {
       if (filters.playlistId && filters.playlistId > 0) {
         // Use raw SQL to avoid column naming inconsistencies
         const results = await executeRawSQL(`
-          SELECT m.* FROM media m
+          SELECT m.id, m.title, m.description, m.type, m.file_url as "fileUrl", 
+                 m.thumbnail_url as "thumbnailUrl", m.duration, m.size, 
+                 m.created_at as "createdAt", m.updated_at as "updatedAt"
+          FROM media m
           INNER JOIN media_playlists mp ON m.id = mp.media_id
           WHERE mp.playlist_id = $1
           AND m.id = ANY($2)
@@ -313,7 +316,10 @@ export class DatabaseStorage implements IStorage {
         // Use raw SQL to avoid column naming inconsistencies
         // Create query and parameters separately to handle conditional parameters correctly
         let query = `
-          SELECT m.* FROM media m
+          SELECT m.id, m.title, m.description, m.type, m.file_url as "fileUrl", 
+                 m.thumbnail_url as "thumbnailUrl", m.duration, m.size, 
+                 m.created_at as "createdAt", m.updated_at as "updatedAt"
+          FROM media m
           INNER JOIN media_playlists mp ON m.id = mp.media_id
           WHERE mp.playlist_id = $1
         `;
