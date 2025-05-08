@@ -314,9 +314,11 @@ export default function EditMediaForm({ media, onComplete }: EditMediaFormProps)
             reject(new Error('Upload timed out'));
           };
           
-          // Send the request
-          xhr.open('POST', `/api/media/${media.id}/thumbnail`, true);
+          // Send the request to the file upload endpoint (not the thumbnail generator)
+          xhr.open('POST', `/api/upload`, true);
           xhr.withCredentials = true;
+          // Add a custom header to indicate this is a thumbnail
+          xhr.setRequestHeader('X-TBN-Thumbnail-For', media.id.toString());
           xhr.send(formData);
         });
       } catch (error) {
