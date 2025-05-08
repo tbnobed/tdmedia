@@ -213,29 +213,74 @@ try {
       
       log('Tables created successfully via direct SQL');
       
-      // Verify tables were created correctly
-      try {
-        const playlistResult = await pool.query("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'playlists')");
-        const mediaPlaylistsResult = await pool.query("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'media_playlists')");
+      // Function to verify table with retries
+      async function verifyTableWithRetry(tableName, maxAttempts = 3) {
+        let attempt = 1;
+        let tableExists = false;
         
-        const playlistExists = playlistResult.rows[0].exists;
-        const mediaPlaylistsExists = mediaPlaylistsResult.rows[0].exists;
+        log(`Verifying ${tableName} table with retry logic (max attempts: ${maxAttempts})...`);
         
-        if (playlistExists) {
-          log('Verified: Playlists table was successfully created');
-        } else {
-          log('ERROR: Playlists table was not created successfully!');
+        while (attempt <= maxAttempts && !tableExists) {
+          try {
+            const result = await pool.query(`SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = '${tableName}')`);
+            tableExists = result.rows[0].exists;
+            
+            if (tableExists) {
+              log(`✓ Verified: ${tableName} table exists (attempt ${attempt})`);
+              return true;
+            } else {
+              log(`✗ Attempt ${attempt}: ${tableName} table does not exist. Waiting 2 seconds...`);
+              // Sleep for 2 seconds
+              await new Promise(resolve => setTimeout(resolve, 2000));
+              attempt++;
+            }
+          } catch (error) {
+            log(`Error checking ${tableName} table (attempt ${attempt}): ${error.message}`);
+            // Sleep and retry
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            attempt++;
+          }
         }
         
-        if (mediaPlaylistsExists) {
-          log('Verified: Media-playlists junction table was successfully created');
+        if (!tableExists) {
+          log(`ERROR: ${tableName} table verification failed after ${maxAttempts} attempts.`);
+          return false;
+        }
+        
+        return tableExists;
+      }
+      
+      // Add a brief delay to let PostgreSQL complete all operations
+      log('Waiting 3 seconds for database to settle...');
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      try {
+        // Verify tables with retry logic
+        const playlistsVerified = await verifyTableWithRetry('playlists');
+        const mediaPlaylistsVerified = await verifyTableWithRetry('media_playlists');
+        
+        if (playlistsVerified && mediaPlaylistsVerified) {
+          log('✅ All required tables verified successfully!');
         } else {
-          log('ERROR: Media-playlists junction table was not created successfully!');
+          log('⚠️ WARNING: Table verification failed. The application may not function correctly.');
+        }
+        
+        // Verify there is at least one playlist in the system
+        const playlistCountResult = await pool.query("SELECT COUNT(*) FROM playlists");
+        const playlistCount = parseInt(playlistCountResult.rows[0].count);
+        
+        if (playlistCount === 0) {
+          log('No playlists found. Creating default "Uncategorized" playlist...');
+          await pool.query("INSERT INTO playlists (name, description) VALUES ('Uncategorized', 'Default category for uncategorized media')");
+          log('Created default "Uncategorized" playlist.');
+        } else {
+          log(`Found ${playlistCount} existing playlists. No need to create default.`);
         }
       } catch (verifyError) {
-        log(`Error verifying tables: ${verifyError.message}`);
+        log(`Error during verification: ${verifyError.message}`);
       } finally {
         // Close the pool
+        log('Closing database connection.');
         pool.end();
       }
     });

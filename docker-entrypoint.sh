@@ -120,7 +120,40 @@ else
   echo "Warning: Database initialization encountered issues, but we'll continue startup."
 fi
 
-# Check if categories table still exists after migration
+# Give PostgreSQL a moment to process any changes
+echo "Waiting for database to settle after migration (3 seconds)..."
+sleep 3
+
+# Function to verify table existence with retry
+verify_table_exists() {
+  local table_name=$1
+  local max_attempts=3
+  local attempt=1
+  local exists="f"
+  
+  echo "Verifying ${table_name} table exists..."
+  
+  while [ $attempt -le $max_attempts ] && [ "$exists" != "t" ]; do
+    exists=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = '${table_name}')")
+    exists=$(echo "$exists" | xargs)
+    
+    if [ "$exists" = "t" ]; then
+      echo "${table_name} table exists. Verification successful."
+      return 0
+    else
+      echo "Attempt $attempt: ${table_name} table not found, retrying in 2 seconds..."
+      sleep 2
+      attempt=$((attempt+1))
+    fi
+  done
+  
+  if [ "$exists" != "t" ]; then
+    echo "ERROR: ${table_name} table not found after $max_attempts attempts."
+    return 1
+  fi
+}
+
+# Check for categories table
 CATEGORIES_TABLE_EXISTS=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'categories')")
 CATEGORIES_TABLE_EXISTS=$(echo "$CATEGORIES_TABLE_EXISTS" | xargs)
 
@@ -128,26 +161,18 @@ if [ "$CATEGORIES_TABLE_EXISTS" = "t" ]; then
   echo "Categories table still exists. For clean database structure, you may wish to remove it after confirming successful migration."
 fi
 
-# Verify that playlists table exists after migration
-PLAYLISTS_TABLE_EXISTS=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'playlists')")
-PLAYLISTS_TABLE_EXISTS=$(echo "$PLAYLISTS_TABLE_EXISTS" | xargs)
+# Verify playlists and media_playlists tables with retry logic
+verify_table_exists "playlists"
+PLAYLISTS_VERIFIED=$?
 
-if [ "$PLAYLISTS_TABLE_EXISTS" = "t" ]; then
-  echo "Playlists table successfully created/migrated."
+verify_table_exists "media_playlists" 
+MEDIA_PLAYLISTS_VERIFIED=$?
+
+if [ $PLAYLISTS_VERIFIED -eq 0 ] && [ $MEDIA_PLAYLISTS_VERIFIED -eq 0 ]; then
+  echo "Playlist migration verification complete: All required tables exist."
 else
-  echo "ERROR: Playlists table not found after migration. This is a critical error."
-  # We continue anyway in case this is just a temporary issue
-fi
-
-# Verify that media_playlists junction table exists after migration
-MEDIA_PLAYLISTS_TABLE_EXISTS=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'media_playlists')")
-MEDIA_PLAYLISTS_TABLE_EXISTS=$(echo "$MEDIA_PLAYLISTS_TABLE_EXISTS" | xargs)
-
-if [ "$MEDIA_PLAYLISTS_TABLE_EXISTS" = "t" ]; then
-  echo "Media-playlists junction table successfully created."
-else
-  echo "ERROR: Media-playlists junction table not found after migration. This is a critical error."
-  # We continue anyway in case this is just a temporary issue
+  echo "WARNING: Some playlist tables could not be verified. Application may not function correctly."
+  # Continue anyway as the application might fix this during startup
 fi
 
 # Setup default users
