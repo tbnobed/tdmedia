@@ -78,17 +78,19 @@ CREATE INDEX IF NOT EXISTS "IDX_session_expire" ON "session" ("expire");
 EOF
 
 # Check if the playlists table exists
-PLAYLISTS_TABLE_EXISTS=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'playlists')" | grep -q 't'; echo $?)
+PLAYLISTS_TABLE_EXISTS=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'playlists')")
+PLAYLISTS_TABLE_EXISTS=$(echo "$PLAYLISTS_TABLE_EXISTS" | xargs)
 
-if [ $PLAYLISTS_TABLE_EXISTS -eq 0 ]; then
+if [ "$PLAYLISTS_TABLE_EXISTS" = "t" ]; then
   echo "Playlists table already exists."
 else
   echo "Playlists table does not exist. Checking for categories table..."
   
   # Check if the categories table exists (older schema)
-  CATEGORIES_TABLE_EXISTS=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'categories')" | grep -q 't'; echo $?)
+  CATEGORIES_TABLE_EXISTS=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'categories')")
+  CATEGORIES_TABLE_EXISTS=$(echo "$CATEGORIES_TABLE_EXISTS" | xargs)
   
-  if [ $CATEGORIES_TABLE_EXISTS -eq 0 ]; then
+  if [ "$CATEGORIES_TABLE_EXISTS" = "t" ]; then
     echo "Categories table found. Will migrate to playlist-based schema."
   else
     echo "Fresh database installation detected."
@@ -96,9 +98,10 @@ else
 fi
 
 # Check if media_playlists junction table exists
-MEDIA_PLAYLISTS_TABLE_EXISTS=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'media_playlists')" | grep -q 't'; echo $?)
+MEDIA_PLAYLISTS_TABLE_EXISTS=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'media_playlists')")
+MEDIA_PLAYLISTS_TABLE_EXISTS=$(echo "$MEDIA_PLAYLISTS_TABLE_EXISTS" | xargs)
 
-if [ $MEDIA_PLAYLISTS_TABLE_EXISTS -eq 0 ]; then
+if [ "$MEDIA_PLAYLISTS_TABLE_EXISTS" = "t" ]; then
   echo "Media-playlists junction table already exists."
 else
   echo "Media-playlists junction table does not exist. Will be created during schema update."
@@ -118,16 +121,18 @@ else
 fi
 
 # Check if categories table still exists after migration
-CATEGORIES_TABLE_EXISTS=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'categories')" | grep -q 't'; echo $?)
+CATEGORIES_TABLE_EXISTS=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'categories')")
+CATEGORIES_TABLE_EXISTS=$(echo "$CATEGORIES_TABLE_EXISTS" | xargs)
 
-if [ $CATEGORIES_TABLE_EXISTS -eq 0 ]; then
+if [ "$CATEGORIES_TABLE_EXISTS" = "t" ]; then
   echo "Categories table still exists. For clean database structure, you may wish to remove it after confirming successful migration."
 fi
 
 # Verify that playlists table exists after migration
-PLAYLISTS_TABLE_EXISTS=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'playlists')" | grep -q 't'; echo $?)
+PLAYLISTS_TABLE_EXISTS=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'playlists')")
+PLAYLISTS_TABLE_EXISTS=$(echo "$PLAYLISTS_TABLE_EXISTS" | xargs)
 
-if [ $PLAYLISTS_TABLE_EXISTS -eq 0 ]; then
+if [ "$PLAYLISTS_TABLE_EXISTS" = "t" ]; then
   echo "Playlists table successfully created/migrated."
 else
   echo "ERROR: Playlists table not found after migration. This is a critical error."
@@ -135,9 +140,10 @@ else
 fi
 
 # Verify that media_playlists junction table exists after migration
-MEDIA_PLAYLISTS_TABLE_EXISTS=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'media_playlists')" | grep -q 't'; echo $?)
+MEDIA_PLAYLISTS_TABLE_EXISTS=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'media_playlists')")
+MEDIA_PLAYLISTS_TABLE_EXISTS=$(echo "$MEDIA_PLAYLISTS_TABLE_EXISTS" | xargs)
 
-if [ $MEDIA_PLAYLISTS_TABLE_EXISTS -eq 0 ]; then
+if [ "$MEDIA_PLAYLISTS_TABLE_EXISTS" = "t" ]; then
   echo "Media-playlists junction table successfully created."
 else
   echo "ERROR: Media-playlists junction table not found after migration. This is a critical error."
@@ -152,10 +158,10 @@ node docker-setup-users.cjs
 # Set up session table if needed (but don't drop it if it exists!)
 echo "Setting up session table for authentication..."
 # First check if the session table already exists to prevent dropping it
-PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'session')" | grep -q 't'
-SESSION_TABLE_EXISTS=$?
+SESSION_TABLE_EXISTS=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'session')")
+SESSION_TABLE_EXISTS=$(echo "$SESSION_TABLE_EXISTS" | xargs)
 
-if [ $SESSION_TABLE_EXISTS -eq 0 ]; then
+if [ "$SESSION_TABLE_EXISTS" = "t" ]; then
   echo "Session table already exists, skipping creation."
 else
   echo "Creating session table..."

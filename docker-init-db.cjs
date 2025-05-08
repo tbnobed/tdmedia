@@ -204,15 +204,40 @@ try {
     END $$;`;
     
     // Execute SQL directly
-    pool.query(createTablesSQL, (err, result) => {
+    pool.query(createTablesSQL, async (err, result) => {
       if (err) {
         log(`Error creating tables: ${err.message}`);
-      } else {
-        log('Tables created successfully via direct SQL');
-      }
+        pool.end();
+        return;
+      } 
       
-      // Close the pool
-      pool.end();
+      log('Tables created successfully via direct SQL');
+      
+      // Verify tables were created correctly
+      try {
+        const playlistResult = await pool.query("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'playlists')");
+        const mediaPlaylistsResult = await pool.query("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'media_playlists')");
+        
+        const playlistExists = playlistResult.rows[0].exists;
+        const mediaPlaylistsExists = mediaPlaylistsResult.rows[0].exists;
+        
+        if (playlistExists) {
+          log('Verified: Playlists table was successfully created');
+        } else {
+          log('ERROR: Playlists table was not created successfully!');
+        }
+        
+        if (mediaPlaylistsExists) {
+          log('Verified: Media-playlists junction table was successfully created');
+        } else {
+          log('ERROR: Media-playlists junction table was not created successfully!');
+        }
+      } catch (verifyError) {
+        log(`Error verifying tables: ${verifyError.message}`);
+      } finally {
+        // Close the pool
+        pool.end();
+      }
     });
     
   } catch (backupError) {
