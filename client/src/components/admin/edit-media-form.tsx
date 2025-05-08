@@ -325,11 +325,15 @@ export default function EditMediaForm({ media, onComplete }: EditMediaFormProps)
       }
     },
     onSuccess: (data) => {
-      setUploadedThumbnail(data);
+      // Make sure data has the correct structure before setting it
+      const thumbnailData = {
+        thumbnailUrl: data.thumbnailUrl || data.url || ""
+      };
+      setUploadedThumbnail(thumbnailData);
       setUploadThumbnailProgress(100);
       
-      // Update form field with thumbnail URL
-      form.setValue("thumbnailUrl", data.thumbnailUrl);
+      // Update form field with thumbnail URL using the correct property
+      form.setValue("thumbnailUrl", thumbnailData.thumbnailUrl);
       
       toast({
         title: "Thumbnail uploaded",
