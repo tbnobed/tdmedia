@@ -1,0 +1,83 @@
+
+app-1       | Fetching media for user 1, isAdmin: true, filtering by userId: none (admin view)
+app-1       | Successfully fetched 0 media items
+app-1       | 4:52:20 AM [express] GET /api/media 200 in 11ms :: []
+app-1       | Admin access granted for user 1
+app-1       | Extracted video duration: 00:02:11
+app-1       | 4:53:42 AM [express] POST /api/upload 201 in 392ms :: {"fileUrl":"/uploads/videos/file-1746680022189…
+app-1       | Admin access granted for user 1
+app-1       | Received media creation request: {
+app-1       |   title: 'Test Media',
+app-1       |   description: 'Test Media for application development. ',
+app-1       |   type: 'video',
+app-1       |   fileUrl: '/uploads/videos/file-1746680022189-8fb05bce13ca30da.mp4',
+app-1       |   thumbnailUrl: '',
+app-1       |   duration: '00:02:11',
+app-1       |   size: '25.2 MB',
+app-1       |   playlistIds: [ 1 ]
+app-1       | }
+app-1       | Validated media data: {
+app-1       |   title: 'Test Media',
+app-1       |   description: 'Test Media for application development. ',
+app-1       |   type: 'video',
+app-1       |   fileUrl: '/uploads/videos/file-1746680022189-8fb05bce13ca30da.mp4',
+app-1       |   thumbnailUrl: '',
+app-1       |   duration: '00:02:11',
+app-1       |   size: '25.2 MB'
+app-1       | }
+app-1       | Media created successfully: {
+app-1       |   id: 1,
+app-1       |   title: 'Test Media',
+app-1       |   description: 'Test Media for application development. ',
+app-1       |   type: 'video',
+app-1       |   fileUrl: '/uploads/videos/file-1746680022189-8fb05bce13ca30da.mp4',
+app-1       |   thumbnailUrl: '',
+app-1       |   duration: '00:02:11',
+app-1       |   size: '25.2 MB',
+app-1       |   createdAt: 2025-05-08T04:53:52.767Z,
+app-1       |   updatedAt: 2025-05-08T04:53:52.767Z
+app-1       | }
+app-1       | Creating 1 playlist associations for media ID 1
+app-1       | Error creating media-playlist association for playlist 1: TypeError: query.getSQL is not a function
+app-1       |     at NodePgDatabase.execute (file:///app/node_modules/drizzle-orm/pg-core/db.js:267:71)
+app-1       |     at executeRawSQL (file:///app/dist/index.js:305:21)
+app-1       |     at file:///app/dist/index.js:1252:19
+app-1       |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+app-1       | 4:53:52 AM [express] POST /api/media 201 in 51ms :: {"id":1,"title":"Test Media","description":"Test…
+app-1       | GET /api/media params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: undefined,
+app-1       |   user: 1,
+app-1       |   isAdmin: true
+app-1       | }
+app-1       | Fetching media for user 1, isAdmin: true, filtering by userId: none (admin view)
+app-1       | Successfully fetched 1 media items
+app-1       | 4:53:52 AM [express] GET /api/media 200 in 11ms :: [{"id":1,"title":"Test Media","description":"Test…
+app-1       | Error preparing stream: TypeError: query.getSQL is not a function
+app-1       |     at NodePgDatabase.execute (file:///app/node_modules/drizzle-orm/pg-core/db.js:267:71)
+app-1       |     at executeRawSQL (file:///app/dist/index.js:305:21)
+app-1       |     at DatabaseStorage.getMediaById (file:///app/dist/index.js:544:33)
+app-1       |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+app-1       |     at async file:///app/dist/index.js:1420:25
+app-1       | 4:53:52 AM [express] GET /api/stream/1 500 in 12ms :: {"message":"Failed to prepare media stream"}
+app-1       | Error fetching media playlists: TypeError: query.getSQL is not a function
+app-1       |     at NodePgDatabase.execute (file:///app/node_modules/drizzle-orm/pg-core/db.js:267:71)
+app-1       |     at executeRawSQL (file:///app/dist/index.js:305:21)
+app-1       |     at file:///app/dist/index.js:1112:40
+app-1       |     at Layer.handle [as handle_request] (/app/node_modules/express/lib/router/layer.js:95:5)
+app-1       |     at next (/app/node_modules/express/lib/router/route.js:149:13)
+app-1       |     at isAuthenticated (file:///app/dist/index.js:1058:5)
+app-1       |     at Layer.handle [as handle_request] (/app/node_modules/express/lib/router/layer.js:95:5)
+app-1       |     at next (/app/node_modules/express/lib/router/route.js:149:13)
+app-1       |     at Route.dispatch (/app/node_modules/express/lib/router/route.js:119:3)
+app-1       |     at Layer.handle [as handle_request] (/app/node_modules/express/lib/router/layer.js:95:5)
+app-1       | 4:53:52 AM [express] GET /api/media/1/playlists 500 in 6ms :: {"message":"Failed to fetch playlists …
+app-1       | Admin access granted for user 1
+app-1       | Error generating thumbnail: TypeError: query.getSQL is not a function
+app-1       |     at NodePgDatabase.execute (file:///app/node_modules/drizzle-orm/pg-core/db.js:267:71)
+app-1       |     at executeRawSQL (file:///app/dist/index.js:305:21)
+app-1       |     at DatabaseStorage.getMediaById (file:///app/dist/index.js:544:33)
+app-1       |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+app-1       |     at async file:///app/dist/index.js:1376:25
+app-1       | 4:54:01 AM [express] POST /api/media/1/thumbnail 500 in 12ms :: {"message":"Failed to generate thumb…
