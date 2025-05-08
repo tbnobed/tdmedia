@@ -250,9 +250,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get file details
       const file = req.file;
       
+      // Check if this is a thumbnail upload for an existing media
+      const thumbnailForMediaId = req.headers['x-tbn-thumbnail-for'];
+      const isThumbnailUpload = !!thumbnailForMediaId;
+      
+      console.log('Upload headers:', req.headers);
+      console.log('Is thumbnail upload:', isThumbnailUpload);
+      if (isThumbnailUpload) {
+        console.log('Thumbnail for media ID:', thumbnailForMediaId);
+      }
+      
       // Handle different formats of the type parameter
       let fileType;
-      if (Array.isArray(req.body.type)) {
+      // Force image type for thumbnails
+      if (isThumbnailUpload) {
+        fileType = 'image';
+        console.log('Setting fileType to image for thumbnail');
+      } else if (Array.isArray(req.body.type)) {
         // If it's an array, use the first value
         fileType = req.body.type[0] || getFileTypeFromFilename(file.filename);
       } else {
@@ -274,21 +288,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
         
       // Map file type to the correct directory path
       let typeDirectory;
-      switch(fileType) {
-        case 'video':
-          typeDirectory = 'videos';
-          break;
-        case 'image':
-          typeDirectory = 'images';
-          break;
-        case 'document':
-          typeDirectory = 'documents';
-          break;
-        case 'presentation':
-          typeDirectory = 'presentations';
-          break;
-        default:
-          typeDirectory = 'uploads';
+      // For thumbnails, always use the thumbnails directory
+      if (isThumbnailUpload) {
+        typeDirectory = 'thumbnails';
+        console.log('Using thumbnails directory for thumbnail upload');
+      } else {
+        switch(fileType) {
+          case 'video':
+            typeDirectory = 'videos';
+            break;
+          case 'image':
+            typeDirectory = 'images';
+            break;
+          case 'document':
+            typeDirectory = 'documents';
+            break;
+          case 'presentation':
+            typeDirectory = 'presentations';
+            break;
+          default:
+            typeDirectory = 'uploads';
+        }
       }
       
       const fileUrl = `${baseUrl}/uploads/${typeDirectory}/${file.filename}`;
@@ -321,7 +341,42 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       
-      // Create response object with file details
+      // If this is a thumbnail upload for a media item, update that media item's thumbnailUrl
+      if (isThumbnailUpload && thumbnailForMediaId) {
+        try {
+          const mediaId = parseInt(thumbnailForMediaId.toString(), 10);
+          if (!isNaN(mediaId)) {
+            console.log(`Updating media ${mediaId} with new thumbnail URL: ${fileUrl}`);
+            const mediaItem = await storage.getMediaById(mediaId);
+            
+            if (mediaItem) {
+              // Update the media record with the new thumbnail URL
+              const updatedMedia = await storage.updateMedia(mediaId, {
+                ...mediaItem,
+                thumbnailUrl: fileUrl
+              });
+              
+              console.log(`Successfully updated thumbnailUrl for media ${mediaId}`);
+              
+              // Return thumbnail-specific response
+              return res.status(201).json({
+                thumbnailUrl: fileUrl,
+                mediaId,
+                message: "Thumbnail uploaded and media updated successfully"
+              });
+            } else {
+              console.error(`Could not find media with ID ${mediaId} to update with new thumbnail`);
+            }
+          } else {
+            console.error('Invalid media ID in X-TBN-Thumbnail-For header:', thumbnailForMediaId);
+          }
+        } catch (err) {
+          console.error('Error updating media with new thumbnail:', err);
+          // Continue with standard response if updating the media fails
+        }
+      }
+      
+      // Standard response for regular uploads
       const fileData = {
         fileUrl,
         thumbnailUrl,
