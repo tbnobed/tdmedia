@@ -88,8 +88,8 @@ docker compose up -d
    ```
 
 2. Verify the database migration was successful by checking for these messages in the logs:
-   - "Playlists table successfully created/migrated"
-   - "Media-playlists junction table successfully created"
+   - "Playlists table successfully created/migrated" or "SUCCESS: Tables created successfully through direct SQL"
+   - "Media-playlists junction table successfully created" or "All required tables verified successfully!"
    - "Database schema initialized successfully!"
 
 3. Log in to the admin panel and verify that:
@@ -190,6 +190,8 @@ docker compose up -d
   - A backup of your database is *highly recommended* before performing this update
   - The migration creates a new `playlists` table and `media_playlists` junction table
   - Existing media-category relationships will be preserved during the migration
+  - Enhanced table verification with automatic recovery handles any migration timing issues
+  - Multiple failsafe mechanisms ensure tables are created even if Drizzle migration encounters issues
 
 - **Environment Variables**: New environment variables have been added to control the migration process:
   ```

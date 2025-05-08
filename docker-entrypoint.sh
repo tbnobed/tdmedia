@@ -171,8 +171,77 @@ MEDIA_PLAYLISTS_VERIFIED=$?
 if [ $PLAYLISTS_VERIFIED -eq 0 ] && [ $MEDIA_PLAYLISTS_VERIFIED -eq 0 ]; then
   echo "Playlist migration verification complete: All required tables exist."
 else
-  echo "WARNING: Some playlist tables could not be verified. Application may not function correctly."
-  # Continue anyway as the application might fix this during startup
+  echo "WARNING: Some playlist tables could not be verified. Attempting manual creation..."
+  
+  # Create the tables directly as a fallback
+  echo "Creating missing tables directly with SQL..."
+  PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE <<EOF
+  -- Create playlists table if it doesn't exist
+  CREATE TABLE IF NOT EXISTS playlists (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,
+    description TEXT,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+  );
+  
+  -- Create media_playlists table if it doesn't exist
+  CREATE TABLE IF NOT EXISTS media_playlists (
+    id SERIAL PRIMARY KEY,
+    media_id INTEGER NOT NULL REFERENCES media(id) ON DELETE CASCADE,
+    playlist_id INTEGER NOT NULL REFERENCES playlists(id) ON DELETE CASCADE,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+  );
+  
+  -- Create indexes
+  CREATE INDEX IF NOT EXISTS idx_media_playlists_media_id ON media_playlists(media_id);
+  CREATE INDEX IF NOT EXISTS idx_media_playlists_playlist_id ON media_playlists(playlist_id);
+  
+  -- Create default 'Uncategorized' playlist if it doesn't exist
+  INSERT INTO playlists (name, description)
+  SELECT 'Uncategorized', 'Default category for uncategorized media'
+  WHERE NOT EXISTS (SELECT 1 FROM playlists WHERE name = 'Uncategorized');
+  
+  -- Migrate data from categories table if needed
+  DO \$\$
+  BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'categories') 
+    AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'media' AND column_name = 'category_id') THEN
+      -- Import categories into playlists if they don't already exist
+      INSERT INTO playlists (id, name, description, created_at)
+      SELECT c.id, c.name, c.description, c.created_at
+      FROM categories c
+      WHERE NOT EXISTS (SELECT 1 FROM playlists p WHERE p.name = c.name);
+      
+      -- Set sequence to correct value
+      PERFORM setval('playlists_id_seq', (SELECT COALESCE(MAX(id), 0) FROM playlists) + 1, false);
+      
+      -- Migrate media-category relationships to media-playlist relationships
+      INSERT INTO media_playlists (media_id, playlist_id, created_at)
+      SELECT m.id, m.category_id, NOW()
+      FROM media m
+      WHERE m.category_id IS NOT NULL
+      AND NOT EXISTS (
+        SELECT 1 FROM media_playlists mp 
+        WHERE mp.media_id = m.id AND mp.playlist_id = m.category_id
+      );
+    END IF;
+  END \$\$;
+EOF
+  
+  # Re-verify after manual creation
+  echo "Verifying tables after manual creation..."
+  PLAYLISTS_EXISTS=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'playlists')")
+  PLAYLISTS_EXISTS=$(echo "$PLAYLISTS_EXISTS" | xargs)
+  
+  MEDIA_PLAYLISTS_EXISTS=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'media_playlists')")
+  MEDIA_PLAYLISTS_EXISTS=$(echo "$MEDIA_PLAYLISTS_EXISTS" | xargs)
+  
+  if [ "$PLAYLISTS_EXISTS" = "t" ] && [ "$MEDIA_PLAYLISTS_EXISTS" = "t" ]; then
+    echo "SUCCESS: All required tables were created successfully through direct SQL."
+  else
+    echo "ERROR: Failed to create required tables even with direct SQL. This may indicate database permission issues."
+    # Continue anyway since we've done everything we can
+  fi
 fi
 
 # Setup default users

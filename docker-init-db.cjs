@@ -262,7 +262,81 @@ try {
         if (playlistsVerified && mediaPlaylistsVerified) {
           log('✅ All required tables verified successfully!');
         } else {
-          log('⚠️ WARNING: Table verification failed. The application may not function correctly.');
+          log('⚠️ WARNING: Table verification failed. Attempting to create tables directly...');
+          
+          // If verification failed, try to create the tables directly as a fallback
+          try {
+            // Create a more direct SQL statement to force the tables to be created
+            const forcedTableCreation = `
+              -- Create playlists table if it doesn't exist
+              CREATE TABLE IF NOT EXISTS playlists (
+                id SERIAL PRIMARY KEY,
+                name TEXT NOT NULL UNIQUE,
+                description TEXT,
+                created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+              );
+              
+              -- Create media_playlists junction table if it doesn't exist
+              CREATE TABLE IF NOT EXISTS media_playlists (
+                id SERIAL PRIMARY KEY,
+                media_id INTEGER NOT NULL REFERENCES media(id) ON DELETE CASCADE,
+                playlist_id INTEGER NOT NULL REFERENCES playlists(id) ON DELETE CASCADE,
+                created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+              );
+              
+              -- Create indexes
+              CREATE INDEX IF NOT EXISTS idx_media_playlists_media_id ON media_playlists(media_id);
+              CREATE INDEX IF NOT EXISTS idx_media_playlists_playlist_id ON media_playlists(playlist_id);
+              
+              -- Create default 'Uncategorized' playlist if it doesn't exist
+              INSERT INTO playlists (name, description)
+              SELECT 'Uncategorized', 'Default category for uncategorized media'
+              WHERE NOT EXISTS (SELECT 1 FROM playlists WHERE name = 'Uncategorized');
+              
+              -- Migrate data from categories table if available
+              DO $$
+              BEGIN
+                IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'categories') 
+                AND EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'media' AND column_name = 'category_id') THEN
+                  -- Import categories into playlists
+                  INSERT INTO playlists (id, name, description, created_at)
+                  SELECT c.id, c.name, c.description, c.created_at
+                  FROM categories c
+                  WHERE NOT EXISTS (SELECT 1 FROM playlists p WHERE p.name = c.name)
+                  ON CONFLICT DO NOTHING;
+                  
+                  -- Reset sequence
+                  PERFORM setval('playlists_id_seq', (SELECT COALESCE(MAX(id), 0) FROM playlists) + 1, false);
+                  
+                  -- Create playlist relationships
+                  INSERT INTO media_playlists (media_id, playlist_id, created_at)
+                  SELECT m.id, m.category_id, NOW()
+                  FROM media m
+                  WHERE m.category_id IS NOT NULL
+                  AND NOT EXISTS (
+                    SELECT 1 FROM media_playlists mp 
+                    WHERE mp.media_id = m.id AND mp.playlist_id = m.category_id
+                  )
+                  ON CONFLICT DO NOTHING;
+                END IF;
+              END $$;
+            `;
+            
+            log('Executing direct table creation as a fallback measure...');
+            await pool.query(forcedTableCreation);
+            
+            // Verify one more time
+            const finalPlaylistCheck = await pool.query("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'playlists')");
+            const finalMediaPlaylistsCheck = await pool.query("SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'media_playlists')");
+            
+            if (finalPlaylistCheck.rows[0].exists && finalMediaPlaylistsCheck.rows[0].exists) {
+              log('SUCCESS: Tables created successfully through direct SQL fallback!');
+            } else {
+              log('ERROR: Failed to create tables even with direct SQL. The database may have permission issues.');
+            }
+          } catch (directCreationError) {
+            log(`ERROR during direct table creation: ${directCreationError.message}`);
+          }
         }
         
         // Verify there is at least one playlist in the system
