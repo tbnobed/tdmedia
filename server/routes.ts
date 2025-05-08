@@ -700,7 +700,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ 
         streamUrl,
         mediaType: mediaItem.type,
-        title: mediaItem.title
+        title: mediaItem.title,
+        thumbnailUrl: mediaItem.thumbnailUrl || '' // Include the thumbnail URL for the poster attribute
       });
     } catch (error) {
       console.error("Error preparing stream:", error);

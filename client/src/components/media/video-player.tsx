@@ -7,6 +7,7 @@ interface StreamInfo {
   streamUrl: string;
   mediaType: string;
   title: string;
+  thumbnailUrl?: string; // Optional thumbnail URL for video poster
 }
 
 interface VideoPlayerProps {
