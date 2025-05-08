@@ -52,6 +52,9 @@ import MediaPreview from "./media-preview";
 export default function MediaManagement() {
   const { toast } = useToast();
   const [search, setSearch] = useState("");
+  const [sortOption, setSortOption] = useState("newest");
+  const [typeFilter, setTypeFilter] = useState("all");
+  const [playlistFilter, setPlaylistFilter] = useState("all");
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -249,11 +252,44 @@ export default function MediaManagement() {
     }
   };
 
-  // Filter media by search term
-  const filteredMedia = (enhancedMedia as MediaWithPlaylists[] || media as MediaWithPlaylists[])?.filter(item => 
-    item.title.toLowerCase().includes(search.toLowerCase()) ||
-    (item.description && item.description.toLowerCase().includes(search.toLowerCase()))
-  );
+  // Filter media by search term, type, and playlist
+  const mediaItems = enhancedMedia as MediaWithPlaylists[] || media as MediaWithPlaylists[] || [];
+  
+  const filteredMedia = mediaItems
+    .filter(item => {
+      if (!item) return false;
+      
+      // Search filter
+      const matchesSearch = 
+        item.title?.toLowerCase().includes(search.toLowerCase()) ||
+        (item.description && item.description.toLowerCase().includes(search.toLowerCase()));
+      
+      // Type filter
+      const matchesType = typeFilter === 'all' || item.type === typeFilter;
+      
+      // Playlist filter
+      const hasPlaylists = ((item as MediaWithPlaylists).playlists?.length ?? 0) > 0;
+      const matchesPlaylist = playlistFilter === 'all' || 
+        ((playlistFilter !== 'uncategorized' && (item as MediaWithPlaylists).playlists?.some(p => p.id.toString() === playlistFilter)) || 
+        (playlistFilter === 'uncategorized' && !hasPlaylists));
+      
+      return matchesSearch && matchesType && matchesPlaylist;
+    })
+    // Sort based on selected option
+    .sort((a, b) => {
+      switch (sortOption) {
+        case 'newest':
+          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+        case 'oldest':
+          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+        case 'az':
+          return a.title.localeCompare(b.title);
+        case 'za':
+          return b.title.localeCompare(a.title);
+        default:
+          return 0;
+      }
+    });
 
   // Get icon for media type
   const getMediaTypeIcon = (type: string) => {
@@ -280,7 +316,7 @@ export default function MediaManagement() {
         </Button>
       </div>
 
-      <div className="mb-6">
+      <div className="mb-6 space-y-4">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
           <Input
@@ -289,6 +325,69 @@ export default function MediaManagement() {
             onChange={(e) => setSearch(e.target.value)}
             className="pl-10"
           />
+        </div>
+        
+        <div className="text-sm text-muted-foreground">
+          {!isLoading && (
+            <span>
+              Showing {filteredMedia.length} of {mediaItems.length} media items
+              {typeFilter !== 'all' && ` • Filtered by type: ${typeFilter}`}
+              {playlistFilter !== 'all' && ` • Filtered by playlist: ${
+                playlistFilter === 'uncategorized' 
+                  ? 'Uncategorized' 
+                  : playlists?.find(p => p.id.toString() === playlistFilter)?.name || ''
+              }`}
+              {sortOption !== 'newest' && ` • Sorted by: ${
+                sortOption === 'oldest' ? 'Oldest first' : 
+                sortOption === 'az' ? 'A-Z' : 'Z-A'
+              }`}
+            </span>
+          )}
+        </div>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {/* Type Filter */}
+          <Select value={typeFilter} onValueChange={setTypeFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="Filter by type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Types</SelectItem>
+              <SelectItem value="video">Video</SelectItem>
+              <SelectItem value="document">Document</SelectItem>
+              <SelectItem value="image">Image</SelectItem>
+              <SelectItem value="presentation">Presentation</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {/* Playlist Filter */}
+          <Select value={playlistFilter} onValueChange={setPlaylistFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="Filter by playlist" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Playlists</SelectItem>
+              <SelectItem value="uncategorized">Uncategorized</SelectItem>
+              {playlists?.map((playlist) => (
+                <SelectItem key={playlist.id} value={playlist.id.toString()}>
+                  {playlist.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* Sort Options */}
+          <Select value={sortOption} onValueChange={setSortOption}>
+            <SelectTrigger>
+              <SelectValue placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="newest">Newest First</SelectItem>
+              <SelectItem value="oldest">Oldest First</SelectItem>
+              <SelectItem value="az">A-Z</SelectItem>
+              <SelectItem value="za">Z-A</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
@@ -328,8 +427,8 @@ export default function MediaManagement() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      {(item as MediaWithPlaylists).playlists && (item as MediaWithPlaylists).playlists.length > 0 
-                        ? (item as MediaWithPlaylists).playlists.map(p => p.playlistName).join(', ') 
+                      {((item as MediaWithPlaylists).playlists?.length ?? 0) > 0
+                        ? (item as MediaWithPlaylists).playlists?.map(p => p.playlistName).join(', ')
                         : 'Uncategorized'}
                     </TableCell>
                     <TableCell>
