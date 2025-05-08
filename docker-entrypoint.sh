@@ -174,7 +174,25 @@ else
   echo "WARNING: Some playlist tables could not be verified. Attempting manual creation..."
   
   # Create the tables directly as a fallback
-  echo "Creating missing tables directly with SQL..."
+  echo "⚠️ WARNING: Direct table creation fallback being executed..."
+  # First try to do a basic check for any lock issues
+  echo "Checking for connection or lock issues..."
+  PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -c 'SELECT 1 as connection_test' || { 
+    echo "ERROR: Cannot execute basic SQL command. Database might be unavailable."
+    exit 1
+  }
+  
+  # Try to terminate any conflicting connections
+  echo "Attempting to terminate any conflicting sessions..."
+  PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE <<EOL
+  SELECT pg_terminate_backend(pid) 
+  FROM pg_stat_activity 
+  WHERE pid <> pg_backend_pid() 
+  AND datname = '$PGDATABASE'
+  AND state = 'idle in transaction';
+EOL
+  
+  echo "Creating missing tables directly with SQL (strict mode)..."
   PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE <<EOF
   -- Create playlists table if it doesn't exist
   CREATE TABLE IF NOT EXISTS playlists (
@@ -256,7 +274,16 @@ SESSION_TABLE_EXISTS=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGU
 SESSION_TABLE_EXISTS=$(echo "$SESSION_TABLE_EXISTS" | xargs)
 
 if [ "$SESSION_TABLE_EXISTS" = "t" ]; then
-  echo "Session table already exists, skipping creation."
+  echo "Session table already exists, verifying session table structure..."
+  
+  # Check if session table has expire column index
+  SESSION_INDEX_EXISTS=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT EXISTS (SELECT 1 FROM pg_indexes WHERE indexname = 'idx_session_expire')")
+  SESSION_INDEX_EXISTS=$(echo "$SESSION_INDEX_EXISTS" | xargs)
+  
+  if [ "$SESSION_INDEX_EXISTS" = "f" ]; then
+    echo "Session table exists but index is missing. Creating index..."
+    PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -c "CREATE INDEX IF NOT EXISTS \"IDX_session_expire\" ON \"session\" (\"expire\");"
+  fi
 else
   echo "Creating session table..."
   PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE <<EOF
@@ -269,6 +296,26 @@ CREATE TABLE IF NOT EXISTS "session" (
 CREATE INDEX IF NOT EXISTS "IDX_session_expire" ON "session" ("expire");
 EOF
   echo "Session table created successfully!"
+fi
+
+# Verify the session table exists after our creation attempt
+SESSION_TABLE_EXISTS=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'session')")
+SESSION_TABLE_EXISTS=$(echo "$SESSION_TABLE_EXISTS" | xargs)
+
+if [ "$SESSION_TABLE_EXISTS" = "f" ]; then
+  echo "⚠️ WARNING: Session table doesn't exist even after creation attempt."
+  echo "Trying one more direct approach..."
+  
+  # One more attempt with a simpler command
+  PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -c '
+  CREATE TABLE IF NOT EXISTS "session" (
+    "sid" varchar NOT NULL,
+    "sess" json NOT NULL,
+    "expire" timestamp(6) NOT NULL,
+    PRIMARY KEY ("sid")
+  );
+  CREATE INDEX IF NOT EXISTS "IDX_session_expire" ON "session" ("expire");
+  '
 fi
 
 # Make sure express-session won't try to drop the table by setting session_table_noexists
