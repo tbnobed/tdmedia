@@ -132,11 +132,12 @@ sleep 3
 # Function to verify table existence with retry
 verify_table_exists() {
   local table_name=$1
-  local max_attempts=3
+  local max_attempts=${DB_INIT_RETRY_COUNT:-3}
+  local sleep_time=${DB_INIT_RETRY_DELAY:-2}
   local attempt=1
   local exists="f"
   
-  echo "Verifying ${table_name} table exists..."
+  echo "Verifying ${table_name} table exists (max attempts: $max_attempts, retry delay: ${sleep_time}s)..."
   
   while [ $attempt -le $max_attempts ] && [ "$exists" != "t" ]; do
     exists=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = '${table_name}')")
@@ -146,8 +147,8 @@ verify_table_exists() {
       echo "${table_name} table exists. Verification successful."
       return 0
     else
-      echo "Attempt $attempt: ${table_name} table not found, retrying in 2 seconds..."
-      sleep 2
+      echo "Attempt $attempt of $max_attempts: ${table_name} table not found, retrying in ${sleep_time} seconds..."
+      sleep $sleep_time
       attempt=$((attempt+1))
     fi
   done

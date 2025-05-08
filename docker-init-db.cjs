@@ -17,7 +17,13 @@ function log(message) {
 }
 
 try {
+  // Read environment variables for configuration
+  const DB_INIT_RETRY_COUNT = parseInt(process.env.DB_INIT_RETRY_COUNT || '5', 10);
+  const DB_INIT_RETRY_DELAY = parseInt(process.env.DB_INIT_RETRY_DELAY || '3', 10);
+  const FORCE_DIRECT_TABLE_CREATION = process.env.FORCE_DIRECT_TABLE_CREATION === 'true';
+  
   log('Starting database initialization...');
+  log(`Configuration: Retry count=${DB_INIT_RETRY_COUNT}, Retry delay=${DB_INIT_RETRY_DELAY}s, Force direct creation=${FORCE_DIRECT_TABLE_CREATION}`);
   
   // Ensure the drizzle directory exists
   const drizzleDir = path.join(process.cwd(), '.drizzle');
@@ -30,13 +36,17 @@ try {
   // This is our most reliable method, executed early in the process
   log('IMPORTANT: Executing direct SQL table creation as first step...');
   
-  // Direct SQL approach - import necessary modules
-  const { Pool } = require('pg');
-    
-  // Create a PostgreSQL connection pool
-  const directPool = new Pool({
-    connectionString: process.env.DATABASE_URL
-  });
+  // Skip direct creation if explicitly disabled
+  if (!FORCE_DIRECT_TABLE_CREATION) {
+    log('Direct SQL table creation step SKIPPED (disabled by environment variable)');
+  } else {
+    // Direct SQL approach - import necessary modules
+    const { Pool } = require('pg');
+      
+    // Create a PostgreSQL connection pool
+    const directPool = new Pool({
+      connectionString: process.env.DATABASE_URL
+    });
   
   try {
     // Create tables directly with SQL first
@@ -82,6 +92,7 @@ try {
     log('Will continue with Drizzle migration...');
   } finally {
     directPool.end();
+  }
   }
   
   // Run drizzle-kit to generate SQL for schema
@@ -272,11 +283,12 @@ try {
       log('Tables created successfully via direct SQL');
       
       // Function to verify table with retries
-      async function verifyTableWithRetry(tableName, maxAttempts = 3) {
+      async function verifyTableWithRetry(tableName, maxAttempts = process.env.DB_INIT_RETRY_COUNT || 5) {
         let attempt = 1;
         let tableExists = false;
+        const retryDelay = process.env.DB_INIT_RETRY_DELAY || 3;
         
-        log(`Verifying ${tableName} table with retry logic (max attempts: ${maxAttempts})...`);
+        log(`Verifying ${tableName} table with retry logic (max attempts: ${maxAttempts}, delay: ${retryDelay}s)...`);
         
         while (attempt <= maxAttempts && !tableExists) {
           try {
@@ -287,15 +299,15 @@ try {
               log(`✓ Verified: ${tableName} table exists (attempt ${attempt})`);
               return true;
             } else {
-              log(`✗ Attempt ${attempt}: ${tableName} table does not exist. Waiting 2 seconds...`);
-              // Sleep for 2 seconds
-              await new Promise(resolve => setTimeout(resolve, 2000));
+              log(`✗ Attempt ${attempt} of ${maxAttempts}: ${tableName} table does not exist. Waiting ${retryDelay} seconds...`);
+              // Sleep for the configured delay
+              await new Promise(resolve => setTimeout(resolve, retryDelay * 1000));
               attempt++;
             }
           } catch (error) {
-            log(`Error checking ${tableName} table (attempt ${attempt}): ${error.message}`);
+            log(`Error checking ${tableName} table (attempt ${attempt} of ${maxAttempts}): ${error.message}`);
             // Sleep and retry
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            await new Promise(resolve => setTimeout(resolve, retryDelay * 1000));
             attempt++;
           }
         }
