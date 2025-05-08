@@ -53,6 +53,7 @@ export default function PlaylistManagement() {
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedPlaylist, setSelectedPlaylist] = useState<Playlist | null>(null);
+  const [sortOption, setSortOption] = useState<string>("nameAsc");
 
   // Fetch all playlists
   const { data: playlists, isLoading } = useQuery<Playlist[]>({
@@ -198,9 +199,25 @@ export default function PlaylistManagement() {
     <div className="space-y-4">
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-3xl font-bold tracking-tight">Playlists</h2>
-        <Button onClick={() => setAddDialogOpen(true)}>
-          <Plus className="mr-2 h-4 w-4" /> Add Playlist
-        </Button>
+        <div className="flex items-center gap-2">
+          <Select
+            value={sortOption}
+            onValueChange={setSortOption}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Sort by..." />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="nameAsc">Name (A-Z)</SelectItem>
+              <SelectItem value="nameDesc">Name (Z-A)</SelectItem>
+              <SelectItem value="newest">Newest First</SelectItem>
+              <SelectItem value="oldest">Oldest First</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button onClick={() => setAddDialogOpen(true)}>
+            <Plus className="mr-2 h-4 w-4" /> Add Playlist
+          </Button>
+        </div>
       </div>
 
       {isLoading ? (
@@ -217,7 +234,23 @@ export default function PlaylistManagement() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {playlists.map((playlist) => (
+            {playlists
+              .slice()
+              .sort((a, b) => {
+                switch (sortOption) {
+                  case "nameAsc":
+                    return a.name.localeCompare(b.name);
+                  case "nameDesc":
+                    return b.name.localeCompare(a.name);
+                  case "newest":
+                    return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+                  case "oldest":
+                    return new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime();
+                  default:
+                    return 0;
+                }
+              })
+              .map((playlist) => (
               <TableRow key={playlist.id}>
                 <TableCell className="font-medium">{playlist.name}</TableCell>
                 <TableCell>{playlist.description || "No description"}</TableCell>
