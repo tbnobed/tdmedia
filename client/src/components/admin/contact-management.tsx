@@ -22,15 +22,31 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Mail, CheckCircle, MessageSquare, User, Building, Calendar } from "lucide-react";
+import { Loader2, Mail, CheckCircle, MessageSquare, User, Building, Calendar, Filter, RefreshCw, SortAsc, SortDesc } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 export default function ContactManagement() {
   const { toast } = useToast();
   const [viewDialogOpen, setViewDialogOpen] = useState(false);
   const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [sortOption, setSortOption] = useState<string>("newest");
 
   // Fetch all contacts
-  const { data: contacts, isLoading } = useQuery<Contact[]>({
+  const { data: contacts, isLoading, refetch } = useQuery<Contact[]>({
     queryKey: ["/api/contacts"],
   });
 
@@ -68,22 +84,106 @@ export default function ContactManagement() {
   };
 
   // Format date
-  const formatDate = (dateString: string) => {
+  const formatDate = (dateString: string | Date) => {
     try {
-      return format(new Date(dateString), "MMM d, yyyy h:mm a");
+      const date = typeof dateString === 'string' ? new Date(dateString) : dateString;
+      return format(date, "MMM d, yyyy h:mm a");
     } catch (error) {
-      return dateString;
+      return String(dateString);
     }
   };
 
+  // Filter contacts by status
+  const filteredContacts = contacts?.filter(contact => {
+    if (statusFilter === "all") return true;
+    if (statusFilter === "read") return contact.isRead;
+    if (statusFilter === "unread") return !contact.isRead;
+    return true;
+  }) || [];
+
+  // Sort contacts based on selected option
+  const sortedContacts = [...filteredContacts].sort((a, b) => {
+    switch (sortOption) {
+      case "newest":
+        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+      case "oldest":
+        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      case "nameAsc":
+        return a.name.localeCompare(b.name);
+      case "nameDesc":
+        return b.name.localeCompare(a.name);
+      default:
+        return 0;
+    }
+  });
+
   return (
     <div>
-      <div className="mb-6">
-        <h2 className="text-xl font-bold">Contact Inquiries</h2>
-        <p className="text-sm text-gray-500 mt-1">
-          Manage and respond to client inquiries about content.
-        </p>
-      </div>
+      <Card className="mb-6">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="flex items-center gap-2">
+                <CardTitle>Contact Inquiries</CardTitle>
+                {contacts && contacts.length > 0 && (
+                  <Badge variant="secondary" className="ml-2">
+                    {sortedContacts.length} of {contacts.length}
+                  </Badge>
+                )}
+              </div>
+              <CardDescription>
+                Manage and respond to client inquiries about content.
+              </CardDescription>
+            </div>
+            <div className="flex items-center gap-2">
+              <Select
+                value={statusFilter}
+                onValueChange={setStatusFilter}
+              >
+                <SelectTrigger className="w-[160px]">
+                  <Filter className="h-4 w-4 mr-1" />
+                  <SelectValue placeholder="Filter by..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Inquiries</SelectItem>
+                  <SelectItem value="unread">Unread Only</SelectItem>
+                  <SelectItem value="read">Read Only</SelectItem>
+                </SelectContent>
+              </Select>
+              <Select
+                value={sortOption}
+                onValueChange={setSortOption}
+              >
+                <SelectTrigger className="w-[160px]">
+                  <SortAsc className="h-4 w-4 mr-1" />
+                  <SelectValue placeholder="Sort by..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="newest">Newest First</SelectItem>
+                  <SelectItem value="oldest">Oldest First</SelectItem>
+                  <SelectItem value="nameAsc">Name (A-Z)</SelectItem>
+                  <SelectItem value="nameDesc">Name (Z-A)</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => refetch()}
+                title="Refresh"
+              >
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {filteredContacts.length === 0 && !isLoading && (
+            <div className="py-4 text-center text-muted-foreground">
+              No inquiries match your filter criteria.
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {isLoading ? (
         <div className="flex justify-center items-center py-12">
@@ -102,8 +202,8 @@ export default function ContactManagement() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {contacts && contacts.length > 0 ? (
-                contacts.map((contact) => (
+              {sortedContacts.length > 0 ? (
+                sortedContacts.map((contact) => (
                   <TableRow key={contact.id} className={contact.isRead ? "" : "bg-blue-50"}>
                     <TableCell>
                       <Badge variant={contact.isRead ? "outline" : "default"}>
