@@ -198,6 +198,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const playlistIdParam = req.query.playlist as string | undefined;
       const sort = req.query.sort as string | undefined;
       
+      console.log("GET /api/media params:", { search, playlistIdParam, sort, user: req.user?.id, isAdmin: req.user?.isAdmin });
+      
       const playlistId = playlistIdParam ? parseInt(playlistIdParam) : undefined;
       
       // Only pass the userId for non-admin users to filter content
@@ -205,8 +207,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user!.isAdmin ? undefined : req.user!.id;
       console.log(`Fetching media for user ${req.user!.id}, isAdmin: ${req.user!.isAdmin}, filtering by userId: ${userId || 'none (admin view)'}`);
       
-      const mediaItems = await storage.getMedia({ search, playlistId, sort, userId });
-      res.json(mediaItems);
+      try {
+        const mediaItems = await storage.getMedia({ search, playlistId, sort, userId });
+        console.log(`Successfully fetched ${mediaItems.length} media items`);
+        res.json(mediaItems);
+      } catch (queryError) {
+        console.error("Database error fetching media:", queryError);
+        if (queryError instanceof Error) {
+          console.error("Error details:", queryError.message, queryError.stack);
+        }
+        throw queryError;
+      }
     } catch (error) {
       console.error("Error fetching media:", error);
       res.status(500).json({ message: "Failed to fetch media" });
