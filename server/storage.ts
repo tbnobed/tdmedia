@@ -311,14 +311,27 @@ export class DatabaseStorage implements IStorage {
       
       if (filters.playlistId && filters.playlistId > 0) {
         // Use raw SQL to avoid column naming inconsistencies
-        const results = await executeRawSQL(`
+        // Create query and parameters separately to handle conditional parameters correctly
+        let query = `
           SELECT m.* FROM media m
           INNER JOIN media_playlists mp ON m.id = mp.media_id
           WHERE mp.playlist_id = $1
-          ${filters.search ? "AND m.title LIKE $2" : ""}
-          ORDER BY m.created_at DESC
-        `, [filters.playlistId, filters.search ? `%${filters.search}%` : undefined]);
+        `;
         
+        const params = [filters.playlistId];
+        
+        // Add search condition if provided
+        if (filters.search) {
+          query += ` AND m.title LIKE $${params.length + 1}`;
+          params.push(`%${filters.search}%`);
+        }
+        
+        // Add sorting
+        query += ` ORDER BY m.created_at DESC`;
+        
+        console.log("Executing SQL query with params:", query, params);
+        
+        const results = await executeRawSQL(query, params);
         return results.rows;
       }
       
