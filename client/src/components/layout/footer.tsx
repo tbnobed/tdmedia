@@ -7,7 +7,7 @@ export default function Footer() {
         <div className="md:flex md:items-center md:justify-between">
           <div className="flex flex-col items-center md:items-start mb-4 md:mb-0">
             <div className="flex items-center gap-2 mb-3">
-              <img src="/images/tbn-logo.png" alt="TBN Logo" className="h-8" />
+              <img src="/images/tbn-logo-white.png" alt="TBN Logo" className="h-8" />
             </div>
             <div className="flex justify-center md:justify-start space-x-6">
               <Link href="/terms" className="text-gray-300 hover:text-white transition-colors">

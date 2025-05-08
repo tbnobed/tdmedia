@@ -33,7 +33,7 @@ export default function Header() {
             <div className="flex-shrink-0 flex items-center gap-2">
               <Link href="/">
                 <div className="flex items-center gap-2 cursor-pointer">
-                  <img src="/images/tbn-logo.png" alt="TBN Logo" className="h-8" />
+                  <img src="/images/tbn-logo-white.png" alt="TBN Logo" className="h-8" />
                 </div>
               </Link>
             </div>
