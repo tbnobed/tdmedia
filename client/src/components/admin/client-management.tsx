@@ -97,6 +97,7 @@ export default function ClientManagement() {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [clientToDelete, setClientToDelete] = useState<User | null>(null);
+  const [sortOption, setSortOption] = useState<string>("nameAsc");
   const [onboardingStatus, setOnboardingStatus] = useState<{
     status: 'idle' | 'creating' | 'assigning' | 'emailing' | 'complete' | 'error';
     message: string;
@@ -303,7 +304,21 @@ export default function ClientManagement() {
                 All non-administrator users in the system
               </p>
             </div>
-            <div className="space-x-2">
+            <div className="flex items-center gap-2">
+              <Select
+                value={sortOption}
+                onValueChange={setSortOption}
+              >
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Sort by..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="nameAsc">Name (A-Z)</SelectItem>
+                  <SelectItem value="nameDesc">Name (Z-A)</SelectItem>
+                  <SelectItem value="newest">Newest First</SelectItem>
+                  <SelectItem value="oldest">Oldest First</SelectItem>
+                </SelectContent>
+              </Select>
               <Button
                 variant="outline"
                 size="sm"
@@ -335,7 +350,23 @@ export default function ClientManagement() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {clients.map((client) => (
+                  {clients
+                    .slice()
+                    .sort((a, b) => {
+                      switch (sortOption) {
+                        case "nameAsc":
+                          return a.username.localeCompare(b.username);
+                        case "nameDesc":
+                          return b.username.localeCompare(a.username);
+                        case "newest":
+                          return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+                        case "oldest":
+                          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+                        default:
+                          return 0;
+                      }
+                    })
+                    .map((client) => (
                     <TableRow key={client.id}>
                       <TableCell className="font-medium">
                         {client.username}
