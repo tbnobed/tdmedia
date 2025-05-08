@@ -400,6 +400,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.log("Extracted playlistIds:", playlistIds);
       console.log("Extracted mediaData:", mediaData);
       
+      // Get existing media to preserve thumbnailUrl if not provided
+      const existingMedia = await storage.getMediaById(id);
+      if (!existingMedia) {
+        return res.status(404).json({ message: "Media not found" });
+      }
+      
+      // If thumbnailUrl is empty but exists in the database, keep the existing one
+      if (!mediaData.thumbnailUrl && existingMedia.thumbnailUrl) {
+        console.log("Preserving existing thumbnailUrl:", existingMedia.thumbnailUrl);
+        mediaData.thumbnailUrl = existingMedia.thumbnailUrl;
+      }
+      
       // Validate the media data
       const validatedData = insertMediaSchema.parse(mediaData);
       console.log("Validated media data:", validatedData);
