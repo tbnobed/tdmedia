@@ -25,6 +25,11 @@ if [ -z "$SESSION_SECRET" ]; then
   echo "Warning: Using default SESSION_SECRET. Consider setting it via environment variable."
 fi
 
+# Configure retry settings from environment variables
+DB_INIT_RETRY_COUNT=${DB_INIT_RETRY_COUNT:-5}
+DB_INIT_RETRY_DELAY=${DB_INIT_RETRY_DELAY:-3}
+echo "Using database initialization settings: MAX_RETRIES=$DB_INIT_RETRY_COUNT, RETRY_SLEEP=$DB_INIT_RETRY_DELAY seconds"
+
 # Wait for PostgreSQL to be available
 RETRIES=30
 until pg_isready -h $PGHOST -p $PGPORT -d $PGDATABASE || [ $RETRIES -eq 0 ]; do

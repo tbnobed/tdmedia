@@ -44,6 +44,9 @@ services:
       - PRESERVE_CATEGORIES_TABLE=false  # Whether to keep categories table after migration
       - CREATE_DEFAULT_PLAYLIST=true  # Create default 'Uncategorized' playlist if it doesn't exist
       - PG_SESSION_KEEP_EXISTING=true  # Don't drop the session table
+      - FORCE_DIRECT_TABLE_CREATION=true  # Use direct SQL to create tables for reliability
+      - DB_INIT_RETRY_COUNT=5  # Number of retries for database initialization
+      - DB_INIT_RETRY_DELAY=3  # Delay in seconds between retries
       
       # Email configuration
       - SENDGRID_API_KEY=${SENDGRID_API_KEY:-}
