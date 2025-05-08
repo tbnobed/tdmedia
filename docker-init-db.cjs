@@ -220,6 +220,17 @@ async function alternativeDatabaseInit(pool) {
       updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
     );
     
+    -- Ensure thumbnail_url column exists (required for thumbnail management system)
+    DO $$
+    BEGIN
+      IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'media' AND column_name = 'thumbnail_url'
+      ) THEN
+        ALTER TABLE media ADD COLUMN thumbnail_url TEXT;
+      END IF;
+    END $$;
+    
     -- Create the media_playlists junction table for many-to-many relationship
     CREATE TABLE IF NOT EXISTS media_playlists (
       id SERIAL PRIMARY KEY,

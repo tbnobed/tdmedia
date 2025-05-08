@@ -114,13 +114,20 @@ docker compose up -d
    - Edit an existing media item and modify its playlist assignments
    - Verify that playlist assignments persist correctly after edits
 
-5. Verify client functionality:
+5. Verify thumbnail management functionality:
+   - Upload a new video and observe that a thumbnail is automatically generated
+   - Edit a media item and upload a custom thumbnail - verify the old thumbnail is deleted
+   - View a video in the player and confirm the thumbnail displays as a poster before playback
+   - Check logs for confirmation of thumbnail cleanup during media updates
+   - Delete a media item with a thumbnail and verify the thumbnail file is also deleted
+
+6. Verify client functionality:
    - The "Clients" tab is accessible
    - You can create new clients
    - Media assignment works correctly with the new playlist system
    - Tab navigation is functioning properly
 
-6. Test the email functionality by creating a new client with the "Send Welcome Email" option enabled. Verify that the welcome email contains the correct application domain URL as specified in your APP_DOMAIN environment variable.
+7. Test the email functionality by creating a new client with the "Send Welcome Email" option enabled. Verify that the welcome email contains the correct application domain URL as specified in your APP_DOMAIN environment variable.
 
 ## Rollback Procedure
 
@@ -202,6 +209,14 @@ docker compose up -d
   - Existing media-category relationships will be preserved during the migration
   - Enhanced table verification with automatic recovery handles any migration timing issues
   - Multiple failsafe mechanisms ensure tables are created even if Drizzle migration encounters issues
+
+- **Thumbnail Management System**: This update includes a new thumbnail management system with improved handling:
+  - Automatic cleanup of old thumbnail files when media is updated or deleted
+  - Path validation to ensure only thumbnails for specific media IDs are deleted (improving security)
+  - File existence checks to prevent errors when handling missing files
+  - Enhanced video player that displays thumbnails as posters before video playback starts
+  - Auto-thumbnail generation for videos with proper cleanup of existing thumbnails
+  - Directory structure is now properly managed by Docker with dedicated volume for thumbnails
 
 - **Environment Variables**: New environment variables have been added to control the migration and database initialization process:
   ```

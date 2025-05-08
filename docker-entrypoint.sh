@@ -344,13 +344,30 @@ echo "Setting up upload directories..."
   # If we couldn't write to /app/uploads, try /tmp as a fallback
   if [ ! -w "/app/uploads" ]; then
     echo "Warning: /app/uploads is not writable. Using /tmp as fallback."
+    # Create directories in /tmp first
+    mkdir -p /tmp/uploads/videos
+    mkdir -p /tmp/uploads/images
+    mkdir -p /tmp/uploads/documents
+    mkdir -p /tmp/uploads/presentations
+    mkdir -p /tmp/uploads/thumbnails
+    
     # Create symbolic links from non-writable locations to writable ones
     ln -sf /tmp/uploads/videos /app/uploads/videos 2>/dev/null || echo "Warning: Could not create symlink for videos"
     ln -sf /tmp/uploads/images /app/uploads/images 2>/dev/null || echo "Warning: Could not create symlink for images"
     ln -sf /tmp/uploads/documents /app/uploads/documents 2>/dev/null || echo "Warning: Could not create symlink for documents"
     ln -sf /tmp/uploads/presentations /app/uploads/presentations 2>/dev/null || echo "Warning: Could not create symlink for presentations"
     ln -sf /tmp/uploads/thumbnails /app/uploads/thumbnails 2>/dev/null || echo "Warning: Could not create symlink for thumbnails"
+    
+    # Set permissions on /tmp/uploads
+    chmod -R 755 /tmp/uploads 2>/dev/null || echo "Warning: Could not set permissions for /tmp/uploads"
   fi
+  
+  # Create .gitkeep files to ensure directories are tracked in git
+  for dir in /app/uploads/videos /app/uploads/images /app/uploads/documents /app/uploads/presentations /app/uploads/thumbnails; do
+    touch $dir/.gitkeep 2>/dev/null || echo "Warning: Could not create .gitkeep in $dir"
+  done
+  
+  echo "Upload directories setup complete"
 } || echo "Warning: Issues with upload directory setup (container restriction)"
 
 # Set file size limit for the container
