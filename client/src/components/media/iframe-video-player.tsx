@@ -16,6 +16,7 @@ interface StreamInfo {
   streamUrl: string;
   mediaType: string;
   title: string;
+  thumbnailUrl?: string; // Optional thumbnail URL for video poster
 }
 
 export default function IframeVideoPlayer({
@@ -189,6 +190,7 @@ export default function IframeVideoPlayer({
         controlsList="nodownload nofullscreen"
         playsinline
         disablePictureInPicture
+        ${streamInfo.thumbnailUrl ? `poster="${window.TBN_CONFIG?.apiBaseUrl || ''}${streamInfo.thumbnailUrl}"` : ''}
       >
         Your browser does not support the video tag.
       </video>

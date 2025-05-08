@@ -338,6 +338,8 @@ export default function VideoPlayer({
             muted={muted}
             disableRemotePlayback
             disablePictureInPicture
+            // Use thumbnail as poster image if available
+            poster={streamInfo.thumbnailUrl ? `${window.TRILOGY_CONFIG?.apiBaseUrl || ''}${streamInfo.thumbnailUrl}` : undefined}
             // Set all possible fullscreen attributes to false for client users
             {...(disableFullscreen ? { 
               allowFullScreen: false
