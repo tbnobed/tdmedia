@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Media, Playlist, User } from "@shared/schema";
+
+// Define an extended Media type that includes the playlists property
+interface MediaWithPlaylists extends Media {
+  playlists?: { id: number; playlistName: string }[];
+}
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import VideoPlayer from "@/components/media/video-player";
@@ -58,32 +63,52 @@ export default function MediaManagement() {
   // Fetch all media
   const { data: media, isLoading } = useQuery<Media[]>({
     queryKey: ["/api/media"],
+    queryFn: getQueryFn({ on401: "throw" })
+  });
+  
+  // Fetch playlists for each media
+  const { data: enhancedMedia } = useQuery<MediaWithPlaylists[]>({
+    queryKey: ["/api/media-with-playlists"],
+    enabled: !!media && media.length > 0,
     queryFn: async () => {
-      const mediaData = await getQueryFn()("/api/media");
-      console.log("Fetched media data:", mediaData);
+      if (!media) return [];
       
-      // For each media item, fetch its associated playlists
-      const enhancedMediaData = await Promise.all(mediaData.map(async (item: any) => {
-        try {
-          const playlistsData = await getQueryFn()(`/api/media/${item.id}/playlists`);
-          console.log(`Fetched playlists for media ${item.id}:`, playlistsData);
-          
-          // Add playlist data to the media item
-          return {
-            ...item,
-            playlists: playlistsData.map((p: any) => ({
-              id: p.playlistId,
-              playlistName: p.playlistName
-            }))
-          };
-        } catch (error) {
-          console.error(`Failed to fetch playlists for media ${item.id}:`, error);
-          return {...item, playlists: []};
-        }
-      }));
-      
-      console.log("Enhanced media data with playlists:", enhancedMediaData);
-      return enhancedMediaData;
+      console.log("Enhancing media data with playlists");
+      try {
+        // For each media item, fetch its associated playlists
+        const enhancedMediaData = await Promise.all(media.map(async (item) => {
+          try {
+            const playlistsResponse = await fetch(`/api/media/${item.id}/playlists`, {
+              credentials: 'include'
+            });
+            
+            if (!playlistsResponse.ok) {
+              throw new Error(`Failed to fetch playlists: ${playlistsResponse.status}`);
+            }
+            
+            const playlistsData = await playlistsResponse.json();
+            console.log(`Fetched playlists for media ${item.id}:`, playlistsData);
+            
+            // Add playlist data to the media item
+            return {
+              ...item,
+              playlists: playlistsData.map((p: any) => ({
+                id: p.playlistId,
+                playlistName: p.playlistName
+              }))
+            };
+          } catch (error) {
+            console.error(`Failed to fetch playlists for media ${item.id}:`, error);
+            return {...item, playlists: []};
+          }
+        }));
+        
+        console.log("Enhanced media data with playlists:", enhancedMediaData);
+        return enhancedMediaData;
+      } catch (error) {
+        console.error("Error enhancing media with playlists:", error);
+        return media.map(item => ({...item, playlists: []}));
+      }
     }
   });
   
@@ -225,7 +250,7 @@ export default function MediaManagement() {
   };
 
   // Filter media by search term
-  const filteredMedia = media?.filter(item => 
+  const filteredMedia = (enhancedMedia as MediaWithPlaylists[] || media as MediaWithPlaylists[])?.filter(item => 
     item.title.toLowerCase().includes(search.toLowerCase()) ||
     (item.description && item.description.toLowerCase().includes(search.toLowerCase()))
   );
@@ -303,8 +328,8 @@ export default function MediaManagement() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      {item.playlists && item.playlists.length > 0 
-                        ? item.playlists.map(p => p.playlistName).join(', ') 
+                      {(item as MediaWithPlaylists).playlists && (item as MediaWithPlaylists).playlists.length > 0 
+                        ? (item as MediaWithPlaylists).playlists.map(p => p.playlistName).join(', ') 
                         : 'Uncategorized'}
                     </TableCell>
                     <TableCell>
