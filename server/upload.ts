@@ -225,6 +225,36 @@ export async function getVideoDuration(filePath: string): Promise<string> {
 // Helper function to generate a thumbnail for a video
 export async function generateThumbnail(videoId: number, videoFilePath: string): Promise<{ success: boolean, thumbnailPath?: string, error?: string }> {
   try {
+    // Check if there are any existing thumbnails for this video ID and delete them
+    try {
+      // Read the thumbnails directory
+      const files = fs.readdirSync(thumbnailsDir);
+      
+      // Filter for files that might be thumbnails for this video
+      const existingThumbnails = files.filter(file => 
+        file.startsWith(`thumbnail-${videoId}-`) || 
+        file.includes(`-${videoId}-`)
+      );
+      
+      // Delete any existing thumbnails for this video
+      if (existingThumbnails.length > 0) {
+        console.log(`Found ${existingThumbnails.length} existing thumbnails for video ${videoId}`);
+        for (const file of existingThumbnails) {
+          try {
+            const fullPath = path.join(thumbnailsDir, file);
+            fs.unlinkSync(fullPath);
+            console.log(`Deleted old thumbnail: ${fullPath}`);
+          } catch (deleteErr) {
+            console.error(`Failed to delete thumbnail ${file}:`, deleteErr);
+            // Continue with other files even if one fails
+          }
+        }
+      }
+    } catch (err) {
+      console.error(`Error checking for existing thumbnails:`, err);
+      // Continue even if this fails
+    }
+    
     // Create a unique filename for the thumbnail
     const thumbnailFilename = `thumbnail-${videoId}-${Date.now()}.jpg`;
     const thumbnailPath = path.join(thumbnailsDir, thumbnailFilename);

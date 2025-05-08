@@ -371,13 +371,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
                     oldThumbnailPath = './' + oldThumbnailPath;
                   }
                   
-                  // Check if the file exists before attempting to delete
-                  if (fs.existsSync(oldThumbnailPath)) {
-                    console.log(`Deleting old thumbnail file: ${oldThumbnailPath}`);
-                    fs.unlinkSync(oldThumbnailPath);
-                    console.log(`Successfully deleted old thumbnail file`);
+                  // Validate that this is actually a thumbnail for this specific media
+                  // Use a more strict check to ensure we only delete the thumbnail associated with this mediaId
+                  if (oldThumbnailPath.includes(`thumbnail-${mediaId}`) || 
+                      (oldThumbnailPath.includes(`/thumbnails/`) && oldThumbnailPath.includes(`-${mediaId}-`))) {
+                    
+                    // Check if the file exists before attempting to delete
+                    if (fs.existsSync(oldThumbnailPath)) {
+                      console.log(`Deleting old thumbnail file: ${oldThumbnailPath}`);
+                      fs.unlinkSync(oldThumbnailPath);
+                      console.log(`Successfully deleted old thumbnail file`);
+                    } else {
+                      console.log(`Old thumbnail file not found: ${oldThumbnailPath}`);
+                    }
                   } else {
-                    console.log(`Old thumbnail file not found: ${oldThumbnailPath}`);
+                    console.log(`Skipping deletion - path does not appear to be a valid thumbnail for media ${mediaId}: ${oldThumbnailPath}`);
                   }
                 } catch (deleteErr) {
                   console.error(`Error deleting old thumbnail file: ${deleteErr}`);
@@ -627,13 +635,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
             thumbnailPath = './' + thumbnailPath;
           }
           
-          // Check if the file exists before attempting to delete
-          if (fs.existsSync(thumbnailPath)) {
-            console.log(`Deleting thumbnail file: ${thumbnailPath}`);
-            fs.unlinkSync(thumbnailPath);
-            console.log(`Successfully deleted thumbnail file`);
+          // Validate that this is actually a thumbnail for this specific media
+          // Use a more strict check to ensure we only delete the thumbnail associated with this mediaId
+          if (thumbnailPath.includes(`thumbnail-${id}`) || 
+              (thumbnailPath.includes(`/thumbnails/`) && thumbnailPath.includes(`-${id}-`))) {
+            
+            // Check if the file exists before attempting to delete
+            if (fs.existsSync(thumbnailPath)) {
+              console.log(`Deleting thumbnail file: ${thumbnailPath}`);
+              fs.unlinkSync(thumbnailPath);
+              console.log(`Successfully deleted thumbnail file`);
+            } else {
+              console.log(`Thumbnail file not found: ${thumbnailPath}`);
+            }
           } else {
-            console.log(`Thumbnail file not found: ${thumbnailPath}`);
+            console.log(`Skipping deletion - path does not appear to be a valid thumbnail for media ${id}: ${thumbnailPath}`);
           }
         } catch (deleteErr) {
           console.error(`Error deleting thumbnail file: ${deleteErr}`);
