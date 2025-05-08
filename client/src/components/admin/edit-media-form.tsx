@@ -387,6 +387,17 @@ export default function EditMediaForm({ media, onComplete }: EditMediaFormProps)
     console.log("Submitting media update with values:", values);
     console.log("Playlist IDs being sent:", values.playlistIds);
     
+    // If the thumbnailUrl is empty but we have an uploaded thumbnail, use that instead
+    if (!values.thumbnailUrl && uploadedThumbnail?.thumbnailUrl) {
+      values.thumbnailUrl = uploadedThumbnail.thumbnailUrl;
+    }
+    
+    // If thumbnailUrl is still empty but media has one, preserve the original
+    if (!values.thumbnailUrl && media.thumbnailUrl) {
+      values.thumbnailUrl = media.thumbnailUrl;
+    }
+    
+    console.log("Final submission values with thumbnailUrl:", values);
     updateMediaMutation.mutate(values);
   };
   

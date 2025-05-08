@@ -356,6 +356,13 @@ export default function AddMediaForm({ onComplete }: AddMediaFormProps) {
   const onSubmit = (values: MediaFormValues) => {
     // Debug log to see what's being submitted
     console.log("Submitting media to database:", values);
+    
+    // If the thumbnailUrl is empty but we have an uploaded thumbnail, use that instead
+    if (!values.thumbnailUrl && uploadedThumbnail?.thumbnailUrl) {
+      values.thumbnailUrl = uploadedThumbnail.thumbnailUrl;
+    }
+    
+    console.log("Final submission values with thumbnailUrl:", values);
     createMediaMutation.mutate(values);
   };
   
