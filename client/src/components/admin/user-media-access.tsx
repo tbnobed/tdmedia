@@ -32,7 +32,7 @@ import {
   DialogFooter,
   DialogClose
 } from "@/components/ui/dialog";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, UseMutationResult } from "@tanstack/react-query";
 import { getQueryFn, apiRequest, queryClient } from "@/lib/queryClient";
 import { 
   Loader2, 
@@ -365,7 +365,57 @@ export default function UserMediaAccess() {
           </DialogHeader>
 
           <div className="py-6">
-            <label className="text-sm font-medium">Select Media</label>
+            <div className="flex justify-between mb-2">
+              <label className="text-sm font-medium">Select Media</label>
+              {unassignedMedia.length > 0 && (
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="h-7 text-xs"
+                  onClick={() => {
+                    if (window.confirm(`Assign all ${unassignedMedia.length} unassigned media items to this user?`)) {
+                      // Create a sequential batch of assignments
+                      const assignAll = async () => {
+                        let errorCount = 0;
+                        let successCount = 0;
+                        
+                        // Show initial toast for the process starting
+                        toast({
+                          title: "Assigning all media",
+                          description: `Starting to assign ${unassignedMedia.length} media items...`,
+                        });
+                        
+                        for (const media of unassignedMedia) {
+                          try {
+                            await assignMediaMutation.mutateAsync({
+                              mediaId: media.id,
+                              userId: selectedUser!
+                            });
+                            successCount++;
+                          } catch (error) {
+                            errorCount++;
+                          }
+                        }
+                        
+                        // Show final status toast
+                        toast({
+                          title: "Bulk assignment complete",
+                          description: `Successfully assigned ${successCount} media items${errorCount > 0 ? `, ${errorCount} failed` : ''}`,
+                          variant: errorCount > 0 ? "destructive" : "default",
+                        });
+                        
+                        // Close the dialog
+                        setShowAssignDialog(false);
+                      };
+                      
+                      assignAll();
+                    }
+                  }}
+                >
+                  Assign All ({unassignedMedia.length})
+                </Button>
+              )}
+            </div>
             <Select
               value={selectedMedia?.toString() || ""}
               onValueChange={handleMediaChange}

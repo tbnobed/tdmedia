@@ -528,7 +528,22 @@ export default function ClientManagement() {
                             <Table>
                               <TableHeader>
                                 <TableRow>
-                                  <TableHead className="w-[50px]">Select</TableHead>
+                                  <TableHead className="w-[50px]">
+                                    <div className="flex items-center space-x-2">
+                                      <Checkbox
+                                        id="select-all-media"
+                                        checked={allMedia && form.getValues("assignMedia")?.length === allMedia.length}
+                                        onCheckedChange={(checked) => {
+                                          if (checked) {
+                                            form.setValue("assignMedia", allMedia?.map(media => media.id) || []);
+                                          } else {
+                                            form.setValue("assignMedia", []);
+                                          }
+                                        }}
+                                      />
+                                      <label htmlFor="select-all-media" className="text-xs font-normal">All</label>
+                                    </div>
+                                  </TableHead>
                                   <TableHead>Title</TableHead>
                                   <TableHead>Type</TableHead>
                                 </TableRow>
