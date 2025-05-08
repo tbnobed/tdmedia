@@ -86,18 +86,23 @@ async function setupUsers() {
       log('Client user already exists');
     }
     
-    // Create a default category if none exist
-    const categoryResult = await pool.query('SELECT id FROM categories');
-    
-    if (categoryResult.rows.length === 0) {
-      log('Creating default category');
+    // Create a default playlist if none exist
+    try {
+      const playlistResult = await pool.query('SELECT id FROM playlists');
       
-      await pool.query(
-        'INSERT INTO categories (name, description) VALUES ($1, $2)',
-        ['Uncategorized', 'Default category for uncategorized media']
-      );
-      
-      log('Default category created successfully');
+      if (playlistResult.rows.length === 0) {
+        log('Creating default playlist');
+        
+        await pool.query(
+          'INSERT INTO playlists (name, description) VALUES ($1, $2)',
+          ['Uncategorized', 'Default playlist for uncategorized media']
+        );
+        
+        log('Default playlist created successfully');
+      }
+    } catch (playlistError) {
+      // Gracefully handle if playlists table doesn't yet exist
+      log(`Note: Playlist check skipped - ${playlistError.message}`);
     }
     
     log('User setup completed successfully');
