@@ -95,13 +95,22 @@ export default function EditMediaForm({ media, onComplete }: EditMediaFormProps)
       title: media.title,
       description: media.description || "",
       type: media.type,
-      playlistIds: existingPlaylistIds, // Use the existing playlist associations
+      playlistIds: [], // Will be updated in useEffect
       fileUrl: media.fileUrl,
       thumbnailUrl: media.thumbnailUrl || "",
       duration: media.duration || "",
       size: media.size || "",
     },
   });
+  
+  // Update playlistIds when mediaPlaylists data changes
+  useEffect(() => {
+    if (!isLoadingPlaylists && mediaPlaylists.length > 0) {
+      const playlistIds = mediaPlaylists.map(mp => mp.playlistId);
+      console.log("Setting playlist IDs in form:", playlistIds);
+      form.setValue('playlistIds', playlistIds);
+    }
+  }, [mediaPlaylists, isLoadingPlaylists, form]);
   
   // Update media mutation
   const updateMediaMutation = useMutation({
@@ -267,19 +276,7 @@ export default function EditMediaForm({ media, onComplete }: EditMediaFormProps)
     updateMediaMutation.mutate(values);
   };
   
-  // Update form values when media or mediaPlaylists changes
-  useEffect(() => {
-    form.reset({
-      title: media.title,
-      description: media.description || "",
-      type: media.type,
-      playlistIds: existingPlaylistIds,
-      fileUrl: media.fileUrl,
-      thumbnailUrl: media.thumbnailUrl || "",
-      duration: media.duration || "",
-      size: media.size || "",
-    });
-  }, [media, form, existingPlaylistIds]);
+  // No duplicate useEffect needed as we already have one that sets playlistIds
   
   return (
     <Form {...form}>
