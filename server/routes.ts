@@ -360,6 +360,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
             const mediaItem = await storage.getMediaById(mediaId);
             
             if (mediaItem) {
+              // Check if the media already has a thumbnail, and delete the old file if it exists
+              if (mediaItem.thumbnailUrl) {
+                try {
+                  // Convert URL to filesystem path
+                  let oldThumbnailPath = mediaItem.thumbnailUrl;
+                  if (oldThumbnailPath.startsWith('/')) {
+                    oldThumbnailPath = '.' + oldThumbnailPath;
+                  } else if (!oldThumbnailPath.startsWith('./')) {
+                    oldThumbnailPath = './' + oldThumbnailPath;
+                  }
+                  
+                  // Check if the file exists before attempting to delete
+                  if (fs.existsSync(oldThumbnailPath)) {
+                    console.log(`Deleting old thumbnail file: ${oldThumbnailPath}`);
+                    fs.unlinkSync(oldThumbnailPath);
+                    console.log(`Successfully deleted old thumbnail file`);
+                  } else {
+                    console.log(`Old thumbnail file not found: ${oldThumbnailPath}`);
+                  }
+                } catch (deleteErr) {
+                  console.error(`Error deleting old thumbnail file: ${deleteErr}`);
+                  // Continue even if deleting the old file fails
+                }
+              }
+              
               // Update the media record with the new thumbnail URL - make sure to use the correct path
               const updatedMedia = await storage.updateMedia(mediaId, {
                 ...mediaItem,
@@ -564,6 +589,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const id = parseInt(req.params.id);
       console.log("Deleting media with ID:", id);
 
+      // Get the media information before deletion to access file paths
+      const mediaItem = await storage.getMediaById(id);
+      if (!mediaItem) {
+        return res.status(404).json({ message: "Media not found" });
+      }
+
       // First delete any media access entries related to this media
       try {
         await storage.removeAllMediaAccess(id);
@@ -583,6 +614,31 @@ export async function registerRoutes(app: Express): Promise<Server> {
       } catch (playlistError) {
         console.error("Error removing playlist associations during deletion:", playlistError);
         // Continue with deletion even if this fails
+      }
+
+      // Delete the thumbnail file if it exists
+      if (mediaItem.thumbnailUrl) {
+        try {
+          // Convert URL to filesystem path
+          let thumbnailPath = mediaItem.thumbnailUrl;
+          if (thumbnailPath.startsWith('/')) {
+            thumbnailPath = '.' + thumbnailPath;
+          } else if (!thumbnailPath.startsWith('./')) {
+            thumbnailPath = './' + thumbnailPath;
+          }
+          
+          // Check if the file exists before attempting to delete
+          if (fs.existsSync(thumbnailPath)) {
+            console.log(`Deleting thumbnail file: ${thumbnailPath}`);
+            fs.unlinkSync(thumbnailPath);
+            console.log(`Successfully deleted thumbnail file`);
+          } else {
+            console.log(`Thumbnail file not found: ${thumbnailPath}`);
+          }
+        } catch (deleteErr) {
+          console.error(`Error deleting thumbnail file: ${deleteErr}`);
+          // Continue with deletion even if deleting the thumbnail fails
+        }
       }
 
       // Now delete the media itself
