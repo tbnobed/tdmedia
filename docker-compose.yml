@@ -37,13 +37,19 @@ services:
       # Database client configuration
       - USE_NEON_CLIENT=false  # Force using standard pg client instead of Neon
       - DRIZZLE_SKIP_TABLE_SESSION=true  # Prevent Drizzle from dropping the session table
+      - DRIZZLE_ALWAYS_MIGRATE=true  # Always run migrations on startup
+      
+      # Database schema migration settings
+      - ENABLE_PLAYLIST_MIGRATION=true  # Enable migration from categories to playlists
+      - PRESERVE_CATEGORIES_TABLE=false  # Whether to keep categories table after migration
+      - CREATE_DEFAULT_PLAYLIST=true  # Create default 'Uncategorized' playlist if it doesn't exist
+      - PG_SESSION_KEEP_EXISTING=true  # Don't drop the session table
       
       # Email configuration
       - SENDGRID_API_KEY=${SENDGRID_API_KEY:-}
       - SENDGRID_FROM_EMAIL=${SENDGRID_FROM_EMAIL:-alerts@obedtv.com}
       - CONTACT_NOTIFICATION_EMAIL=${CONTACT_NOTIFICATION_EMAIL:-support@trilogydigitalmedia.com}
       - APP_DOMAIN=${APP_DOMAIN:-tdev.obdtv.com}
-      - PG_SESSION_KEEP_EXISTING=true
       
       # Large file upload configuration
       - NODE_MAX_HTTP_HEADER_SIZE=81920

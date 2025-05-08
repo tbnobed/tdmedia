@@ -61,16 +61,13 @@ else
   echo "PostgreSQL is fully ready!"
 fi
 
-# Initialize the database schema only if needed (using a flag file to track status)
-if [ -f "./.db_initialized" ]; then
-  echo "Database schema already initialized, skipping initialization step."
-else
-  echo "Initializing database schema..."
-  chmod +x docker-init-db.cjs
-  
-  # Create the session table first to avoid it being dropped by Drizzle
-  echo "Creating session table before schema initialization..."
-  PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE <<EOF
+# Initialize the database schema
+echo "Initializing database schema..."
+chmod +x docker-init-db.cjs
+
+# Create the session table first to avoid it being dropped by Drizzle
+echo "Creating session table before schema initialization..."
+PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE <<EOF
 CREATE TABLE IF NOT EXISTS "session" (
   "sid" varchar NOT NULL COLLATE "default",
   "sess" json NOT NULL,
@@ -80,18 +77,71 @@ CREATE TABLE IF NOT EXISTS "session" (
 CREATE INDEX IF NOT EXISTS "IDX_session_expire" ON "session" ("expire");
 EOF
 
-  # Set environment variables to protect session table
-  export DRIZZLE_SKIP_TABLE_SESSION=true
-  export PG_SESSION_KEEP_EXISTING=true
+# Check if the playlists table exists
+PLAYLISTS_TABLE_EXISTS=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'playlists')" | grep -q 't'; echo $?)
+
+if [ $PLAYLISTS_TABLE_EXISTS -eq 0 ]; then
+  echo "Playlists table already exists."
+else
+  echo "Playlists table does not exist. Checking for categories table..."
   
-  # Run the initialization script
-  if node docker-init-db.cjs; then
-    echo "Database schema initialized successfully!"
-    # Create a flag file to indicate successful initialization
-    touch ./.db_initialized
+  # Check if the categories table exists (older schema)
+  CATEGORIES_TABLE_EXISTS=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'categories')" | grep -q 't'; echo $?)
+  
+  if [ $CATEGORIES_TABLE_EXISTS -eq 0 ]; then
+    echo "Categories table found. Will migrate to playlist-based schema."
   else
-    echo "Warning: Database initialization encountered issues, but we'll continue startup."
+    echo "Fresh database installation detected."
   fi
+fi
+
+# Check if media_playlists junction table exists
+MEDIA_PLAYLISTS_TABLE_EXISTS=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'media_playlists')" | grep -q 't'; echo $?)
+
+if [ $MEDIA_PLAYLISTS_TABLE_EXISTS -eq 0 ]; then
+  echo "Media-playlists junction table already exists."
+else
+  echo "Media-playlists junction table does not exist. Will be created during schema update."
+fi
+
+# Set environment variables to protect session table
+export DRIZZLE_SKIP_TABLE_SESSION=true
+export PG_SESSION_KEEP_EXISTING=true
+export DRIZZLE_ALWAYS_MIGRATE=true
+
+# Run the initialization script
+echo "Running database schema migration..."
+if node docker-init-db.cjs; then
+  echo "Database schema initialized successfully!"
+else
+  echo "Warning: Database initialization encountered issues, but we'll continue startup."
+fi
+
+# Check if categories table still exists after migration
+CATEGORIES_TABLE_EXISTS=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'categories')" | grep -q 't'; echo $?)
+
+if [ $CATEGORIES_TABLE_EXISTS -eq 0 ]; then
+  echo "Categories table still exists. For clean database structure, you may wish to remove it after confirming successful migration."
+fi
+
+# Verify that playlists table exists after migration
+PLAYLISTS_TABLE_EXISTS=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'playlists')" | grep -q 't'; echo $?)
+
+if [ $PLAYLISTS_TABLE_EXISTS -eq 0 ]; then
+  echo "Playlists table successfully created/migrated."
+else
+  echo "ERROR: Playlists table not found after migration. This is a critical error."
+  # We continue anyway in case this is just a temporary issue
+fi
+
+# Verify that media_playlists junction table exists after migration
+MEDIA_PLAYLISTS_TABLE_EXISTS=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT EXISTS (SELECT FROM information_schema.tables WHERE table_name = 'media_playlists')" | grep -q 't'; echo $?)
+
+if [ $MEDIA_PLAYLISTS_TABLE_EXISTS -eq 0 ]; then
+  echo "Media-playlists junction table successfully created."
+else
+  echo "ERROR: Media-playlists junction table not found after migration. This is a critical error."
+  # We continue anyway in case this is just a temporary issue
 fi
 
 # Setup default users

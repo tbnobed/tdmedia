@@ -35,9 +35,13 @@ RUN mkdir -p /app/uploads/videos && \
 # Copy config.js to the dist directory to ensure it's available in production
 RUN cp -f client/public/config.js dist/public/ || true
 
-# Create the entrypoint script
+# Copy Docker setup scripts
 COPY docker-entrypoint.sh /app/docker-entrypoint.sh
-RUN chmod +x /app/docker-entrypoint.sh
+COPY docker-init-db.cjs /app/docker-init-db.cjs
+COPY docker-setup-users.cjs /app/docker-setup-users.cjs
+
+# Make scripts executable
+RUN chmod +x /app/docker-entrypoint.sh /app/docker-init-db.cjs /app/docker-setup-users.cjs
 
 # Set Node.js memory limits higher for large file operations
 ENV NODE_OPTIONS="--max-old-space-size=4096"

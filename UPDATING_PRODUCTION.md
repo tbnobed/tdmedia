@@ -4,25 +4,31 @@ This document provides instructions for updating the production deployment of Tr
 
 ## Recent Changes
 
-1. **Client Management Enhancements**
+1. **Playlist System Implementation**
+   - Replaced Categories with Playlists for more flexible media organization
+   - Added many-to-many relationship between media and playlists
+   - Automatic migration from old category system to new playlist system
+   - Improved media filtering by playlist
+
+2. **Client Management Enhancements**
    - New client creation flow with direct media assignment
    - Welcome email functionality using SendGrid
    - Improved client listing and management interface
 
-2. **Admin Dashboard Navigation**
+3. **Admin Dashboard Navigation**
    - Improved tab navigation with hash-based URL support
    - Better integration between client management and media access assignment
    - LocalStorage for persistent client selection across tabs
 
-3. **Email Integration**
+4. **Email Integration**
    - SendGrid integration for welcome emails to new clients
    - HTML email templates for professional onboarding
    - Configurable application domain for email URLs via APP_DOMAIN environment variable
 
-4. **Bug Fixes**
-   - Fixed navigation between dashboard tabs
-   - Improved media access verification
-   - Enhanced security checks for media assignment
+5. **Bug Fixes**
+   - Fixed media playlist relationship issues
+   - Corrected inconsistencies in column naming (snake_case vs. camelCase)
+   - Fixed Edit Media form to properly load and update playlist selections
 
 ## Update Steps
 

@@ -97,13 +97,15 @@ try {
     
     // Create necessary tables with SQL directly
     const createTablesSQL = `
-    CREATE TABLE IF NOT EXISTS categories (
+    -- Create playlists table (formerly categories)
+    CREATE TABLE IF NOT EXISTS playlists (
       id SERIAL PRIMARY KEY,
       name TEXT NOT NULL UNIQUE,
       description TEXT,
       created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
     );
     
+    -- Create media type enum if it doesn't exist
     DO $$ 
     BEGIN
       IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'media_type') THEN
@@ -111,12 +113,12 @@ try {
       END IF;
     END $$;
     
+    -- Create media table without category_id (replaced by many-to-many relationship)
     CREATE TABLE IF NOT EXISTS media (
       id SERIAL PRIMARY KEY,
       title TEXT NOT NULL,
       description TEXT,
       type media_type NOT NULL,
-      category_id INTEGER NOT NULL REFERENCES categories(id),
       file_url TEXT NOT NULL,
       thumbnail_url TEXT,
       duration TEXT,
@@ -125,6 +127,19 @@ try {
       updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
     );
     
+    -- Create the media_playlists junction table for many-to-many relationship
+    CREATE TABLE IF NOT EXISTS media_playlists (
+      id SERIAL PRIMARY KEY,
+      media_id INTEGER NOT NULL REFERENCES media(id) ON DELETE CASCADE,
+      playlist_id INTEGER NOT NULL REFERENCES playlists(id) ON DELETE CASCADE,
+      created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+    );
+    
+    -- Create an index on the media_playlists table for faster lookups
+    CREATE INDEX IF NOT EXISTS idx_media_playlists_media_id ON media_playlists(media_id);
+    CREATE INDEX IF NOT EXISTS idx_media_playlists_playlist_id ON media_playlists(playlist_id);
+    
+    -- Create contacts table
     CREATE TABLE IF NOT EXISTS contacts (
       id SERIAL PRIMARY KEY,
       name TEXT NOT NULL,
@@ -136,6 +151,7 @@ try {
       is_read BOOLEAN NOT NULL DEFAULT FALSE
     );
     
+    -- Create users table
     CREATE TABLE IF NOT EXISTS users (
       id SERIAL PRIMARY KEY,
       username TEXT NOT NULL UNIQUE,
@@ -145,13 +161,47 @@ try {
       created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
     );
     
+    -- Create media_access table
     CREATE TABLE IF NOT EXISTS media_access (
       id SERIAL PRIMARY KEY,
-      user_id INTEGER NOT NULL REFERENCES users(id),
-      media_id INTEGER NOT NULL REFERENCES media(id),
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      media_id INTEGER NOT NULL REFERENCES media(id) ON DELETE CASCADE,
       created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
       created_by_id INTEGER NOT NULL REFERENCES users(id)
-    );`;
+    );
+    
+    -- Create indexes for media_access table
+    CREATE INDEX IF NOT EXISTS idx_media_access_user_id ON media_access(user_id);
+    CREATE INDEX IF NOT EXISTS idx_media_access_media_id ON media_access(media_id);
+    
+    -- Migrate data from categories to playlists if needed
+    DO $$
+    BEGIN
+      IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'categories') THEN
+        -- Insert categories into playlists if playlists table is empty
+        IF NOT EXISTS (SELECT 1 FROM playlists) THEN
+          INSERT INTO playlists (id, name, description, created_at)
+          SELECT id, name, description, created_at FROM categories;
+          
+          -- Reset sequence for playlists.id to the max id + 1
+          PERFORM setval('playlists_id_seq', (SELECT MAX(id) FROM playlists) + 1, false);
+          
+          -- Create media_playlists entries from media.category_id if the media table has category_id
+          IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'media' AND column_name = 'category_id') THEN
+            INSERT INTO media_playlists (media_id, playlist_id, created_at)
+            SELECT id, category_id, NOW() FROM media;
+          END IF;
+        END IF;
+      END IF;
+    END $$;
+    
+    -- Create default 'Uncategorized' playlist if not exists
+    DO $$
+    BEGIN
+      IF NOT EXISTS (SELECT 1 FROM playlists WHERE name = 'Uncategorized') THEN
+        INSERT INTO playlists (name, description) VALUES ('Uncategorized', 'Default category for uncategorized media');
+      END IF;
+    END $$;`;
     
     // Execute SQL directly
     pool.query(createTablesSQL, (err, result) => {
