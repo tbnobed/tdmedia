@@ -44,6 +44,7 @@ interface EditMediaFormProps {
 export default function EditMediaForm({ media, onComplete }: EditMediaFormProps) {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const thumbnailInputRef = useRef<HTMLInputElement>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -53,6 +54,12 @@ export default function EditMediaForm({ media, onComplete }: EditMediaFormProps)
     type: string;
     size: string;
     duration?: string;
+  } | null>(null);
+  const [uploadThumbnailProgress, setUploadThumbnailProgress] = useState(0);
+  const [isUploadingThumbnail, setIsUploadingThumbnail] = useState(false);
+  const [uploadThumbnailError, setUploadThumbnailError] = useState<string | null>(null);
+  const [uploadedThumbnail, setUploadedThumbnail] = useState<{
+    thumbnailUrl: string;
   } | null>(null);
   
   // Media types for select dropdown
@@ -265,6 +272,109 @@ export default function EditMediaForm({ media, onComplete }: EditMediaFormProps)
   // Prompt user to select a file
   const handleUploadClick = () => {
     fileInputRef.current?.click();
+  };
+  
+  // Upload thumbnail mutation with progress tracking
+  const uploadThumbnailMutation = useMutation({
+    mutationFn: async (formData: FormData) => {
+      try {
+        return new Promise<any>((resolve, reject) => {
+          const xhr = new XMLHttpRequest();
+          
+          // Set up progress tracking
+          xhr.upload.addEventListener('progress', (event) => {
+            if (event.lengthComputable) {
+              const percentComplete = Math.round((event.loaded / event.total) * 100);
+              setUploadThumbnailProgress(percentComplete);
+            }
+          });
+          
+          // Handle response
+          xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              try {
+                const data = JSON.parse(xhr.responseText);
+                resolve(data);
+              } catch (error) {
+                reject(new Error('Invalid response from server'));
+              }
+            } else {
+              reject(new Error(xhr.responseText || `Upload failed: ${xhr.status}`));
+            }
+          };
+          
+          // Handle network errors
+          xhr.onerror = () => {
+            reject(new Error('Network error during upload'));
+          };
+          
+          // Handle timeouts
+          xhr.timeout = 5 * 60 * 1000; // 5 minutes
+          xhr.ontimeout = () => {
+            reject(new Error('Upload timed out'));
+          };
+          
+          // Send the request
+          xhr.open('POST', `/api/media/${media.id}/thumbnail`, true);
+          xhr.withCredentials = true;
+          xhr.send(formData);
+        });
+      } catch (error) {
+        console.error('Thumbnail upload error:', error);
+        throw error instanceof Error ? error : new Error('Unknown upload error');
+      }
+    },
+    onSuccess: (data) => {
+      setUploadedThumbnail(data);
+      setUploadThumbnailProgress(100);
+      
+      // Update form field with thumbnail URL
+      form.setValue("thumbnailUrl", data.thumbnailUrl);
+      
+      toast({
+        title: "Thumbnail uploaded",
+        description: "Your thumbnail has been uploaded successfully.",
+      });
+      
+      // Invalidate the media query to refresh the list
+      queryClient.invalidateQueries({ queryKey: ["/api/media"] });
+    },
+    onError: (error: Error) => {
+      setUploadThumbnailError(error.message);
+      setUploadThumbnailProgress(0);
+      setIsUploadingThumbnail(false);
+      
+      toast({
+        title: "Thumbnail upload failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+    onSettled: () => {
+      setIsUploadingThumbnail(false);
+    }
+  });
+  
+  // Handle thumbnail file selection
+  const handleThumbnailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    
+    setUploadThumbnailError(null);
+    setIsUploadingThumbnail(true);
+    setUploadThumbnailProgress(0);
+    
+    // Create a FormData object to send the thumbnail
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    // Upload the thumbnail
+    uploadThumbnailMutation.mutate(formData);
+  };
+  
+  // Prompt user to select a thumbnail
+  const handleThumbnailUploadClick = () => {
+    thumbnailInputRef.current?.click();
   };
   
   // Form submission handler
@@ -492,15 +602,89 @@ export default function EditMediaForm({ media, onComplete }: EditMediaFormProps)
           )}
         />
         
+        {/* Thumbnail Upload Section */}
+        <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-800 space-y-4">
+          <h3 className="text-sm font-medium">Thumbnail Image</h3>
+          
+          <input
+            type="file"
+            ref={thumbnailInputRef}
+            onChange={handleThumbnailChange}
+            className="hidden"
+            accept="image/*"
+          />
+          
+          <div 
+            className={`
+              border-2 border-dashed rounded-lg p-6 text-center cursor-pointer
+              transition-colors duration-200
+              ${isUploadingThumbnail || uploadedThumbnail 
+                ? 'border-slate-300 dark:border-slate-700' 
+                : 'border-slate-300 dark:border-slate-700 hover:border-primary hover:dark:border-primary'}
+            `}
+            onClick={handleThumbnailUploadClick}
+          >
+            {uploadedThumbnail ? (
+              <div className="flex flex-col items-center space-y-2 text-slate-700 dark:text-slate-300">
+                <Check className="h-8 w-8 text-green-500" />
+                <p className="text-sm">Thumbnail uploaded successfully</p>
+                <p className="text-xs text-slate-500">{uploadedThumbnail.thumbnailUrl.split('/').pop()}</p>
+                <div className="mt-2 max-w-[150px] max-h-[150px] overflow-hidden">
+                  <img 
+                    src={uploadedThumbnail.thumbnailUrl} 
+                    alt="Thumbnail preview" 
+                    className="w-full h-auto object-cover rounded"
+                  />
+                </div>
+              </div>
+            ) : isUploadingThumbnail ? (
+              <div className="flex flex-col items-center space-y-3">
+                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                <p className="text-sm">Uploading thumbnail...</p>
+                <Progress value={uploadThumbnailProgress} className="w-full max-w-xs" />
+                <p className="text-xs text-slate-500">{uploadThumbnailProgress}%</p>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center space-y-2">
+                <FileImage className="h-8 w-8 text-slate-400" />
+                <p className="text-sm">Click to upload a new thumbnail image</p>
+                <p className="text-xs text-slate-500">JPG, PNG, GIF or WebP</p>
+                {media.thumbnailUrl && (
+                  <>
+                    <p className="text-xs text-slate-400">Current thumbnail: {media.thumbnailUrl.split('/').pop()}</p>
+                    <div className="mt-2 max-w-[150px] max-h-[150px] overflow-hidden">
+                      <img 
+                        src={media.thumbnailUrl} 
+                        alt="Current thumbnail" 
+                        className="w-full h-auto object-cover rounded"
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+          
+          {uploadThumbnailError && (
+            <div className="flex items-center space-x-2 text-red-500 text-sm">
+              <AlertTriangle className="h-4 w-4" />
+              <p>{uploadThumbnailError}</p>
+            </div>
+          )}
+        </div>
+        
         <FormField
           control={form.control}
           name="thumbnailUrl"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Thumbnail URL (Optional)</FormLabel>
+              <FormLabel>Thumbnail URL</FormLabel>
               <FormControl>
                 <Input placeholder="https://example.com/thumb.jpg" {...field} value={field.value || ""} />
               </FormControl>
+              <FormDescription>
+                This field will be automatically updated when you upload a thumbnail.
+              </FormDescription>
               <FormMessage />
             </FormItem>
           )}
