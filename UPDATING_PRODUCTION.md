@@ -10,25 +10,33 @@ This document provides instructions for updating the production deployment of Tr
    - Automatic migration from old category system to new playlist system
    - Improved media filtering by playlist
 
-2. **Client Management Enhancements**
+2. **Thumbnail Management System**
+   - Enhanced video player to display thumbnails as posters before video playback starts
+   - Automatic cleanup of old thumbnail files when new ones are uploaded
+   - Added path validation to ensure only thumbnails for specific media are deleted
+   - Improved file existence checks before deletion to prevent errors
+   - Auto-thumbnail generation for videos now cleans up existing thumbnails first
+
+3. **Client Management Enhancements**
    - New client creation flow with direct media assignment
    - Welcome email functionality using SendGrid
    - Improved client listing and management interface
 
-3. **Admin Dashboard Navigation**
+4. **Admin Dashboard Navigation**
    - Improved tab navigation with hash-based URL support
    - Better integration between client management and media access assignment
    - LocalStorage for persistent client selection across tabs
 
-4. **Email Integration**
+5. **Email Integration**
    - SendGrid integration for welcome emails to new clients
    - HTML email templates for professional onboarding
    - Configurable application domain for email URLs via APP_DOMAIN environment variable
 
-5. **Bug Fixes**
+6. **Bug Fixes**
    - Fixed media playlist relationship issues
    - Corrected inconsistencies in column naming (snake_case vs. camelCase)
    - Fixed Edit Media form to properly load and update playlist selections
+   - Fixed media streaming with thumbnail support
 
 ## Update Steps
 
