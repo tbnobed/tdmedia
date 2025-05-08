@@ -97,22 +97,19 @@ export default function HomePage() {
         {/* Welcome message */}
         <div className="bg-gradient-to-r from-gray-900 to-black text-white">
           <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-8 sm:py-12">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-0">
-              <img src="/images/tbn-logo.png" alt="TBN Logo" className="h-10 w-auto sm:h-12 sm:mr-4" />
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-bold">
-                  {user ? (
-                    <>Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-gray-300 to-white">{user.username}</span>!</>
-                  ) : (
-                    <>Welcome</>
-                  )}
-                </h1>
-                <p className="mt-1 sm:mt-2 text-sm sm:text-base text-gray-300">
-                  {user?.isAdmin 
-                    ? "Manage and share content with your clients securely." 
-                    : "Browse your personalized media library with secure playback."}
-                </p>
-              </div>
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold">
+                {user ? (
+                  <>Welcome back, <span className="text-transparent bg-clip-text bg-gradient-to-r from-gray-300 to-white">{user.username}</span>!</>
+                ) : (
+                  <>Welcome</>
+                )}
+              </h1>
+              <p className="mt-1 sm:mt-2 text-sm sm:text-base text-gray-300">
+                {user?.isAdmin 
+                  ? "Manage and share content with your clients securely." 
+                  : "Browse your personalized media library with secure playback."}
+              </p>
             </div>
           </div>
         </div>
