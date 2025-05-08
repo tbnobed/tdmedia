@@ -171,7 +171,7 @@ export default function AuthPage() {
       <div className="hidden lg:flex lg:flex-1 bg-gradient-to-br from-black to-gray-800 items-center justify-center">
         <div className="max-w-lg p-8 text-white">
           <div className="flex justify-center mb-6">
-            <img src="/images/tbn-logo.png" alt="TBN Logo" className="h-20" />
+            <img src="/images/tbn-logo-white.png" alt="TBN Logo" className="h-20" />
           </div>
           <p className="text-lg mb-6">
             Access our curated media library of premium content. All media is watermarked and streamable for your review.
