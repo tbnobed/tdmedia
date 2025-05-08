@@ -87,23 +87,44 @@ docker compose up -d
    docker compose logs -f
    ```
 
-2. Log in to the admin panel and verify that:
+2. Verify the database migration was successful by checking for these messages in the logs:
+   - "Playlists table successfully created/migrated"
+   - "Media-playlists junction table successfully created"
+   - "Database schema initialized successfully!"
+
+3. Log in to the admin panel and verify that:
+   - The "Playlists" tab appears in the admin dashboard
+   - All existing media appears under appropriate playlists
+   - You can add/remove media to/from playlists
+   - You can create new playlists
+   - Media filtering by playlist works correctly
+
+4. Verify media management functionality:
+   - Create a new media item and assign it to multiple playlists
+   - Edit an existing media item and modify its playlist assignments
+   - Verify that playlist assignments persist correctly after edits
+
+5. Verify client functionality:
    - The "Clients" tab is accessible
    - You can create new clients
-   - Media assignment works correctly
+   - Media assignment works correctly with the new playlist system
    - Tab navigation is functioning properly
 
-3. Test the email functionality by creating a new client with the "Send Welcome Email" option enabled. Verify that the welcome email contains the correct application domain URL as specified in your APP_DOMAIN environment variable.
+6. Test the email functionality by creating a new client with the "Send Welcome Email" option enabled. Verify that the welcome email contains the correct application domain URL as specified in your APP_DOMAIN environment variable.
 
 ## Rollback Procedure
 
-If something goes wrong, you can roll back to the previous version:
+If something goes wrong with the playlist migration, you have two options for rollback:
+
+### Option 1: Complete Rollback (Recommended)
+
+This option restores from a backup taken before the update and reverts to the previous code version:
 
 ```bash
 # Stop the current containers
 docker compose down
 
-# Restore from your backup
+# Restore database from your backup
 # If using an external database:
 psql -U your_db_user -d your_db_name < trilogy_backup_YYYYMMDD.sql
 
@@ -113,14 +134,87 @@ docker run --rm -v trilogy_db_data:/dbdata -v $(pwd):/backup alpine sh -c "rm -r
 # Return to the previous code version
 git checkout previous_commit_hash
 
-# Rebuild and restart
+# Rebuild and restart with the old code
 docker compose build
 docker compose up -d
 ```
 
+### Option 2: Partial Rollback (If Categories Table Still Exists)
+
+If you set `PRESERVE_CATEGORIES_TABLE=true` during the update and the categories table still exists, you can attempt this partial rollback that preserves any new media added after the update:
+
+```bash
+# Stop the current containers
+docker compose down
+
+# Create a simple SQL script to restore category relationships
+cat > restore-categories.sql << 'EOF'
+-- Recreate category_id column in media table if it doesn't exist
+ALTER TABLE media ADD COLUMN IF NOT EXISTS category_id INTEGER REFERENCES categories(id);
+
+-- Set category_id based on media_playlists data
+UPDATE media m
+SET category_id = (
+  SELECT mp.playlist_id 
+  FROM media_playlists mp 
+  WHERE mp.media_id = m.id 
+  LIMIT 1
+)
+WHERE EXISTS (
+  SELECT 1 FROM media_playlists mp WHERE mp.media_id = m.id
+);
+
+-- Set default category for any media without a playlist
+UPDATE media 
+SET category_id = (SELECT id FROM categories WHERE name = 'Uncategorized' LIMIT 1)
+WHERE category_id IS NULL;
+EOF
+
+# Apply the restoration script
+cat restore-categories.sql | docker exec -i postgres psql -U ${POSTGRES_USER:-trilogy_user} -d ${POSTGRES_DB:-trilogy_db}
+
+# Return to the previous code version
+git checkout previous_commit_hash
+
+# Rebuild and restart with old code
+docker compose build
+docker compose up -d
+```
+
+**Important:** The partial rollback option is more complex and may not work in all scenarios. It should only be attempted if a complete rollback from backup is not possible.
+
 ## Important Notes
+
+- **Database Schema Migration**: This update includes a significant schema change, migrating from categories to playlists. The migration will be performed automatically during container startup.
+  - The migration preserves all existing media categorization by moving category associations to the new playlist system
+  - A backup of your database is *highly recommended* before performing this update
+  - The migration creates a new `playlists` table and `media_playlists` junction table
+  - Existing media-category relationships will be preserved during the migration
+
+- **Environment Variables**: New environment variables have been added to control the migration process:
+  ```
+  ENABLE_PLAYLIST_MIGRATION=true      # Enable migration from categories to playlists
+  PRESERVE_CATEGORIES_TABLE=false     # Whether to keep categories table after migration
+  CREATE_DEFAULT_PLAYLIST=true        # Create default 'Uncategorized' playlist
+  DRIZZLE_ALWAYS_MIGRATE=true         # Always run migrations on startup
+  ```
 
 - The session table might be recreated during the update. This will invalidate any existing user sessions, requiring users to log in again.
 - Make sure your firewall allows outbound connections to SendGrid's SMTP servers if you plan to use the email functionality.
 - Set the APP_DOMAIN environment variable to your actual application domain (e.g., 'tdev.obdtv.com') to ensure welcome emails contain the correct login URLs.
-- No database schema migrations are required for this update as all changes are compatible with the existing schema.
+
+## Playlist System Benefits
+
+The new playlist system offers several improvements over the previous categories system:
+
+1. **Media in Multiple Playlists**: Unlike the previous category system where media could only belong to a single category, the new playlist system allows each media item to be included in multiple playlists.
+
+2. **More Flexible Organization**: Playlists enable more logical grouping of media, similar to how music or video streaming services organize content.
+
+3. **Improved Discovery**: Clients can now find the same content through different playlists, making media discovery more intuitive.
+
+4. **Enhanced Media Management**: Administrators can organize content more effectively by topic, client, project, or any other criteria without duplicating media files.
+
+5. **Performance Improvements**: The new schema includes proper database indexes to improve query performance, especially for larger media libraries.
+
+6. **Future-Ready**: The playlist architecture provides a foundation for future features such as automated playlists, personalized recommendations, and more sophisticated media organization.
