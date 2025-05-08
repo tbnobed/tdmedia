@@ -102,6 +102,15 @@ const fileFilter = (
 // Storage configuration for multer
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
+    // Check if this is a thumbnail upload by examining headers
+    const isThumbnailUpload = !!req.headers['x-tbn-thumbnail-for'];
+    
+    if (isThumbnailUpload) {
+      console.log('Detected thumbnail upload via header, directing to thumbnails directory');
+      cb(null, thumbnailsDir);
+      return;
+    }
+    
     const mediaType = req.body.type || req.query.type;
     let uploadPath = uploadsDir;
     
@@ -127,7 +136,18 @@ const storage = multer.diskStorage({
     // Generate a unique filename to prevent overwrites
     const uniqueSuffix = `${Date.now()}-${crypto.randomBytes(8).toString('hex')}`;
     const ext = path.extname(file.originalname);
-    cb(null, `file-${uniqueSuffix}${ext}`);
+    
+    // Check if this is a thumbnail upload
+    const isThumbnailUpload = !!req.headers['x-tbn-thumbnail-for'];
+    const mediaId = req.headers['x-tbn-thumbnail-for'];
+    
+    if (isThumbnailUpload && mediaId) {
+      // For thumbnails, use a prefix that includes the media ID
+      cb(null, `thumbnail-${mediaId}-${uniqueSuffix}${ext}`);
+    } else {
+      // For regular files, use the standard naming pattern
+      cb(null, `file-${uniqueSuffix}${ext}`);
+    }
   }
 });
 

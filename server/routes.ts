@@ -311,13 +311,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
       
+      // Construct the correct URL for the file based on type
       const fileUrl = `${baseUrl}/uploads/${typeDirectory}/${file.filename}`;
+      
+      // Special handling for thumbnail uploads - make sure URL points to the thumbnail directory
+      const actualFileUrl = isThumbnailUpload 
+        ? `${baseUrl}/uploads/thumbnails/${file.filename}` 
+        : fileUrl;
+      
+      // Print for debugging
+      console.log('File URL (raw):', fileUrl);
+      console.log('Actual file URL used:', actualFileUrl);
       
       // Handle thumbnails for images and videos (simplified)
       let thumbnailUrl = '';
-      if (fileType === 'image') {
-        // For images, use the image itself as the thumbnail
-        thumbnailUrl = fileUrl;
+      if (fileType === 'image' && !isThumbnailUpload) {
+        // For images (but not thumbnails), use the image itself as the thumbnail
+        thumbnailUrl = actualFileUrl;
       }
       
       // Add metadata about watermarking
@@ -346,21 +356,21 @@ export async function registerRoutes(app: Express): Promise<Server> {
         try {
           const mediaId = parseInt(thumbnailForMediaId.toString(), 10);
           if (!isNaN(mediaId)) {
-            console.log(`Updating media ${mediaId} with new thumbnail URL: ${fileUrl}`);
+            console.log(`Updating media ${mediaId} with new thumbnail URL: ${actualFileUrl}`);
             const mediaItem = await storage.getMediaById(mediaId);
             
             if (mediaItem) {
-              // Update the media record with the new thumbnail URL
+              // Update the media record with the new thumbnail URL - make sure to use the correct path
               const updatedMedia = await storage.updateMedia(mediaId, {
                 ...mediaItem,
-                thumbnailUrl: fileUrl
+                thumbnailUrl: actualFileUrl
               });
               
               console.log(`Successfully updated thumbnailUrl for media ${mediaId}`);
               
-              // Return thumbnail-specific response
+              // Return thumbnail-specific response with correct URL
               return res.status(201).json({
-                thumbnailUrl: fileUrl,
+                thumbnailUrl: actualFileUrl,
                 mediaId,
                 message: "Thumbnail uploaded and media updated successfully"
               });
