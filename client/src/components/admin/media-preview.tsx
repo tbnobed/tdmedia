@@ -28,7 +28,7 @@ export default function MediaPreview({ media, isOpen, onClose }: MediaPreviewPro
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl h-[80vh] flex flex-col">
+      <DialogContent className="max-w-4xl h-[80vh] max-h-[90vh] flex flex-col overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{media.title}</DialogTitle>
           <DialogDescription>
