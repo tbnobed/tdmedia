@@ -175,8 +175,8 @@ export default function MediaManagement() {
   const assignMediaMutation = useMutation({
     mutationFn: async ({ mediaId, userId }: { mediaId: number, userId: number }) => {
       const response = await apiRequest("POST", "/api/media-access", {
-        mediaId,
-        userId,
+        media_id: mediaId,
+        user_id: userId,
       });
       return await response.json();
     },
