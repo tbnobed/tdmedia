@@ -1,0 +1,39 @@
+ts table not found, retrying in 3 seconds...
+app-1       | Attempt 4 of 5: playlists table not found, retrying in 3 seconds...
+app-1       | Attempt 5 of 5: playlists table not found, retrying in 3 seconds...
+app-1       | ERROR: playlists table not found after 5 attempts.
+app-1 exited with code 0
+app-1       | postgres:5432 - accepting connections
+app-1       | PostgreSQL server is up and running!
+app-1       | Waiting for PostgreSQL authentication to be ready...
+app-1       | PostgreSQL authentication is ready!
+app-1       | PostgreSQL is fully ready!
+app-1       | Initializing database schema...
+app-1       | Creating session table before schema initialization...
+app-1       | CREATE TABLE
+app-1       | NOTICE:  relation "session" already exists, skipping
+app-1       | NOTICE:  relation "IDX_session_expire" already exists, skipping
+app-1       | CREATE INDEX
+app-1       | Playlists table does not exist. Checking for categories table...
+app-1       | Fresh database installation detected.
+app-1       | Media-playlists junction table does not exist. Will be created during schema update.
+app-1       | Running database schema migration...
+app-1       | (node:26) Warning: To load an ES module, set "type": "module" in the package.json or use the .mjs extension.
+app-1       | (Use `node --trace-warnings ...` to show where the warning was created)
+app-1       | /app/docker-init-db.cjs:80
+app-1       |       await directPool.query(directCreateTablesSQL);
+app-1       |       ^^^^^
+app-1       |
+app-1       | SyntaxError: await is only valid in async functions and the top level bodies of modules
+app-1       |     at wrapSafe (node:internal/modules/cjs/loader:1472:18)
+app-1       |     at Module._compile (node:internal/modules/cjs/loader:1501:20)
+app-1       |     at Module._extensions..js (node:internal/modules/cjs/loader:1613:10)
+app-1       |     at Module.load (node:internal/modules/cjs/loader:1275:32)
+app-1       |     at Module._load (node:internal/modules/cjs/loader:1096:12)
+app-1       |     at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:164:12)
+app-1       |     at node:internal/main/run_main_module:28:49
+app-1       |
+app-1       | Node.js v20.19.1
+app-1       | Warning: Database initialization encountered issues, but we'll continue startup.
+app-1       | Waiting for database to settle after migration (3 seconds)...
+^C
