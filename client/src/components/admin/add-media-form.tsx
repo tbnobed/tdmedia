@@ -43,15 +43,22 @@ interface AddMediaFormProps {
 export default function AddMediaForm({ onComplete }: AddMediaFormProps) {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const thumbnailInputRef = useRef<HTMLInputElement>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadThumbnailProgress, setUploadThumbnailProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
+  const [isUploadingThumbnail, setIsUploadingThumbnail] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [uploadThumbnailError, setUploadThumbnailError] = useState<string | null>(null);
   const [uploadedFile, setUploadedFile] = useState<{
     fileUrl: string;
     thumbnailUrl?: string;
     type: string;
     size: string;
     duration?: string;
+  } | null>(null);
+  const [uploadedThumbnail, setUploadedThumbnail] = useState<{
+    thumbnailUrl: string;
   } | null>(null);
   
   // Media types for select dropdown
