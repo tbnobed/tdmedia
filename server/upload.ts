@@ -96,7 +96,7 @@ const fileFilter = (
   }
   
   // Reject file if it doesn't match any criteria
-  cb(new Error('Invalid file type. Only documents, images, videos, and presentations are allowed.'));
+  cb(new Error('Invalid file type. Only documents, images, videos and presentations are allowed.'));
 };
 
 // Storage configuration for multer
@@ -193,18 +193,17 @@ export function getFormattedFileSize(filePath: string): string {
   }
 }
 
-// Helper function to extract duration from media file (video or audio) using ffmpeg
+// Helper function to extract duration from video file using ffmpeg
 export async function getVideoDuration(filePath: string): Promise<string> {
   try {
-    // Use ffmpeg to get the duration of the media file
-    // This works for both video and audio files
+    // Use ffmpeg to get the duration of the video
     // The command format returns the duration in seconds
     const ffmpegCommand = `ffmpeg -i "${filePath}" 2>&1 | grep "Duration" | cut -d ' ' -f 4 | sed s/,//`;
     
     const { stdout, stderr } = await execAsync(ffmpegCommand);
     
     if (stderr && !stdout) {
-      console.error('Error getting media duration:', stderr);
+      console.error('Error getting video duration:', stderr);
       return '00:00:00';
     }
     
@@ -218,35 +217,28 @@ export async function getVideoDuration(filePath: string): Promise<string> {
     
     return '00:00:00';
   } catch (error) {
-    console.error('Error extracting media duration:', error);
+    console.error('Error extracting video duration:', error);
     return '00:00:00';
   }
 }
 
-// Helper function to generate a thumbnail for a media item (video or audio)
-export async function generateThumbnail(mediaId: number, mediaFilePath: string): Promise<{ success: boolean, thumbnailPath?: string, error?: string }> {
-  // Determine the media type from the file path
-  const fileExt = path.extname(mediaFilePath).toLowerCase();
-  const isAudio = ['.mp3', '.wav', '.ogg', '.aac', '.flac', '.m4a'].includes(fileExt);
-  
-  if (isAudio) {
-    return generateAudioThumbnail(mediaId);
-  }
+// Helper function to generate a thumbnail for a video
+export async function generateThumbnail(videoId: number, videoFilePath: string): Promise<{ success: boolean, thumbnailPath?: string, error?: string }> {
   try {
     // Check if there are any existing thumbnails for this video ID and delete them
     try {
       // Read the thumbnails directory
       const files = fs.readdirSync(thumbnailsDir);
       
-      // Filter for files that might be thumbnails for this media item
+      // Filter for files that might be thumbnails for this video
       const existingThumbnails = files.filter(file => 
-        file.startsWith(`thumbnail-${mediaId}-`) || 
-        file.includes(`-${mediaId}-`)
+        file.startsWith(`thumbnail-${videoId}-`) || 
+        file.includes(`-${videoId}-`)
       );
       
-      // Delete any existing thumbnails for this media item
+      // Delete any existing thumbnails for this video
       if (existingThumbnails.length > 0) {
-        console.log(`Found ${existingThumbnails.length} existing thumbnails for media ${mediaId}`);
+        console.log(`Found ${existingThumbnails.length} existing thumbnails for video ${videoId}`);
         for (const file of existingThumbnails) {
           try {
             const fullPath = path.join(thumbnailsDir, file);
@@ -264,11 +256,11 @@ export async function generateThumbnail(mediaId: number, mediaFilePath: string):
     }
     
     // Create a unique filename for the thumbnail
-    const thumbnailFilename = `thumbnail-${mediaId}-${Date.now()}.jpg`;
+    const thumbnailFilename = `thumbnail-${videoId}-${Date.now()}.jpg`;
     const thumbnailPath = path.join(thumbnailsDir, thumbnailFilename);
     
     // Try a better timestamp for thumbnail - about 5% into the video to avoid black frames
-    const ffmpegCommand = `ffmpeg -i "${mediaFilePath}" -ss 00:00:03 -vframes 1 -q:v 1 -f image2 "${thumbnailPath}"`;
+    const ffmpegCommand = `ffmpeg -i "${videoFilePath}" -ss 00:00:03 -vframes 1 -q:v 1 -f image2 "${thumbnailPath}"`;
     console.log('Running ffmpeg command:', ffmpegCommand);
     
     try {
@@ -304,7 +296,7 @@ export async function generateThumbnail(mediaId: number, mediaFilePath: string):
       
       // Try a different timestamp as a fallback (10% into the video)
       try {
-        const fallbackCommand = `ffmpeg -i "${mediaFilePath}" -ss 00:00:05 -vframes 1 -q:v 2 "${thumbnailPath}"`;
+        const fallbackCommand = `ffmpeg -i "${videoFilePath}" -ss 00:00:05 -vframes 1 -q:v 2 "${thumbnailPath}"`;
         console.log('Trying fallback ffmpeg command:', fallbackCommand);
         await execAsync(fallbackCommand);
         
@@ -325,7 +317,7 @@ export async function generateThumbnail(mediaId: number, mediaFilePath: string):
         <svg width="640" height="360" xmlns="http://www.w3.org/2000/svg">
           <rect width="100%" height="100%" fill="#1e293b"/>
           <text x="50%" y="50%" font-family="Arial" font-size="24" fill="white" text-anchor="middle">
-            Video #${mediaId} Thumbnail
+            Video #${videoId} Thumbnail
           </text>
           <circle cx="320" cy="180" r="60" fill="none" stroke="white" stroke-width="4"/>
           <polygon points="310,150 310,210 360,180" fill="white"/>
@@ -349,106 +341,6 @@ export async function generateThumbnail(mediaId: number, mediaFilePath: string):
     return {
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error generating thumbnail'
-    };
-  }
-}
-
-// Helper function to generate a thumbnail for an audio file
-export async function generateAudioThumbnail(mediaId: number): Promise<{ success: boolean, thumbnailPath?: string, error?: string }> {
-  try {
-    // Check if there are any existing thumbnails for this media ID and delete them
-    try {
-      // Read the thumbnails directory
-      const files = fs.readdirSync(thumbnailsDir);
-      
-      // Filter for files that might be thumbnails for this media item
-      const existingThumbnails = files.filter(file => 
-        file.startsWith(`thumbnail-${mediaId}-`) || 
-        file.includes(`-${mediaId}-`)
-      );
-      
-      // Delete any existing thumbnails for this media item
-      if (existingThumbnails.length > 0) {
-        console.log(`Found ${existingThumbnails.length} existing thumbnails for audio ${mediaId}`);
-        for (const file of existingThumbnails) {
-          try {
-            const fullPath = path.join(thumbnailsDir, file);
-            fs.unlinkSync(fullPath);
-            console.log(`Deleted old thumbnail: ${fullPath}`);
-          } catch (deleteErr) {
-            console.error(`Failed to delete thumbnail ${file}:`, deleteErr);
-            // Continue with other files even if one fails
-          }
-        }
-      }
-    } catch (err) {
-      console.error(`Error checking for existing thumbnails:`, err);
-      // Continue even if this fails
-    }
-    
-    // Create a unique filename for the thumbnail
-    const thumbnailFilename = `thumbnail-${mediaId}-${Date.now()}.svg`;
-    const thumbnailPath = path.join(thumbnailsDir, thumbnailFilename);
-    
-    // Create an SVG thumbnail for audio file
-    const audioSvg = `
-      <svg width="640" height="360" xmlns="http://www.w3.org/2000/svg">
-        <rect width="100%" height="100%" fill="#1e293b"/>
-        <text x="50%" y="40%" font-family="Arial" font-size="24" fill="white" text-anchor="middle">
-          Audio #${mediaId}
-        </text>
-        <!-- Audio wave visualization -->
-        <g transform="translate(160, 180)">
-          <rect x="0" y="0" width="20" height="40" fill="white">
-            <animate attributeName="height" values="40;20;40" dur="1s" repeatCount="indefinite" />
-          </rect>
-          <rect x="30" y="0" width="20" height="60" fill="white">
-            <animate attributeName="height" values="60;10;60" dur="0.8s" repeatCount="indefinite" />
-          </rect>
-          <rect x="60" y="0" width="20" height="30" fill="white">
-            <animate attributeName="height" values="30;70;30" dur="0.6s" repeatCount="indefinite" />
-          </rect>
-          <rect x="90" y="0" width="20" height="80" fill="white">
-            <animate attributeName="height" values="80;20;80" dur="0.7s" repeatCount="indefinite" />
-          </rect>
-          <rect x="120" y="0" width="20" height="40" fill="white">
-            <animate attributeName="height" values="40;60;40" dur="0.9s" repeatCount="indefinite" />
-          </rect>
-          <rect x="150" y="0" width="20" height="50" fill="white">
-            <animate attributeName="height" values="50;30;50" dur="1.1s" repeatCount="indefinite" />
-          </rect>
-          <rect x="180" y="0" width="20" height="60" fill="white">
-            <animate attributeName="height" values="60;40;60" dur="0.85s" repeatCount="indefinite" />
-          </rect>
-          <rect x="210" y="0" width="20" height="30" fill="white">
-            <animate attributeName="height" values="30;60;30" dur="0.95s" repeatCount="indefinite" />
-          </rect>
-          <rect x="240" y="0" width="20" height="50" fill="white">
-            <animate attributeName="height" values="50;20;50" dur="0.75s" repeatCount="indefinite" />
-          </rect>
-          <rect x="270" y="0" width="20" height="40" fill="white">
-            <animate attributeName="height" values="40;70;40" dur="1.05s" repeatCount="indefinite" />
-          </rect>
-        </g>
-      </svg>
-    `;
-    
-    // Write the SVG to a file
-    fs.writeFileSync(thumbnailPath, audioSvg);
-    console.log('Created audio SVG thumbnail');
-    
-    // Calculate relative path for the database
-    const relativeThumbnailPath = `/uploads/thumbnails/${thumbnailFilename}`;
-    
-    return {
-      success: true,
-      thumbnailPath: relativeThumbnailPath
-    };
-  } catch (error) {
-    console.error('Error generating audio thumbnail:', error);
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error generating audio thumbnail'
     };
   }
 }

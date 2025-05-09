@@ -32,7 +32,7 @@ export const insertPlaylistSchema = createInsertSchema(playlists, {
 }).omit({ id: true, createdAt: true });
 
 // Media type enum
-export const mediaTypeEnum = pgEnum('media_type', ['video', 'document', 'image', 'presentation', 'audio']);
+export const mediaTypeEnum = pgEnum('media_type', ['video', 'document', 'image', 'presentation']);
 
 // Media items
 export const media = pgTable("media", {
