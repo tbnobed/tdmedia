@@ -40,9 +40,9 @@ app.use(cors({
   maxAge: 86400 // Cache preflight requests for 24 hours
 }));
 
-// Configure Express with higher payload limits
-app.use(express.json({ limit: '500mb' }));
-app.use(express.urlencoded({ extended: false, limit: '500mb' }));
+// Configure Express with higher payload limits (10GB)
+app.use(express.json({ limit: '10gb' }));
+app.use(express.urlencoded({ extended: false, limit: '10gb' }));
 
 // Determine the uploads directory based on environment
 const isRestrictedFilesystem = process.env.RESTRICTED_FILESYSTEM === 'true';
