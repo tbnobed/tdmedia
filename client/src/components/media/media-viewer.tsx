@@ -104,7 +104,7 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
           </Button>
         </div>
         
-        <div className="bg-gray-900 relative" style={{ aspectRatio: "16/9" }}>
+        <div className="bg-gray-900 relative video-container-16-9">
           {/* Watermark - only for images, we're using the iframe watermark for videos */}
           {activeViewer === "image" && (
             <div className="watermark-container">
@@ -121,16 +121,14 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
           
           {/* Video Player - Using iframe player for better fullscreen control */}
           {activeViewer === "video" && media && (
-            <div className="video-container-16-9">
-              <div className="video-player-wrap">
-                <IframeVideoPlayer 
-                  mediaId={media.id}
-                  showWatermark={true}
-                  onError={(e) => setError(e)}
-                  onLoad={() => setIsLoading(false)}
-                  className="w-full h-full"
-                />
-              </div>
+            <div className="video-player-wrap">
+              <IframeVideoPlayer 
+                mediaId={media.id}
+                showWatermark={true}
+                onError={(e) => setError(e)}
+                onLoad={() => setIsLoading(false)}
+                className="w-full h-full"
+              />
             </div>
           )}
           
@@ -201,7 +199,7 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
           )}
         </div>
         
-        <div className="bg-white px-3 pt-4 pb-3 sm:px-6 sm:pt-5 sm:pb-4" style={{ maxHeight: '30%' }}>
+        <div className="bg-white px-3 pt-4 pb-3 sm:px-6 sm:pt-5 sm:pb-4" style={{ maxHeight: '200px', overflow: 'auto' }}>
           <DialogHeader className="space-y-1 sm:space-y-2">
             <DialogTitle className="text-lg sm:text-xl">{media.title}</DialogTitle>
             <DialogDescription className="text-xs sm:text-sm">{media.description}</DialogDescription>

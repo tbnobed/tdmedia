@@ -335,7 +335,7 @@ export default function IframeVideoPlayer({
   const dataUrl = `data:text/html;charset=utf-8,${encodeURIComponent(iframeContent)}`;
   
   return (
-    <div className={`iframe-container ${className}`} style={{ aspectRatio: "16/9" }}>
+    <div className={`iframe-container ${className}`}>
       <iframe
         ref={iframeRef}
         src={dataUrl}
@@ -345,7 +345,6 @@ export default function IframeVideoPlayer({
         allowFullScreen={false}
         allow="autoplay"
         sandbox="allow-same-origin allow-scripts"
-        style={{ width: '100%', height: '100%', aspectRatio: '16/9' }}
       ></iframe>
       
       {/* 
