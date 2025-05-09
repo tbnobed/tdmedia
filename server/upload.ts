@@ -41,11 +41,10 @@ const docsDir = path.join(uploadsDir, 'documents');
 const imagesDir = path.join(uploadsDir, 'images');
 const videosDir = path.join(uploadsDir, 'videos');
 const presentationsDir = path.join(uploadsDir, 'presentations');
-const audioDir = path.join(uploadsDir, 'audio');
 const thumbnailsDir = path.join(uploadsDir, 'thumbnails');
 
 // Ensure all subdirectories exist, with error handling
-[docsDir, imagesDir, videosDir, presentationsDir, audioDir, thumbnailsDir].forEach(dir => {
+[docsDir, imagesDir, videosDir, presentationsDir, thumbnailsDir].forEach(dir => {
   try {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
@@ -93,14 +92,11 @@ const fileFilter = (
     } else if (allowedExtensions.presentation.includes(ext)) {
       req.body.type = 'presentation';
       return cb(null, true);
-    } else if (allowedExtensions.audio.includes(ext)) {
-      req.body.type = 'audio';
-      return cb(null, true);
     }
   }
   
   // Reject file if it doesn't match any criteria
-  cb(new Error('Invalid file type. Only documents, images, videos, presentations, and audio files are allowed.'));
+  cb(new Error('Invalid file type. Only documents, images, videos, and presentations are allowed.'));
 };
 
 // Storage configuration for multer
@@ -131,9 +127,6 @@ const storage = multer.diskStorage({
         break;
       case 'presentation':
         uploadPath = presentationsDir;
-        break;
-      case 'audio':
-        uploadPath = audioDir;
         break;
     }
     
@@ -180,8 +173,6 @@ export function getFileTypeFromFilename(filename: string): string {
     return 'video';
   } else if (['.ppt', '.pptx', '.key', '.odp'].includes(ext)) {
     return 'presentation';
-  } else if (['.mp3', '.wav', '.ogg', '.aac', '.flac', '.m4a'].includes(ext)) {
-    return 'audio';
   }
   
   // Default fallback
