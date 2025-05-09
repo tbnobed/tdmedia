@@ -130,12 +130,25 @@ export default function IframeVideoPlayer({
           overflow: hidden;
           background-color: #000;
         }
-        video {
+        html, body {
+          margin: 0;
+          padding: 0;
           width: 100%;
           height: 100%;
-          object-fit: cover;
-          max-height: 100%;
+          overflow: hidden;
+        }
+        body {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background-color: #000;
+        }
+        video {
+          width: 100%;
+          height: auto;
+          aspect-ratio: 16/9;
           display: block;
+          margin: 0 auto;
         }
         video::-webkit-media-controls-fullscreen-button {
           display: none !important;
@@ -322,7 +335,7 @@ export default function IframeVideoPlayer({
   const dataUrl = `data:text/html;charset=utf-8,${encodeURIComponent(iframeContent)}`;
   
   return (
-    <div className={`iframe-container ${className}`}>
+    <div className={`iframe-container ${className}`} style={{ aspectRatio: "16/9" }}>
       <iframe
         ref={iframeRef}
         src={dataUrl}
@@ -332,6 +345,7 @@ export default function IframeVideoPlayer({
         allowFullScreen={false}
         allow="autoplay"
         sandbox="allow-same-origin allow-scripts"
+        style={{ width: '100%', height: '100%', aspectRatio: '16/9' }}
       ></iframe>
       
       {/* 

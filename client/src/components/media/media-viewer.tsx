@@ -103,7 +103,7 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
           </Button>
         </div>
         
-        <div className="bg-gray-900 relative aspect-video min-h-[60vh]">
+        <div className="bg-gray-900 relative" style={{ aspectRatio: "16/9" }}>
           {/* Watermark - only for images, we're using the iframe watermark for videos */}
           {activeViewer === "image" && (
             <div className="watermark-container">
@@ -120,7 +120,7 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
           
           {/* Video Player - Using iframe player for better fullscreen control */}
           {activeViewer === "video" && media && (
-            <div className="z-10 relative w-full aspect-video">
+            <div className="z-10 relative w-full" style={{ aspectRatio: "16/9" }}>
               <IframeVideoPlayer 
                 mediaId={media.id}
                 showWatermark={true}
