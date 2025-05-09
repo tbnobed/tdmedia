@@ -71,8 +71,7 @@ const fileFilter = (
     'document': ['.pdf', '.doc', '.docx', '.txt', '.rtf'],
     'image': ['.jpg', '.jpeg', '.png', '.gif', '.svg', '.webp'],
     'video': ['.mp4', '.webm', '.mov', '.avi', '.mkv'],
-    'presentation': ['.ppt', '.pptx', '.key', '.odp'],
-    'audio': ['.mp3', '.wav', '.ogg', '.aac', '.flac', '.m4a']
+    'presentation': ['.ppt', '.pptx', '.key', '.odp']
   };
   
   // Check if we have a valid media type and extension
