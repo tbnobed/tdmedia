@@ -15,8 +15,8 @@
 # - If you experience "413 Request Entity Too Large" errors, ensure these settings
 #   are properly applied in Nginx Proxy Manager
 
-# Increase client body size limit to allow large uploads (up to 2GB)
-client_max_body_size 2048M;
+# Increase client body size limit to allow large uploads (up to 10GB)
+client_max_body_size 10240M;
 
 # Increase proxy timeouts for large file uploads
 proxy_connect_timeout 600s;

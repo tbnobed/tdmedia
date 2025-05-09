@@ -373,7 +373,7 @@ echo "Setting up upload directories..."
 # Set file size limit for the container
 echo "Setting file size limits for uploads..."
 # Using try/catch pattern for each ulimit command to handle restricted containers gracefully
-ulimit -f 2000000 > /dev/null 2>&1 || echo "Warning: Unable to set file size limit (normal in restricted containers)"
+ulimit -f 10000000 > /dev/null 2>&1 || echo "Warning: Unable to set file size limit (normal in restricted containers)"
 ulimit -n 8192 > /dev/null 2>&1 || echo "Warning: Unable to set open file limit (normal in restricted containers)"
 ulimit -c unlimited > /dev/null 2>&1 || echo "Warning: Unable to set core dump limit (normal in restricted containers)"
 ulimit -m unlimited > /dev/null 2>&1 || echo "Warning: Unable to set memory limit (normal in restricted containers)"
