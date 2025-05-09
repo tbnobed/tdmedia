@@ -657,7 +657,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
         }
       }
 
-      // Now delete the media itself
+      // Delete the actual media file if it exists
+      if (mediaItem.fileUrl) {
+        try {
+          // Convert URL to filesystem path
+          let filePath = mediaItem.fileUrl;
+          if (filePath.startsWith('/')) {
+            filePath = '.' + filePath;
+          } else if (!filePath.startsWith('./')) {
+            filePath = './' + filePath;
+          }
+          
+          // Check if the file exists before attempting to delete
+          if (fs.existsSync(filePath)) {
+            console.log(`Deleting media file: ${filePath}`);
+            fs.unlinkSync(filePath);
+            console.log(`Successfully deleted media file`);
+          } else {
+            console.log(`Media file not found: ${filePath}`);
+          }
+        } catch (deleteErr) {
+          console.error(`Error deleting media file: ${deleteErr}`);
+          // Continue with deletion even if deleting the file fails
+        }
+      }
+
+      // Now delete the media record from the database
       await storage.deleteMedia(id);
       console.log("Successfully deleted media with ID:", id);
       res.sendStatus(204);
