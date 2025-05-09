@@ -120,13 +120,13 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
           
           {/* Video Player - Using iframe player for better fullscreen control */}
           {activeViewer === "video" && media && (
-            <div className="z-10 relative w-full h-full min-h-[60vh]">
+            <div className="z-10 relative w-full aspect-video">
               <IframeVideoPlayer 
                 mediaId={media.id}
                 showWatermark={true}
                 onError={(e) => setError(e)}
                 onLoad={() => setIsLoading(false)}
-                className="w-full h-full min-h-[60vh]"
+                className="w-full"
               />
             </div>
           )}
