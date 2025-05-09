@@ -103,7 +103,7 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
           </Button>
         </div>
         
-        <div className="bg-gray-900 aspect-video relative min-h-[60vh]">
+        <div className="bg-gray-900 relative min-h-[60vh] h-full">
           {/* Watermark - only for images, we're using the iframe watermark for videos */}
           {activeViewer === "image" && (
             <div className="watermark-container">
