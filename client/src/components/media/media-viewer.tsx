@@ -13,6 +13,7 @@ import { Mail, X } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import VideoPlayer from "./video-player";
 import IframeVideoPlayer from "./iframe-video-player";
+import "./media-viewer.css";
 
 interface MediaViewerProps {
   media: Media | null;
@@ -91,7 +92,7 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
   
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-[1000px] p-0 overflow-hidden w-[95vw] h-[90vh] max-h-[900px] sm:w-auto" onContextMenu={preventRightClick}>
+      <DialogContent className="max-w-[1000px] p-0 overflow-hidden w-[95vw] sm:w-auto max-h-[90vh]" onContextMenu={preventRightClick}>
         <div className="absolute top-0 right-0 pt-3 pr-3 sm:pt-4 sm:pr-4 z-10">
           <Button
             variant="ghost"
@@ -120,14 +121,16 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
           
           {/* Video Player - Using iframe player for better fullscreen control */}
           {activeViewer === "video" && media && (
-            <div className="z-10 relative w-full" style={{ aspectRatio: "16/9" }}>
-              <IframeVideoPlayer 
-                mediaId={media.id}
-                showWatermark={true}
-                onError={(e) => setError(e)}
-                onLoad={() => setIsLoading(false)}
-                className="w-full"
-              />
+            <div className="video-container-16-9">
+              <div className="video-player-wrap">
+                <IframeVideoPlayer 
+                  mediaId={media.id}
+                  showWatermark={true}
+                  onError={(e) => setError(e)}
+                  onLoad={() => setIsLoading(false)}
+                  className="w-full h-full"
+                />
+              </div>
             </div>
           )}
           
@@ -198,7 +201,7 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
           )}
         </div>
         
-        <div className="bg-white px-3 pt-4 pb-3 sm:px-6 sm:pt-5 sm:pb-4">
+        <div className="bg-white px-3 pt-4 pb-3 sm:px-6 sm:pt-5 sm:pb-4" style={{ maxHeight: '30%' }}>
           <DialogHeader className="space-y-1 sm:space-y-2">
             <DialogTitle className="text-lg sm:text-xl">{media.title}</DialogTitle>
             <DialogDescription className="text-xs sm:text-sm">{media.description}</DialogDescription>
