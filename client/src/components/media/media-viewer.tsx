@@ -91,7 +91,7 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
   
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-6xl p-0 overflow-hidden w-[95vw] h-[90vh] max-h-[960px] sm:w-auto" onContextMenu={preventRightClick}>
+      <DialogContent className="max-w-[1000px] p-0 overflow-hidden w-[95vw] h-[90vh] max-h-[900px] sm:w-auto" onContextMenu={preventRightClick}>
         <div className="absolute top-0 right-0 pt-3 pr-3 sm:pt-4 sm:pr-4 z-10">
           <Button
             variant="ghost"
@@ -103,7 +103,7 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
           </Button>
         </div>
         
-        <div className="bg-gray-900 relative min-h-[60vh] h-full">
+        <div className="bg-gray-900 relative aspect-video min-h-[60vh]">
           {/* Watermark - only for images, we're using the iframe watermark for videos */}
           {activeViewer === "image" && (
             <div className="watermark-container">

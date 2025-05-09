@@ -133,8 +133,9 @@ export default function IframeVideoPlayer({
         video {
           width: 100%;
           height: 100%;
+          object-fit: cover;
           max-height: 100%;
-          object-fit: contain;
+          display: block;
         }
         video::-webkit-media-controls-fullscreen-button {
           display: none !important;
