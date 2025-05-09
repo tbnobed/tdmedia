@@ -409,6 +409,10 @@ export class DatabaseStorage implements IStorage {
   }
   
   async deleteMedia(id: number) {
+    // First delete any contact entries referencing this media
+    await db.delete(contacts).where(eq(contacts.mediaId, id));
+    
+    // Then delete the media record
     await db.delete(media).where(eq(media.id, id));
   }
   

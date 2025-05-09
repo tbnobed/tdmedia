@@ -1,0 +1,35 @@
+app-1       | Deleting media with ID: 4
+app-1       | Removed all media access records for media ID: 4
+app-1       | Removed all playlist associations for media ID: 4
+app-1       | Thumbnail file not found: ./uploads/thumbnails/thumbnail-4-1746728578490.jpg
+app-1       | Media file not found: ./uploads/videos/file-1746728525418-36c98fd22627cd7d.mp4
+app-1       | Error deleting media: error: update or delete on table "media" violates foreign key constraint "contacts_media_id_media_id_fk" on table "contacts"
+app-1       |     at /app/node_modules/pg-pool/index.js:45:11
+app-1       |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+app-1       |     at async DatabaseStorage.deleteMedia (file:///app/dist/index.js:575:5)
+app-1       |     at async file:///app/dist/index.js:1522:7 {
+app-1       |   length: 292,
+app-1       |   severity: 'ERROR',
+app-1       |   code: '23503',
+app-1       |   detail: 'Key (id)=(4) is still referenced from table "contacts".',
+app-1       |   hint: undefined,
+app-1       |   position: undefined,
+app-1       |   internalPosition: undefined,
+app-1       |   internalQuery: undefined,
+app-1       |   where: undefined,
+app-1       |   schema: 'public',
+app-1       |   table: 'contacts',
+app-1       |   column: undefined,
+app-1       |   dataType: undefined,
+app-1       |   constraint: 'contacts_media_id_media_id_fk',
+app-1       |   file: 'ri_triggers.c',
+app-1       |   line: '2609',
+app-1       |   routine: 'ri_ReportViolation'
+app-1       | }
+app-1       | Error message: update or delete on table "media" violates foreign key constraint "contacts_media_id_media_id_fk" on table "contacts"
+app-1       | Error stack: error: update or delete on table "media" violates foreign key constraint "contacts_media_id_media_id_fk" on table "contacts"
+app-1       |     at /app/node_modules/pg-pool/index.js:45:11
+app-1       |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+app-1       |     at async DatabaseStorage.deleteMedia (file:///app/dist/index.js:575:5)
+app-1       |     at async file:///app/dist/index.js:1522:7
+app-1       | 7:11:51 PM [express] DELETE /api/media/4 500 in 17ms :: {"message":"Failed to delete media"}
