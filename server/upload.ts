@@ -41,10 +41,11 @@ const docsDir = path.join(uploadsDir, 'documents');
 const imagesDir = path.join(uploadsDir, 'images');
 const videosDir = path.join(uploadsDir, 'videos');
 const presentationsDir = path.join(uploadsDir, 'presentations');
+const audioDir = path.join(uploadsDir, 'audio');
 const thumbnailsDir = path.join(uploadsDir, 'thumbnails');
 
 // Ensure all subdirectories exist, with error handling
-[docsDir, imagesDir, videosDir, presentationsDir, thumbnailsDir].forEach(dir => {
+[docsDir, imagesDir, videosDir, presentationsDir, audioDir, thumbnailsDir].forEach(dir => {
   try {
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
@@ -70,7 +71,8 @@ const fileFilter = (
     'document': ['.pdf', '.doc', '.docx', '.txt', '.rtf'],
     'image': ['.jpg', '.jpeg', '.png', '.gif', '.svg', '.webp'],
     'video': ['.mp4', '.webm', '.mov', '.avi', '.mkv'],
-    'presentation': ['.ppt', '.pptx', '.key', '.odp']
+    'presentation': ['.ppt', '.pptx', '.key', '.odp'],
+    'audio': ['.mp3', '.wav', '.ogg', '.aac', '.flac', '.m4a']
   };
   
   // Check if we have a valid media type and extension
@@ -92,11 +94,14 @@ const fileFilter = (
     } else if (allowedExtensions.presentation.includes(ext)) {
       req.body.type = 'presentation';
       return cb(null, true);
+    } else if (allowedExtensions.audio.includes(ext)) {
+      req.body.type = 'audio';
+      return cb(null, true);
     }
   }
   
   // Reject file if it doesn't match any criteria
-  cb(new Error('Invalid file type. Only documents, images, videos and presentations are allowed.'));
+  cb(new Error('Invalid file type. Only documents, images, videos, presentations, and audio files are allowed.'));
 };
 
 // Storage configuration for multer
@@ -127,6 +132,9 @@ const storage = multer.diskStorage({
         break;
       case 'presentation':
         uploadPath = presentationsDir;
+        break;
+      case 'audio':
+        uploadPath = audioDir;
         break;
     }
     
@@ -173,6 +181,8 @@ export function getFileTypeFromFilename(filename: string): string {
     return 'video';
   } else if (['.ppt', '.pptx', '.key', '.odp'].includes(ext)) {
     return 'presentation';
+  } else if (['.mp3', '.wav', '.ogg', '.aac', '.flac', '.m4a'].includes(ext)) {
+    return 'audio';
   }
   
   // Default fallback
@@ -193,17 +203,18 @@ export function getFormattedFileSize(filePath: string): string {
   }
 }
 
-// Helper function to extract duration from video file using ffmpeg
+// Helper function to extract duration from media file (video or audio) using ffmpeg
 export async function getVideoDuration(filePath: string): Promise<string> {
   try {
-    // Use ffmpeg to get the duration of the video
+    // Use ffmpeg to get the duration of the media file
+    // This works for both video and audio files
     // The command format returns the duration in seconds
     const ffmpegCommand = `ffmpeg -i "${filePath}" 2>&1 | grep "Duration" | cut -d ' ' -f 4 | sed s/,//`;
     
     const { stdout, stderr } = await execAsync(ffmpegCommand);
     
     if (stderr && !stdout) {
-      console.error('Error getting video duration:', stderr);
+      console.error('Error getting media duration:', stderr);
       return '00:00:00';
     }
     
@@ -217,28 +228,35 @@ export async function getVideoDuration(filePath: string): Promise<string> {
     
     return '00:00:00';
   } catch (error) {
-    console.error('Error extracting video duration:', error);
+    console.error('Error extracting media duration:', error);
     return '00:00:00';
   }
 }
 
-// Helper function to generate a thumbnail for a video
-export async function generateThumbnail(videoId: number, videoFilePath: string): Promise<{ success: boolean, thumbnailPath?: string, error?: string }> {
+// Helper function to generate a thumbnail for a media item (video or audio)
+export async function generateThumbnail(mediaId: number, mediaFilePath: string): Promise<{ success: boolean, thumbnailPath?: string, error?: string }> {
+  // Determine the media type from the file path
+  const fileExt = path.extname(mediaFilePath).toLowerCase();
+  const isAudio = ['.mp3', '.wav', '.ogg', '.aac', '.flac', '.m4a'].includes(fileExt);
+  
+  if (isAudio) {
+    return generateAudioThumbnail(mediaId);
+  }
   try {
     // Check if there are any existing thumbnails for this video ID and delete them
     try {
       // Read the thumbnails directory
       const files = fs.readdirSync(thumbnailsDir);
       
-      // Filter for files that might be thumbnails for this video
+      // Filter for files that might be thumbnails for this media item
       const existingThumbnails = files.filter(file => 
-        file.startsWith(`thumbnail-${videoId}-`) || 
-        file.includes(`-${videoId}-`)
+        file.startsWith(`thumbnail-${mediaId}-`) || 
+        file.includes(`-${mediaId}-`)
       );
       
-      // Delete any existing thumbnails for this video
+      // Delete any existing thumbnails for this media item
       if (existingThumbnails.length > 0) {
-        console.log(`Found ${existingThumbnails.length} existing thumbnails for video ${videoId}`);
+        console.log(`Found ${existingThumbnails.length} existing thumbnails for media ${mediaId}`);
         for (const file of existingThumbnails) {
           try {
             const fullPath = path.join(thumbnailsDir, file);
@@ -256,11 +274,11 @@ export async function generateThumbnail(videoId: number, videoFilePath: string):
     }
     
     // Create a unique filename for the thumbnail
-    const thumbnailFilename = `thumbnail-${videoId}-${Date.now()}.jpg`;
+    const thumbnailFilename = `thumbnail-${mediaId}-${Date.now()}.jpg`;
     const thumbnailPath = path.join(thumbnailsDir, thumbnailFilename);
     
     // Try a better timestamp for thumbnail - about 5% into the video to avoid black frames
-    const ffmpegCommand = `ffmpeg -i "${videoFilePath}" -ss 00:00:03 -vframes 1 -q:v 1 -f image2 "${thumbnailPath}"`;
+    const ffmpegCommand = `ffmpeg -i "${mediaFilePath}" -ss 00:00:03 -vframes 1 -q:v 1 -f image2 "${thumbnailPath}"`;
     console.log('Running ffmpeg command:', ffmpegCommand);
     
     try {
@@ -296,7 +314,7 @@ export async function generateThumbnail(videoId: number, videoFilePath: string):
       
       // Try a different timestamp as a fallback (10% into the video)
       try {
-        const fallbackCommand = `ffmpeg -i "${videoFilePath}" -ss 00:00:05 -vframes 1 -q:v 2 "${thumbnailPath}"`;
+        const fallbackCommand = `ffmpeg -i "${mediaFilePath}" -ss 00:00:05 -vframes 1 -q:v 2 "${thumbnailPath}"`;
         console.log('Trying fallback ffmpeg command:', fallbackCommand);
         await execAsync(fallbackCommand);
         
@@ -317,7 +335,7 @@ export async function generateThumbnail(videoId: number, videoFilePath: string):
         <svg width="640" height="360" xmlns="http://www.w3.org/2000/svg">
           <rect width="100%" height="100%" fill="#1e293b"/>
           <text x="50%" y="50%" font-family="Arial" font-size="24" fill="white" text-anchor="middle">
-            Video #${videoId} Thumbnail
+            Video #${mediaId} Thumbnail
           </text>
           <circle cx="320" cy="180" r="60" fill="none" stroke="white" stroke-width="4"/>
           <polygon points="310,150 310,210 360,180" fill="white"/>
