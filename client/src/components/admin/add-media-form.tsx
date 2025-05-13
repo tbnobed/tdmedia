@@ -60,6 +60,8 @@ export default function AddMediaForm({ onComplete }: AddMediaFormProps) {
   const [uploadedThumbnail, setUploadedThumbnail] = useState<{
     thumbnailUrl: string;
   } | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isThumbnailDragging, setIsThumbnailDragging] = useState(false);
   
   // Media types for select dropdown
   const mediaTypes = [
@@ -350,6 +352,47 @@ export default function AddMediaForm({ onComplete }: AddMediaFormProps) {
   // Prompt user to select a thumbnail
   const handleThumbnailUploadClick = () => {
     thumbnailInputRef.current?.click();
+  };
+  
+  // Drag and drop event handlers
+  const handleDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+  
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isDragging) setIsDragging(true);
+  };
+  
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+  
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const file = e.dataTransfer.files[0];
+      
+      // Create a synthetic event for the file input
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(file);
+      
+      if (fileInputRef.current) {
+        fileInputRef.current.files = dataTransfer.files;
+        
+        // Trigger onChange event manually
+        const changeEvent = new Event('change', { bubbles: true });
+        fileInputRef.current.dispatchEvent(changeEvent);
+      }
+    }
   };
   
   // Form submission handler
