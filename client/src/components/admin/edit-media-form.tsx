@@ -112,6 +112,10 @@ export default function EditMediaForm({ media, onComplete }: EditMediaFormProps)
       thumbnailUrl: media.thumbnailUrl || "",
       duration: media.duration || "",
       size: media.size || "",
+      contentType: media.contentType as 'film' | 'tv_show' | 'other' || 'other',
+      year: media.year || undefined,
+      seasonNumber: media.seasonNumber || undefined,
+      totalEpisodes: media.totalEpisodes || undefined,
     },
   });
   
@@ -576,6 +580,88 @@ export default function EditMediaForm({ media, onComplete }: EditMediaFormProps)
             )}
           />
         </div>
+        
+        {/* Conditional fields based on content type */}
+        {contentType === 'film' && (
+          <div className="mt-4 p-4 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800">
+            <h3 className="text-sm font-medium mb-3">Film Details</h3>
+            <FormField
+              control={form.control}
+              name="year"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Release Year</FormLabel>
+                  <FormControl>
+                    <Input type="number" placeholder="2025" {...field} 
+                      value={field.value || ""} 
+                      onChange={(e) => field.onChange(e.target.value === "" ? undefined : parseInt(e.target.value, 10))}
+                    />
+                  </FormControl>
+                  <FormDescription>Year the film was released</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        )}
+
+        {contentType === 'tv_show' && (
+          <div className="mt-4 p-4 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-800">
+            <h3 className="text-sm font-medium mb-3">TV Show Details</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <FormField
+                control={form.control}
+                name="seasonNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Season Number</FormLabel>
+                    <FormControl>
+                      <Input type="number" placeholder="1" {...field} 
+                        value={field.value || ""} 
+                        onChange={(e) => field.onChange(e.target.value === "" ? undefined : parseInt(e.target.value, 10))}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="totalEpisodes"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Total Episodes</FormLabel>
+                    <FormControl>
+                      <Input type="number" placeholder="12" {...field} 
+                        value={field.value || ""} 
+                        onChange={(e) => field.onChange(e.target.value === "" ? undefined : parseInt(e.target.value, 10))}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="year"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Release Year</FormLabel>
+                    <FormControl>
+                      <Input type="number" placeholder="2025" {...field} 
+                        value={field.value || ""} 
+                        onChange={(e) => field.onChange(e.target.value === "" ? undefined : parseInt(e.target.value, 10))}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
+        )}
         
         {/* File Upload Section */}
         <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-800 space-y-4">
