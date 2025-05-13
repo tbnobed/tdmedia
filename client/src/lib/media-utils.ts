@@ -52,15 +52,45 @@ export function getMediaTypeColor(type: string): {
 
 // Function to get the appropriate metadata display for a media item
 export function getMediaMetadata(media: Media): string {
+  // Start with duration or size info
+  let metadata = '';
   if (media.duration) {
-    return media.duration;
+    metadata = media.duration;
+  } else if (media.size) {
+    metadata = media.size;
   }
   
-  if (media.size) {
-    return media.size;
+  return metadata;
+}
+
+// Function to get content classification information
+export function getContentClassification(media: Media): string {
+  if (!media.contentType || media.contentType === 'other') {
+    return '';
   }
   
-  return '';
+  if (media.contentType === 'film') {
+    return media.year ? `Film (${media.year})` : 'Film';
+  }
+  
+  if (media.contentType === 'tv_show') {
+    let info = 'TV Show';
+    if (media.seasonNumber) {
+      info += ` • Season ${media.seasonNumber}`;
+    }
+    if (media.totalEpisodes) {
+      info += ` • ${media.totalEpisodes} Episodes`;
+    }
+    if (media.year) {
+      info += ` • ${media.year}`;
+    }
+    return info;
+  }
+  
+  // Default case for other content types
+  return typeof media.contentType === 'string' 
+    ? media.contentType.charAt(0).toUpperCase() + media.contentType.slice(1).replace('_', ' ')
+    : 'Other';
 }
 
 // Function to get the appropriate action button text based on media type

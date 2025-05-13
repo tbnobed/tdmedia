@@ -1,7 +1,12 @@
 import { Media } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { getMediaTypeColor, getMediaMetadata, getMediaActionText } from "@/lib/media-utils";
+import { 
+  getMediaTypeColor, 
+  getMediaMetadata, 
+  getMediaActionText,
+  getContentClassification 
+} from "@/lib/media-utils";
 import { 
   FileQuestion, 
   FileText, 
@@ -87,6 +92,14 @@ export default function MediaGrid({ media, onOpenMedia }: MediaGridProps) {
                   <span className="text-xs text-gray-500">{getMediaMetadata(item)}</span>
                 </div>
                 <h3 className="mt-2 text-base sm:text-lg font-medium text-gray-900 line-clamp-1">{item.title}</h3>
+                
+                {/* Content Classification */}
+                {getContentClassification(item) && (
+                  <div className="mt-1 text-xs text-blue-600 font-medium">
+                    {getContentClassification(item)}
+                  </div>
+                )}
+                
                 <p className="mt-1 text-xs sm:text-sm text-gray-500 line-clamp-2">{item.description}</p>
               </div>
               
