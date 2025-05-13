@@ -674,9 +674,9 @@ export default function AddMediaForm({ onComplete }: AddMediaFormProps) {
                 name="totalEpisodes"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Total Episodes</FormLabel>
+                    <FormLabel>Total Seasons</FormLabel>
                     <FormControl>
-                      <Input type="number" placeholder="12" {...field} 
+                      <Input type="number" placeholder="3" {...field} 
                         value={field.value || ""} 
                         onChange={(e) => field.onChange(e.target.value === "" ? undefined : parseInt(e.target.value, 10))}
                       />
