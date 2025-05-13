@@ -35,7 +35,7 @@ const mediaFormSchema = insertMediaSchema.extend({
   contentType: z.enum(['film', 'tv_show', 'other']).default('other'),
   year: z.coerce.number().min(1900).max(new Date().getFullYear() + 5).optional(),
   seasonNumber: z.coerce.number().min(1).max(100).optional(),
-  totalEpisodes: z.coerce.number().min(1).max(1000).optional(),
+  totalSeasons: z.coerce.number().min(1).max(1000).optional(),
 });
 
 type MediaFormValues = z.infer<typeof mediaFormSchema>;
@@ -628,10 +628,10 @@ export default function EditMediaForm({ media, onComplete }: EditMediaFormProps)
 
               <FormField
                 control={form.control}
-                name="totalEpisodes"
+                name="totalSeasons"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Total Episodes</FormLabel>
+                    <FormLabel>Total Seasons Available</FormLabel>
                     <FormControl>
                       <Input type="number" placeholder="12" {...field} 
                         value={field.value || ""} 
