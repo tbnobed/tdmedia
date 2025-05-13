@@ -712,7 +712,7 @@ export default function AddMediaForm({ onComplete }: AddMediaFormProps) {
                 {form.getValues("thumbnailUrl") && (
                   <div className="mt-2 max-w-[150px] max-h-[150px] overflow-hidden">
                     <img 
-                      src={form.getValues("thumbnailUrl")} 
+                      src={String(form.getValues("thumbnailUrl"))}
                       alt="Thumbnail preview" 
                       className="w-full h-auto object-cover rounded"
                     />
