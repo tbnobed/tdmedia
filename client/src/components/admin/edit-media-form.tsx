@@ -115,7 +115,7 @@ export default function EditMediaForm({ media, onComplete }: EditMediaFormProps)
       contentType: media.contentType as 'film' | 'tv_show' | 'other' || 'other',
       year: media.year || undefined,
       seasonNumber: media.seasonNumber || undefined,
-      totalEpisodes: media.totalEpisodes || undefined,
+      totalSeasons: media.totalEpisodes || undefined, // Using totalEpisodes for backward compatibility
     },
   });
   
