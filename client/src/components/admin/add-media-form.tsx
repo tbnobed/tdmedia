@@ -32,6 +32,10 @@ import { Loader2, Upload, FileText, FileImage, Video, PresentationIcon, Check, A
 // Media form schema based on the insertMediaSchema
 const mediaFormSchema = insertMediaSchema.extend({
   playlistIds: z.array(z.coerce.number()).min(1, "Select at least one playlist"),
+  contentType: z.enum(['film', 'tv_show', 'other']).default('other'),
+  year: z.coerce.number().min(1900).max(new Date().getFullYear() + 5).optional(),
+  seasonNumber: z.coerce.number().min(1).max(100).optional(),
+  totalEpisodes: z.coerce.number().min(1).max(1000).optional(),
 });
 
 type MediaFormValues = z.infer<typeof mediaFormSchema>;

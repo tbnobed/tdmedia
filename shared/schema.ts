@@ -34,6 +34,9 @@ export const insertPlaylistSchema = createInsertSchema(playlists, {
 // Media type enum
 export const mediaTypeEnum = pgEnum('media_type', ['video', 'document', 'image', 'presentation']);
 
+// Content type enum
+export const contentTypeEnum = pgEnum('content_type', ['film', 'tv_show', 'other']);
+
 // Media items
 export const media = pgTable("media", {
   id: serial("id").primaryKey(),
@@ -45,6 +48,10 @@ export const media = pgTable("media", {
   thumbnailUrl: text("thumbnail_url"),
   duration: text("duration"),
   size: text("size"),
+  contentType: contentTypeEnum("content_type").default('other'),
+  year: integer("year"),
+  seasonNumber: integer("season_number"),
+  totalEpisodes: integer("total_episodes"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull()
 });
