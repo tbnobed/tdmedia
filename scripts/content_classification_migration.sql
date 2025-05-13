@@ -16,3 +16,18 @@ ADD COLUMN IF NOT EXISTS total_episodes INTEGER;
 
 -- Set all existing media to 'other' content type
 UPDATE media SET content_type = 'other' WHERE content_type IS NULL;
+
+-- Create index on content_type for better performance with filters
+CREATE INDEX IF NOT EXISTS idx_media_content_type ON media(content_type);
+
+-- Output success message
+DO $$
+BEGIN
+    RAISE NOTICE 'Content classification schema updates completed successfully:';
+    RAISE NOTICE '- content_type enum created';
+    RAISE NOTICE '- content_type column added to media table';
+    RAISE NOTICE '- year, season_number, and total_episodes columns added';
+    RAISE NOTICE '- content_type index created';
+    RAISE NOTICE '- existing media set to default content_type';
+END
+$$;

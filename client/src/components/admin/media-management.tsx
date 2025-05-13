@@ -48,6 +48,7 @@ import { Pencil, Trash2, Plus, Search, FileText, Video, Image, Presentation, Eye
 import AddMediaForm from "./add-media-form";
 import EditMediaForm from "./edit-media-form";
 import MediaPreview from "./media-preview";
+import { getContentClassification } from "@/lib/media-utils";
 
 export default function MediaManagement() {
   const { toast } = useToast();
@@ -252,7 +253,7 @@ export default function MediaManagement() {
     }
   };
 
-  // Filter media by search term, type, and playlist
+  // Filter media by search term, type, content type, and playlist
   const mediaItems = enhancedMedia as MediaWithPlaylists[] || media as MediaWithPlaylists[] || [];
   
   const filteredMedia = mediaItems
@@ -262,7 +263,8 @@ export default function MediaManagement() {
       // Search filter
       const matchesSearch = 
         item.title?.toLowerCase().includes(search.toLowerCase()) ||
-        (item.description && item.description.toLowerCase().includes(search.toLowerCase()));
+        (item.description && item.description.toLowerCase().includes(search.toLowerCase())) ||
+        (getContentClassification(item)?.toLowerCase().includes(search.toLowerCase()));
       
       // Type filter
       const matchesType = typeFilter === 'all' || item.type === typeFilter;
@@ -402,6 +404,7 @@ export default function MediaManagement() {
               <TableRow>
                 <TableHead>Title</TableHead>
                 <TableHead>Type</TableHead>
+                <TableHead>Classification</TableHead>
                 <TableHead>Playlist</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
@@ -425,6 +428,13 @@ export default function MediaManagement() {
                         {getMediaTypeIcon(item.type)}
                         <span className="capitalize">{item.type}</span>
                       </div>
+                    </TableCell>
+                    <TableCell>
+                      {item.contentType && (
+                        <span className={`text-sm ${item.contentType === 'film' ? 'text-blue-600' : item.contentType === 'tv_show' ? 'text-green-600' : 'text-gray-500'}`}>
+                          {getContentClassification(item)}
+                        </span>
+                      )}
                     </TableCell>
                     <TableCell>
                       {((item as MediaWithPlaylists).playlists?.length ?? 0) > 0

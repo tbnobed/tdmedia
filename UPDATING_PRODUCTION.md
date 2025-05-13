@@ -107,6 +107,8 @@ docker compose up -d
    - "SUCCESS: Direct SQL creation verified - playlists table exists!" - confirms table verification
    - "All required tables verified successfully!" - confirms tables are ready for use
    - "Database schema initialization completed successfully" - confirms the entire process completed
+   - "Content classification migration SQL file found, executing..." - confirms content type migration was found
+   - "Content classification migration completed successfully!" - confirms content type fields were added
 
 3. Log in to the admin panel and verify that:
    - The "Playlists" tab appears in the admin dashboard
@@ -126,14 +128,22 @@ docker compose up -d
    - View a video in the player and confirm the thumbnail displays as a poster before playback
    - Check logs for confirmation of thumbnail cleanup during media updates
    - Delete a media item with a thumbnail and verify the thumbnail file is also deleted
+   
+6. Verify content classification functionality:
+   - Add a new video and select "Film" as the content type
+   - Enter a release year and verify it saves correctly
+   - Create another video with "TV Show" as the content type
+   - Enter season number and episode count information
+   - View the client media grid and verify classification info is displayed
+   - Open a media item and confirm the content type badge is visible in the viewer
 
-6. Verify client functionality:
+7. Verify client functionality:
    - The "Clients" tab is accessible
    - You can create new clients
    - Media assignment works correctly with the new playlist system
    - Tab navigation is functioning properly
 
-7. Test the email functionality by creating a new client with the "Send Welcome Email" option enabled. Verify that the welcome email contains the correct application domain URL as specified in your APP_DOMAIN environment variable.
+8. Test the email functionality by creating a new client with the "Send Welcome Email" option enabled. Verify that the welcome email contains the correct application domain URL as specified in your APP_DOMAIN environment variable.
 
 ## Rollback Procedure
 
@@ -208,6 +218,13 @@ docker compose up -d
 
 ## Important Notes
 
+- **Content Classification Schema Migration**: This update adds new fields to the media table for content classification.
+  - A new content_type enum (`film`, `tv_show`, `other`) is created in the database
+  - New columns for year, season_number, and total_episodes are added to the media table
+  - Existing media items are set to `other` content type by default
+  - This migration is applied automatically during container startup
+  - The migration script includes proper error handling and will not interfere with existing data
+
 - **Database Schema Migration**: This update includes a significant schema change, migrating from categories to playlists. The migration will be performed automatically during container startup.
   - The migration preserves all existing media categorization by moving category associations to the new playlist system
   - A backup of your database is *highly recommended* before performing this update
@@ -250,9 +267,25 @@ docker compose up -d
 - Make sure your firewall allows outbound connections to SendGrid's SMTP servers if you plan to use the email functionality.
 - Set the APP_DOMAIN environment variable to your actual application domain (e.g., 'tdev.obdtv.com') to ensure welcome emails contain the correct login URLs.
 
-## Playlist System Benefits
+## New Feature Benefits
 
-The new playlist system offers several improvements over the previous categories system:
+### Content Classification System Benefits
+
+The new content classification system offers several advantages:
+
+1. **Better Content Organization**: Properly categorize content as films or TV shows with relevant metadata.
+
+2. **Enhanced Client Experience**: Clients can quickly identify the type of content they're viewing with clear visual indicators.
+
+3. **Improved Content Discovery**: Search and filter capabilities can be expanded to include content types and specific attributes like release year.
+
+4. **Professional Presentation**: Content displays with industry-standard metadata similar to major streaming platforms.
+
+5. **Future-Ready**: The classification system provides a foundation for more sophisticated content browsing and recommendation features.
+
+### Playlist System Benefits
+
+The playlist system offers several improvements over the previous categories system:
 
 1. **Media in Multiple Playlists**: Unlike the previous category system where media could only belong to a single category, the new playlist system allows each media item to be included in multiple playlists.
 
