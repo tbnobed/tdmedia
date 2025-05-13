@@ -125,6 +125,21 @@ else
   echo "Warning: Database initialization encountered issues, but we'll continue startup."
 fi
 
+# Apply content classification migration
+echo "Applying content classification migration..."
+if [ -f scripts/content_classification_migration.sql ]; then
+  echo "Content classification migration SQL file found, executing..."
+  PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -f scripts/content_classification_migration.sql
+  
+  if [ $? -eq 0 ]; then
+    echo "Content classification migration completed successfully!"
+  else
+    echo "Warning: Content classification migration encountered issues, but we'll continue startup."
+  fi
+else
+  echo "Content classification migration SQL file not found, skipping."
+fi
+
 # Give PostgreSQL a moment to process any changes
 echo "Waiting for database to settle after migration (3 seconds)..."
 sleep 3

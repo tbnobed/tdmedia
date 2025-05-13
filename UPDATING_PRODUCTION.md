@@ -4,13 +4,19 @@ This document provides instructions for updating the production deployment of Tr
 
 ## Recent Changes
 
-1. **Playlist System Implementation**
+1. **Content Classification System**
+   - Added content type classification (Film/TV Show) for media items
+   - Added conditional fields for film release year and TV show season/episode details
+   - Enhanced media display to show content classification information to clients
+   - Automatic database migration for new content type fields
+
+2. **Playlist System Implementation**
    - Replaced Categories with Playlists for more flexible media organization
    - Added many-to-many relationship between media and playlists
    - Automatic migration from old category system to new playlist system
    - Improved media filtering by playlist
 
-2. **Thumbnail Management System**
+3. **Thumbnail Management System**
    - Enhanced video player to display thumbnails as posters before video playback starts
    - Automatic cleanup of old thumbnail files when new ones are uploaded
    - Added path validation to ensure only thumbnails for specific media are deleted

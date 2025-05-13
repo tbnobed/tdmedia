@@ -9,6 +9,7 @@ Use this checklist to verify that your production deployment of Trilogy Digital 
 - [ ] Docker Compose configuration has been updated with new environment variables
 - [ ] SendGrid API key has been obtained for email functionality
 - [ ] SendGrid sender email has been verified in the SendGrid dashboard
+- [ ] Content classification migration has been properly included in deployment
 
 ## Environment Configuration
 
@@ -37,6 +38,8 @@ Use this checklist to verify that your production deployment of Trilogy Digital 
 - [ ] Navigation between dashboard tabs is functioning properly
 - [ ] Client users can log in and see only their assigned media
 - [ ] Contact form submissions are being recorded
+- [ ] Content classification fields (Film/TV Show) are functioning properly
+- [ ] Content type information is displayed correctly to clients
 
 ## Performance and Reliability
 
