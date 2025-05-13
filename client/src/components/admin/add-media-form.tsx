@@ -395,6 +395,57 @@ export default function AddMediaForm({ onComplete }: AddMediaFormProps) {
     }
   };
   
+  // Thumbnail drag and drop handlers
+  const handleThumbnailDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsThumbnailDragging(true);
+  };
+  
+  const handleThumbnailDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isThumbnailDragging) setIsThumbnailDragging(true);
+  };
+  
+  const handleThumbnailDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsThumbnailDragging(false);
+  };
+  
+  const handleThumbnailDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsThumbnailDragging(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const file = e.dataTransfer.files[0];
+      
+      // Only allow image files for thumbnails
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Invalid file type",
+          description: "Only image files are allowed for thumbnails",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      // Create a synthetic event for the thumbnail input
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(file);
+      
+      if (thumbnailInputRef.current) {
+        thumbnailInputRef.current.files = dataTransfer.files;
+        
+        // Trigger onChange event manually
+        const changeEvent = new Event('change', { bubbles: true });
+        thumbnailInputRef.current.dispatchEvent(changeEvent);
+      }
+    }
+  };
+  
   // Form submission handler
   const onSubmit = (values: MediaFormValues) => {
     // Debug log to see what's being submitted
@@ -557,11 +608,17 @@ export default function AddMediaForm({ onComplete }: AddMediaFormProps) {
             className={`
               border-2 border-dashed rounded-lg p-8 text-center cursor-pointer
               transition-colors duration-200
-              ${isUploading || uploadedFile 
-                ? 'border-slate-300 dark:border-slate-700' 
-                : 'border-slate-300 dark:border-slate-700 hover:border-primary hover:dark:border-primary'}
+              ${isDragging 
+                ? 'border-primary bg-primary/5 dark:border-primary dark:bg-primary/10' 
+                : isUploading || uploadedFile 
+                  ? 'border-slate-300 dark:border-slate-700' 
+                  : 'border-slate-300 dark:border-slate-700 hover:border-primary hover:dark:border-primary'}
             `}
             onClick={handleUploadClick}
+            onDragEnter={handleDragEnter}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
           >
             {uploadedFile ? (
               <div className="flex flex-col items-center space-y-2 text-slate-700 dark:text-slate-300">
@@ -635,11 +692,17 @@ export default function AddMediaForm({ onComplete }: AddMediaFormProps) {
             className={`
               border-2 border-dashed rounded-lg p-6 text-center cursor-pointer
               transition-colors duration-200
-              ${isUploadingThumbnail || uploadedThumbnail 
-                ? 'border-slate-300 dark:border-slate-700' 
-                : 'border-slate-300 dark:border-slate-700 hover:border-primary hover:dark:border-primary'}
+              ${isThumbnailDragging 
+                ? 'border-primary bg-primary/5 dark:border-primary dark:bg-primary/10' 
+                : isUploadingThumbnail || uploadedThumbnail 
+                  ? 'border-slate-300 dark:border-slate-700' 
+                  : 'border-slate-300 dark:border-slate-700 hover:border-primary hover:dark:border-primary'}
             `}
             onClick={handleThumbnailUploadClick}
+            onDragEnter={handleThumbnailDragEnter}
+            onDragOver={handleThumbnailDragOver}
+            onDragLeave={handleThumbnailDragLeave}
+            onDrop={handleThumbnailDrop}
           >
             {uploadedThumbnail ? (
               <div className="flex flex-col items-center space-y-2 text-slate-700 dark:text-slate-300">
@@ -687,7 +750,7 @@ export default function AddMediaForm({ onComplete }: AddMediaFormProps) {
             <FormItem>
               <FormLabel>Thumbnail URL (Optional)</FormLabel>
               <FormControl>
-                <Input placeholder="https://example.com/thumb.jpg" {...field} value={field.value || ""} />
+                <Input placeholder="https://example.com/thumb.jpg" {...field} value={field.value ?? ""} />
               </FormControl>
               <FormDescription>
                 This field will be automatically filled when you upload a thumbnail, or you can enter a URL manually.
