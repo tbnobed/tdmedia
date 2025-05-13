@@ -31,7 +31,11 @@ import { Loader2, Upload, FileText, FileImage, Video, PresentationIcon, Check, A
 
 // Media form schema based on the insertMediaSchema but extended for UI needs
 const mediaFormSchema = insertMediaSchema.extend({
-  playlistIds: z.array(z.number()).default([])
+  playlistIds: z.array(z.number()).default([]),
+  contentType: z.enum(['film', 'tv_show', 'other']).default('other'),
+  year: z.coerce.number().min(1900).max(new Date().getFullYear() + 5).optional(),
+  seasonNumber: z.coerce.number().min(1).max(100).optional(),
+  totalEpisodes: z.coerce.number().min(1).max(1000).optional(),
 });
 
 type MediaFormValues = z.infer<typeof mediaFormSchema>;
@@ -61,6 +65,7 @@ export default function EditMediaForm({ media, onComplete }: EditMediaFormProps)
   const [uploadedThumbnail, setUploadedThumbnail] = useState<{
     thumbnailUrl: string;
   } | null>(null);
+  const [contentType, setContentType] = useState<'film' | 'tv_show' | 'other'>(media.contentType as 'film' | 'tv_show' | 'other' || 'other');
   
   // Media types for select dropdown
   const mediaTypes = [
@@ -469,6 +474,38 @@ export default function EditMediaForm({ media, onComplete }: EditMediaFormProps)
                     ))}
                   </SelectContent>
                 </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="contentType"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Content Classification</FormLabel>
+                <Select
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                    setContentType(value as 'film' | 'tv_show' | 'other');
+                  }}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select content type" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="film">Film</SelectItem>
+                    <SelectItem value="tv_show">TV Show</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormDescription>
+                  Classify this media for better organization
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
