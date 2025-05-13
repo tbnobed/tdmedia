@@ -51,8 +51,6 @@ export const media = pgTable("media", {
   contentType: contentTypeEnum("content_type").default('other'),
   year: integer("year"),
   seasonNumber: integer("season_number"),
-  totalSeasons: integer("total_seasons"),
-  // Keep totalEpisodes for backward compatibility
   totalEpisodes: integer("total_episodes"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull()
