@@ -54,6 +54,7 @@ export default function AddMediaForm({ onComplete }: AddMediaFormProps) {
   const [isUploadingThumbnail, setIsUploadingThumbnail] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadThumbnailError, setUploadThumbnailError] = useState<string | null>(null);
+  const [contentType, setContentType] = useState<'film' | 'tv_show' | 'other'>('other');
   const [uploadedFile, setUploadedFile] = useState<{
     fileUrl: string;
     thumbnailUrl?: string;
@@ -523,6 +524,38 @@ export default function AddMediaForm({ onComplete }: AddMediaFormProps) {
                     ))}
                   </SelectContent>
                 </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="contentType"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Content Classification</FormLabel>
+                <Select
+                  onValueChange={(value) => {
+                    field.onChange(value);
+                    setContentType(value as 'film' | 'tv_show' | 'other');
+                  }}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select content type" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="film">Film</SelectItem>
+                    <SelectItem value="tv_show">TV Show</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormDescription>
+                  Classify this media for better organization
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
