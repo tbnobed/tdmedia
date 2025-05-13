@@ -112,10 +112,6 @@ export default function EditMediaForm({ media, onComplete }: EditMediaFormProps)
       thumbnailUrl: media.thumbnailUrl || "",
       duration: media.duration || "",
       size: media.size || "",
-      contentType: media.contentType as 'film' | 'tv_show' | 'other' || 'other',
-      year: media.year || undefined,
-      seasonNumber: media.seasonNumber || undefined,
-      totalSeasons: media.totalEpisodes || undefined, // Using totalEpisodes for backward compatibility
     },
   });
   
