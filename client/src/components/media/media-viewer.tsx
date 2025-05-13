@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Media } from "@shared/schema";
-import { getMediaTypeColor } from "@/lib/media-utils";
+import { getMediaTypeColor, getContentClassification } from "@/lib/media-utils";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -202,6 +202,14 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
         <div className="bg-white px-3 pt-3 pb-2 sm:px-4 sm:pt-4 sm:pb-3" style={{ maxHeight: '160px', overflow: 'auto' }}>
           <DialogHeader className="space-y-1 sm:space-y-2">
             <DialogTitle className="text-lg sm:text-xl">{media.title}</DialogTitle>
+            
+            {/* Content Classification Badge */}
+            {getContentClassification(media) && (
+              <div className="text-xs text-blue-600 font-medium bg-blue-50 inline-block px-2 py-1 rounded">
+                {getContentClassification(media)}
+              </div>
+            )}
+            
             <DialogDescription className="text-xs sm:text-sm">{media.description}</DialogDescription>
           </DialogHeader>
           
