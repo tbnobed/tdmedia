@@ -66,6 +66,8 @@ export default function EditMediaForm({ media, onComplete }: EditMediaFormProps)
     thumbnailUrl: string;
   } | null>(null);
   const [contentType, setContentType] = useState<'film' | 'tv_show' | 'other'>(media.contentType as 'film' | 'tv_show' | 'other' || 'other');
+  const [isDragging, setIsDragging] = useState(false);
+  const [isThumbnailDragging, setIsThumbnailDragging] = useState(false);
   
   // Media types for select dropdown
   const mediaTypes = [
@@ -684,11 +686,35 @@ export default function EditMediaForm({ media, onComplete }: EditMediaFormProps)
             className={`
               border-2 border-dashed rounded-lg p-8 text-center cursor-pointer
               transition-colors duration-200
+              ${isDragging ? 'border-primary dark:border-primary bg-primary/5' : ''}
               ${isUploading || uploadedFile 
                 ? 'border-slate-300 dark:border-slate-700' 
                 : 'border-slate-300 dark:border-slate-700 hover:border-primary hover:dark:border-primary'}
             `}
             onClick={handleUploadClick}
+            onDragEnter={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsDragging(true);
+            }}
+            onDragOver={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsDragging(true);
+            }}
+            onDragLeave={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsDragging(false);
+            }}
+            onDrop={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsDragging(false);
+              if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                handleFileChange({ target: { files: e.dataTransfer.files } } as any);
+              }
+            }}
           >
             {uploadedFile ? (
               <div className="flex flex-col items-center space-y-2 text-slate-700 dark:text-slate-300">
@@ -763,11 +789,35 @@ export default function EditMediaForm({ media, onComplete }: EditMediaFormProps)
             className={`
               border-2 border-dashed rounded-lg p-6 text-center cursor-pointer
               transition-colors duration-200
+              ${isThumbnailDragging ? 'border-primary dark:border-primary bg-primary/5' : ''}
               ${isUploadingThumbnail || uploadedThumbnail 
                 ? 'border-slate-300 dark:border-slate-700' 
                 : 'border-slate-300 dark:border-slate-700 hover:border-primary hover:dark:border-primary'}
             `}
             onClick={handleThumbnailUploadClick}
+            onDragEnter={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsThumbnailDragging(true);
+            }}
+            onDragOver={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsThumbnailDragging(true);
+            }}
+            onDragLeave={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsThumbnailDragging(false);
+            }}
+            onDrop={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsThumbnailDragging(false);
+              if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                handleThumbnailChange({ target: { files: e.dataTransfer.files } } as any);
+              }
+            }}
           >
             {uploadedThumbnail ? (
               <div className="flex flex-col items-center space-y-2 text-slate-700 dark:text-slate-300">
