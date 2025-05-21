@@ -59,14 +59,32 @@ export default function HomePage() {
       page,
       itemsPerPage
     ],
-    // Add the pagination parameters to the request
-    meta: {
-      requestOptions: {
-        params: {
-          page,
-          itemsPerPage
-        }
+    queryFn: async ({ queryKey }) => {
+      const url = new URL(`${window.location.origin}/api/client/media`);
+      
+      // Add search parameter if present
+      if (filters.search) {
+        url.searchParams.append("search", filters.search);
       }
+      
+      // Add playlist ID if present
+      if (filters.playlistId) {
+        url.searchParams.append("playlistId", filters.playlistId.toString());
+      }
+      
+      // Add sort parameter
+      url.searchParams.append("sort", filters.sort);
+      
+      // Add pagination parameters
+      url.searchParams.append("page", page.toString());
+      url.searchParams.append("itemsPerPage", itemsPerPage.toString());
+      
+      const response = await fetch(url.toString());
+      if (!response.ok) {
+        throw new Error('Failed to fetch media');
+      }
+      
+      return await response.json();
     }
   });
   
@@ -91,6 +109,9 @@ export default function HomePage() {
     setContactMedia(media);
     setContactOpen(true);
   };
+  
+  // Check if we have a valid response
+  const hasResponse = paginatedData !== undefined;
   
   // Get media data and pagination info
   const mediaItems = paginatedData?.items || [];
