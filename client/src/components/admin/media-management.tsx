@@ -71,9 +71,10 @@ export default function MediaManagement() {
   });
   
   // Fetch playlists for each media
-  const { data: enhancedMedia } = useQuery<MediaWithPlaylists[]>({
+  const { data: enhancedMedia, refetch: refetchEnhancedMedia } = useQuery<MediaWithPlaylists[]>({
     queryKey: ["/api/media-with-playlists"],
     enabled: !!media && media.length > 0,
+    staleTime: 0, // Always refetch when the queryKey changes
     queryFn: async () => {
       if (!media) return [];
       
@@ -528,7 +529,11 @@ export default function MediaManagement() {
           {selectedMedia && (
             <EditMediaForm 
               media={selectedMedia} 
-              onComplete={() => setEditDialogOpen(false)} 
+              onComplete={() => {
+                setEditDialogOpen(false);
+                // Manually trigger a refetch of the enhanced media data
+                refetchEnhancedMedia();
+              }} 
             />
           )}
         </DialogContent>
