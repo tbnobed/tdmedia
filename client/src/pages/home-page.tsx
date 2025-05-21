@@ -217,17 +217,34 @@ export default function HomePage() {
                   
                   {/* Desktop view: show page numbers */}
                   <div className="hidden sm:flex">
-                    {Array.from({ length: Math.min(totalPages, 5) }).map((_, i) => (
-                      <Button
-                        key={i}
-                        variant={page === i + 1 ? "default" : "outline"}
-                        className="h-9"
-                        size="sm"
-                        onClick={() => setPage(i + 1)}
-                      >
-                        {i + 1}
-                      </Button>
-                    ))}
+                    {/* Generate page number buttons based on current page and total pages */}
+                    {(() => {
+                      // Logic to determine which page numbers to show
+                      const pageButtons = [];
+                      let startPage = Math.max(1, page - 2);
+                      let endPage = Math.min(totalPages, startPage + 4);
+                      
+                      // Adjust if we're near the end
+                      if (endPage - startPage < 4 && startPage > 1) {
+                        startPage = Math.max(1, endPage - 4);
+                      }
+                      
+                      for (let i = startPage; i <= endPage; i++) {
+                        pageButtons.push(
+                          <Button
+                            key={i}
+                            variant={page === i ? "default" : "outline"}
+                            className="h-9"
+                            size="sm"
+                            onClick={() => setPage(i)}
+                          >
+                            {i}
+                          </Button>
+                        );
+                      }
+                      
+                      return pageButtons;
+                    })()}
                   </div>
                   
                   <Button
