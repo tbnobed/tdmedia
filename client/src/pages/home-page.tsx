@@ -56,28 +56,25 @@ export default function HomePage() {
     totalPages: 0
   });
   
-  // Function to fetch media data
-  async function fetchMediaData() {
+  // Single function to fetch media data with specific page
+  async function fetchMediaData(targetPage: number) {
     setIsLoading(true);
     try {
-      // Build URL with all parameters
       const params = new URLSearchParams();
       if (filters.search) params.append("search", filters.search);
       if (filters.playlistId) params.append("playlistId", filters.playlistId.toString());
       if (filters.sort) params.append("sort", filters.sort);
-      params.append("page", page.toString());
+      params.append("page", targetPage.toString());
       params.append("itemsPerPage", itemsPerPage.toString());
       
       const url = `/api/client/media?${params}`;
-      console.log(`Fetching media: page ${page}, ${itemsPerPage} items per page`);
+      console.log(`Fetching media: page ${targetPage}`);
       
-      // Make request with cache prevention
       const response = await fetch(url, {
         credentials: "include",
         cache: "no-store",
         headers: {
-          "Cache-Control": "no-cache",
-          "Pragma": "no-cache"
+          "Cache-Control": "no-cache"
         }
       });
       
@@ -85,11 +82,9 @@ export default function HomePage() {
         throw new Error(`API error: ${response.status}`);
       }
       
-      // Extract data
       const data: PaginatedResponse = await response.json();
-      console.log(`Got ${data.items.length} items for page ${page}`);
+      console.log(`Got ${data.items.length} items for page ${targetPage}`);
       
-      // Update state
       setMediaItems(data.items);
       setPaginationInfo(data.pagination);
     } catch (err) {
@@ -99,67 +94,19 @@ export default function HomePage() {
     }
   }
   
-  // Fetch data when dependencies change - using useEffect with cleanup
+  // Fetch when filters or items per page change
   useEffect(() => {
-    // Use a flag to track if the component is still mounted
-    let isMounted = true;
-    
-    // Create a function to fetch only if component is still mounted
-    const getMediaWithMountCheck = async () => {
-      console.log(`Starting fetch for page ${page}`);
-      setIsLoading(true);
-      
-      try {
-        // Build URL with all parameters
-        const params = new URLSearchParams();
-        if (filters.search) params.append("search", filters.search);
-        if (filters.playlistId) params.append("playlistId", filters.playlistId.toString());
-        if (filters.sort) params.append("sort", filters.sort);
-        params.append("page", page.toString());
-        params.append("itemsPerPage", itemsPerPage.toString());
-        
-        const url = `/api/client/media?${params}`;
-        
-        // Make request with cache prevention
-        const response = await fetch(url, {
-          credentials: "include",
-          cache: "no-store",
-          headers: {
-            "Cache-Control": "no-cache",
-            "Pragma": "no-cache"
-          }
-        });
-        
-        if (!response.ok) {
-          throw new Error(`API error: ${response.status}`);
-        }
-        
-        // Extract data
-        const data: PaginatedResponse = await response.json();
-        console.log(`Got ${data.items.length} items for page ${page}`);
-        
-        // Only update state if component is still mounted
-        if (isMounted) {
-          setMediaItems(data.items);
-          setPaginationInfo(data.pagination);
-          setIsLoading(false);
-        }
-      } catch (err) {
-        console.error("Error fetching media:", err);
-        if (isMounted) {
-          setIsLoading(false);
-        }
-      }
-    };
-    
-    // Call the fetch function
-    getMediaWithMountCheck();
-    
-    // Cleanup function to prevent state updates after unmount
-    return () => {
-      isMounted = false;
-    };
-  }, [page, itemsPerPage, filters.search, filters.playlistId, filters.sort]);
+    // Reset to page 1 when filters or itemsPerPage change
+    fetchMediaData(1);
+  }, [filters.search, filters.playlistId, filters.sort, itemsPerPage]);
+  
+  // Separate effect to handle page changes
+  useEffect(() => {
+    // Don't re-fetch if we're already at page 1, since the first useEffect handles that
+    if (page !== 1) {
+      fetchMediaData(page);
+    }
+  }, [page]);
   
   // Handle page change
   const handlePageChange = (newPage: number) => {
