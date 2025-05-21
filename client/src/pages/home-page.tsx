@@ -48,6 +48,7 @@ export default function HomePage() {
   const [contactOpen, setContactOpen] = useState(false);
   
   // Create the query for media with all parameters
+  // Using staleTime: 0 to ensure we get fresh data every time
   const { data: mediaData, isLoading, refetch } = useQuery<PaginatedResponse>({
     queryKey: ["/api/client/media", filters.search, filters.playlistId, filters.sort, page, itemsPerPage],
     queryFn: async () => {
@@ -61,15 +62,30 @@ export default function HomePage() {
       const url = `/api/client/media?${params.toString()}`;
       console.log(`Fetching media page ${page}, items per page: ${itemsPerPage}`, url);
       
-      const response = await fetch(url, { credentials: "include" });
+      const response = await fetch(url, { 
+        credentials: "include",
+        // Add cache-busting to force fresh data
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
+        }
+      });
       if (!response.ok) throw new Error(`API error: ${response.status}`);
       return response.json();
-    }
+    },
+    refetchOnWindowFocus: false,
+    staleTime: 0 // Consider data immediately stale to force refetches
   });
   
-  // Handle page change
+  // Handle page change with improved logging
   const handlePageChange = (newPage: number) => {
+    console.log(`Changing page from ${page} to ${newPage}`);
     setPage(newPage);
+    // Force immediate refresh
+    setTimeout(() => {
+      console.log(`Forcing data refresh for page ${newPage}`);
+      refetch();
+    }, 10);
   };
   
   // Handler for filter changes
@@ -190,7 +206,13 @@ export default function HomePage() {
                     variant="outline"
                     size="sm"
                     disabled={page === 1}
-                    onClick={() => handlePageChange(page - 1)}
+                    onClick={() => {
+                      if (page > 1) {
+                        const newPage = page - 1;
+                        console.log(`Moving to previous page: ${newPage}`);
+                        handlePageChange(newPage);
+                      }
+                    }}
                     className="h-9 rounded-l-md"
                   >
                     <span className="sr-only">Previous</span>
@@ -206,41 +228,57 @@ export default function HomePage() {
                   
                   {/* Desktop view: show page numbers */}
                   <div className="hidden sm:flex">
-                    {/* Generate page number buttons based on current page and total pages */}
-                    {(() => {
-                      // Logic to determine which page numbers to show
-                      const pageButtons = [];
-                      let startPage = Math.max(1, page - 2);
-                      let endPage = Math.min(totalPages, startPage + 4);
+                    {/* Simplified pagination buttons */}
+                    {Array.from({ length: Math.min(5, totalPages || 1) }, (_, index) => {
+                      // Calculate which page numbers to show based on current page
+                      let pageNum = 1;
                       
-                      // Adjust if we're near the end
-                      if (endPage - startPage < 4 && startPage > 1) {
-                        startPage = Math.max(1, endPage - 4);
+                      if (totalPages <= 5) {
+                        // If 5 or fewer pages, just show 1 through totalPages
+                        pageNum = index + 1;
+                      } else if (page <= 3) {
+                        // Near the start: show pages 1-5
+                        pageNum = index + 1;
+                      } else if (page >= totalPages - 2) {
+                        // Near the end: show last 5 pages
+                        pageNum = totalPages - 4 + index;
+                      } else {
+                        // In the middle: show current page and 2 on each side
+                        pageNum = page - 2 + index;
                       }
                       
-                      for (let i = startPage; i <= endPage; i++) {
-                        pageButtons.push(
+                      // Only render if the page number is valid
+                      if (pageNum <= totalPages && pageNum > 0) {
+                        return (
                           <Button
-                            key={i}
-                            variant={page === i ? "default" : "outline"}
+                            key={pageNum}
+                            variant={page === pageNum ? "default" : "outline"}
                             className="h-9"
                             size="sm"
-                            onClick={() => handlePageChange(i)}
+                            onClick={() => {
+                              console.log(`Clicked page button ${pageNum}`);
+                              handlePageChange(pageNum);
+                            }}
                           >
-                            {i}
+                            {pageNum}
                           </Button>
                         );
                       }
-                      
-                      return pageButtons;
-                    })()}
+                      return null;
+                    })}
                   </div>
                   
                   <Button
                     variant="outline"
                     size="sm"
                     disabled={page === totalPages || totalPages === 0}
-                    onClick={() => handlePageChange(page + 1)}
+                    onClick={() => {
+                      if (page < totalPages) {
+                        const newPage = page + 1;
+                        console.log(`Moving to next page: ${newPage}`);
+                        handlePageChange(newPage);
+                      }
+                    }}
                     className="h-9 rounded-r-md"
                   >
                     <span className="sr-only">Next</span>
