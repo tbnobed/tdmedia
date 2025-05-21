@@ -41,6 +41,13 @@ export default function HomePage() {
   const [page, setPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(8); // Default to 8 items per page
   
+  // Page change handler that ensures data refetches
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+    // This will force a refetch since the page is part of the queryKey
+    console.log(`Changing to page ${newPage}`);
+  };
+  
   // Media viewer state
   const [selectedMedia, setSelectedMedia] = useState<Media | null>(null);
   const [viewerOpen, setViewerOpen] = useState(false);
@@ -90,7 +97,7 @@ export default function HomePage() {
     sort: string;
   }) => {
     setFilters(newFilters);
-    setPage(1); // Reset to first page when filters change
+    handlePageChange(1); // Reset to first page when filters change
   };
   
   // Handler for opening media viewer
@@ -185,7 +192,7 @@ export default function HomePage() {
                     onChange={(e) => {
                       const newValue = parseInt(e.target.value);
                       setItemsPerPage(newValue);
-                      setPage(1); // Reset to first page when changing items per page
+                      handlePageChange(1); // Reset to first page when changing items per page
                     }}
                     className="h-8 rounded-md border border-gray-300 text-xs sm:text-sm px-2 py-1 bg-white"
                   >
@@ -201,7 +208,7 @@ export default function HomePage() {
                     variant="outline"
                     size="sm"
                     disabled={page === 1}
-                    onClick={() => setPage(page - 1)}
+                    onClick={() => handlePageChange(page - 1)}
                     className="h-9 rounded-l-md"
                   >
                     <span className="sr-only">Previous</span>
@@ -236,7 +243,7 @@ export default function HomePage() {
                             variant={page === i ? "default" : "outline"}
                             className="h-9"
                             size="sm"
-                            onClick={() => setPage(i)}
+                            onClick={() => handlePageChange(i)}
                           >
                             {i}
                           </Button>
@@ -251,7 +258,7 @@ export default function HomePage() {
                     variant="outline"
                     size="sm"
                     disabled={page === totalPages || totalPages === 0}
-                    onClick={() => setPage(page + 1)}
+                    onClick={() => handlePageChange(page + 1)}
                     className="h-9 rounded-r-md"
                   >
                     <span className="sr-only">Next</span>
