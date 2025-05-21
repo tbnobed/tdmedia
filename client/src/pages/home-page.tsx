@@ -108,10 +108,13 @@ export default function HomePage() {
     }
   }, [page]);
   
-  // Handle page change
+  // Handle page change - ensure direct page setting
   const handlePageChange = (newPage: number) => {
     console.log(`Changing to page ${newPage}`);
+    // Force the page update directly
     setPage(newPage);
+    // Force fetch of the page data immediately
+    fetchMediaData(newPage);
   };
   
   // Handle filter changes
@@ -258,10 +261,13 @@ export default function HomePage() {
                       }
                       
                       if (pageNum <= totalPages && pageNum > 0) {
+                        // Get the active page from paginationInfo.page for consistency
+                        const isActive = paginationInfo.page === pageNum;
+                        
                         return (
                           <Button
                             key={pageNum}
-                            variant={page === pageNum ? "default" : "outline"}
+                            variant={isActive ? "default" : "outline"}
                             className="h-9"
                             size="sm"
                             onClick={() => handlePageChange(pageNum)}
