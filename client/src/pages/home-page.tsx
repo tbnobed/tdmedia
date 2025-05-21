@@ -50,12 +50,14 @@ export default function HomePage() {
   const [contactOpen, setContactOpen] = useState(false);
   
   // Fetch media with filters - uses client-specific endpoint for regular users
-  const { data: mediaData, isLoading, refetch } = useQuery<Media[]>({
+  const { data: mediaData, isLoading, refetch } = useQuery<PaginatedResponse>({
     queryKey: [
       "/api/client/media", 
       filters.search, 
       filters.playlistId, 
-      filters.sort
+      filters.sort,
+      page,
+      itemsPerPage
     ]
   });
   
@@ -81,17 +83,22 @@ export default function HomePage() {
     setContactOpen(true);
   };
   
-  // Let's handle the data from the API response in a way that works with our current format
-  // The API still returns the array format, so we need to work with that
-  const mediaItems = Array.isArray(mediaData) ? mediaData : [];
-  const totalItems = mediaItems.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  // Extract data from the paginated response
+  const mediaItems = mediaData?.items || [];
+  const pagination = mediaData?.pagination || { 
+    page: 1, 
+    itemsPerPage: 8, 
+    totalItems: 0, 
+    totalPages: 0 
+  };
+  
+  const totalItems = pagination.totalItems;
+  const totalPages = pagination.totalPages;
   const startItem = totalItems > 0 ? ((page - 1) * itemsPerPage) + 1 : 0;
   const endItem = Math.min(page * itemsPerPage, totalItems);
   
-  // Get paginated media items
-  const startIndex = (page - 1) * itemsPerPage;
-  const paginatedItems = mediaItems.slice(startIndex, startIndex + itemsPerPage);
+  // Now we can use the items directly from the API's paginated response
+  const paginatedItems = mediaItems;
   
   return (
     <div className="min-h-screen flex flex-col">
