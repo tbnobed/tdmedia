@@ -91,7 +91,7 @@ export default function MediaGrid({ media, onOpenMedia }: MediaGridProps) {
                   </span>
                   <span className="text-xs text-gray-500">{getMediaMetadata(item)}</span>
                 </div>
-                <h3 className="mt-2 text-base sm:text-lg font-medium text-gray-900 line-clamp-1">{item.title}</h3>
+                <h3 className="mt-2 text-base sm:text-lg font-medium text-gray-900">{item.title}</h3>
                 
                 {/* Content Classification */}
                 {getContentClassification(item) && (

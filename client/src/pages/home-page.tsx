@@ -29,7 +29,7 @@ export default function HomePage() {
   // Pagination state
   const [page, setPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
-  const itemsPerPage = 8;
+  const [itemsPerPage, setItemsPerPage] = useState(8); // Default to 8 items per page
   
   // Media viewer state
   const [selectedMedia, setSelectedMedia] = useState<Media | null>(null);
@@ -87,7 +87,8 @@ export default function HomePage() {
   const endItem = Math.min(page * itemsPerPage, totalItems);
   
   // Filtered media for current page
-  const paginatedMedia = mediaData ? mediaData.slice(0, itemsPerPage) : [];
+  const startIndex = (page - 1) * itemsPerPage;
+  const paginatedMedia = mediaData ? mediaData.slice(startIndex, startIndex + itemsPerPage) : [];
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -140,7 +141,29 @@ export default function HomePage() {
                 <span className="font-medium">{totalItems}</span> results
               </div>
               
-              <div className="flex justify-center w-full sm:w-auto">
+              <div className="flex flex-col sm:flex-row justify-center w-full sm:w-auto gap-3 sm:gap-4 items-center">
+                {/* Items per page selector */}
+                <div className="flex items-center gap-2">
+                  <label htmlFor="itemsPerPage" className="text-xs sm:text-sm text-gray-700">
+                    Items per page:
+                  </label>
+                  <select
+                    id="itemsPerPage"
+                    value={itemsPerPage}
+                    onChange={(e) => {
+                      const newValue = parseInt(e.target.value);
+                      setItemsPerPage(newValue);
+                      setPage(1); // Reset to first page when changing items per page
+                    }}
+                    className="h-8 rounded-md border border-gray-300 text-xs sm:text-sm px-2 py-1 bg-white"
+                  >
+                    <option value={8}>8</option>
+                    <option value={12}>12</option>
+                    <option value={16}>16</option>
+                    <option value={24}>24</option>
+                  </select>
+                </div>
+                
                 <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
                   <Button
                     variant="outline"
@@ -178,7 +201,7 @@ export default function HomePage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    disabled={page === totalPages}
+                    disabled={page === totalPages || totalPages === 0}
                     onClick={() => setPage(page + 1)}
                     className="h-9 rounded-r-md"
                   >
