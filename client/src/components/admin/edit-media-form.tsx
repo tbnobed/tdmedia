@@ -137,7 +137,12 @@ export default function EditMediaForm({ media, onComplete }: EditMediaFormProps)
       return await res.json();
     },
     onSuccess: () => {
+      // Invalidate all related queries to ensure UI updates
       queryClient.invalidateQueries({ queryKey: ["/api/media"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/media-with-playlists"] });
+      queryClient.invalidateQueries({ queryKey: [`/api/media/${media.id}/playlists`] });
+      queryClient.invalidateQueries({ queryKey: ["/api/client/media"] });
+      
       toast({
         title: "Media updated",
         description: "The media item has been updated successfully.",
