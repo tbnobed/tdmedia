@@ -92,7 +92,7 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
   
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-[1200px] p-0 overflow-hidden w-[95vw] max-h-[90vh]" onContextMenu={preventRightClick}>
+      <DialogContent className="max-w-[1200px] p-0 overflow-hidden w-[95vw] h-auto max-h-[90vh] flex flex-col" onContextMenu={preventRightClick}>
         <div className="absolute top-0 right-0 pt-3 pr-3 sm:pt-4 sm:pr-4 z-10">
           <Button
             variant="ghost"
@@ -104,7 +104,8 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
           </Button>
         </div>
         
-        <div className="bg-gray-900 relative video-container-16-9">
+        {/* Media Container - Adjusted for proper aspect ratio without extra space */}
+        <div className="bg-gray-900 relative" style={{ height: 'auto', aspectRatio: '16/9' }}>
           {/* Watermark - only for images, we're using the iframe watermark for videos */}
           {activeViewer === "image" && (
             <div className="watermark-container">
@@ -121,7 +122,7 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
           
           {/* Video Player - Using iframe player for better fullscreen control */}
           {activeViewer === "video" && media && (
-            <div className="video-player-wrap">
+            <div className="w-full h-full">
               <IframeVideoPlayer 
                 mediaId={media.id}
                 showWatermark={true}
@@ -199,7 +200,8 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
           )}
         </div>
         
-        <div className="bg-white px-3 pt-3 pb-2 sm:px-4 sm:pt-4 sm:pb-3" style={{ maxHeight: '160px', overflow: 'auto' }}>
+        {/* Info Section - Set to auto height to fit content */}
+        <div className="bg-white px-3 pt-3 pb-2 sm:px-4 sm:pt-4 sm:pb-3 flex-shrink-0">
           <DialogHeader className="space-y-1 sm:space-y-2">
             <DialogTitle className="text-lg sm:text-xl">{media.title}</DialogTitle>
             
