@@ -1,0 +1,65 @@
+app-1       | Client media request params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'newest',
+app-1       |   page: 1,
+app-1       |   itemsPerPage: 12,
+app-1       |   user: 1
+app-1       | }
+app-1       | 5:13:26 PM [express] GET /api/client/media 200 in 11ms :: {"items":[{"id":29,"title":"Chase the Lion…
+app-1       | 5:13:26 PM [express] GET /api/client/media 200 in 12ms :: {"items":[{"id":42,"title":"Takeaways with…
+app-1       | Client media request params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'newest',
+app-1       |   page: 2,
+app-1       |   itemsPerPage: 12,
+app-1       |   user: 1
+app-1       | }
+app-1       | Client media request params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'newest',
+app-1       |   page: 1,
+app-1       |   itemsPerPage: 12,
+app-1       |   user: 1
+app-1       | }
+app-1       | 5:13:27 PM [express] GET /api/client/media 200 in 10ms :: {"items":[{"id":29,"title":"Chase the Lion…
+app-1       | 5:13:27 PM [express] GET /api/client/media 200 in 12ms :: {"items":[{"id":42,"title":"Takeaways with…
+app-1       | Client media request params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'newest',
+app-1       |   page: 2,
+app-1       |   itemsPerPage: 12,
+app-1       |   user: 1
+app-1       | }
+app-1       | 5:13:27 PM [express] GET /api/client/media 200 in 10ms :: {"items":[{"id":29,"title":"Chase the Lion…
+app-1       | Client media request params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'newest',
+app-1       |   page: 1,
+app-1       |   itemsPerPage: 12,
+app-1       |   user: 1
+app-1       | }
+app-1       | 5:13:27 PM [express] GET /api/client/media 200 in 11ms :: {"items":[{"id":42,"title":"Takeaways with…
+app-1       | Client media request params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'newest',
+app-1       |   page: 2,
+app-1       |   itemsPerPage: 12,
+app-1       |   user: 1
+app-1       | }
+app-1       | 5:13:28 PM [express] GET /api/client/media 200 in 9ms :: {"items":[{"id":29,"title":"Chase the Lion …
+app-1       | Client media request params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'newest',
+app-1       |   page: 1,
+app-1       |   itemsPerPage: 12,
+app-1       |   user: 1
+app-1       | }
+app-1       | 5:13:28 PM [express] GET /api/client/media 200 in 7ms :: {"items":[{"id":42,"title":"Takeaways with …
+obtv-admin@dev-tdmedia:~/tdmedia$

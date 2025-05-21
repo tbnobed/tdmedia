@@ -30,14 +30,12 @@ export default function HomePage() {
   // State for view type
   const [viewType, setViewType] = useState<"grid" | "list">("grid");
   
-  // State for filters and pagination in a single state object to ensure consistency
-  const [queryParams, setQueryParams] = useState({
-    search: "",
-    playlistId: undefined as number | undefined,
-    sort: "newest",
-    page: 1,
-    itemsPerPage: 8
-  });
+  // Separate state variables for better control
+  const [search, setSearch] = useState("");
+  const [playlistId, setPlaylistId] = useState<number | undefined>(undefined);
+  const [sort, setSort] = useState("newest");
+  const [page, setPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(8);
   
   // Media viewer state
   const [selectedMedia, setSelectedMedia] = useState<Media | null>(null);
@@ -47,34 +45,32 @@ export default function HomePage() {
   const [contactMedia, setContactMedia] = useState<Media | null>(null);
   const [contactOpen, setContactOpen] = useState(false);
   
-  // Create a more reliable query for media
-  const { data: mediaData, isLoading } = useQuery<PaginatedResponse>({
-    queryKey: [
-      "/api/client/media", 
-      queryParams.search, 
-      queryParams.playlistId, 
-      queryParams.sort, 
-      queryParams.page, 
-      queryParams.itemsPerPage
-    ],
-    queryFn: async () => {
-      // Build URL with query parameters
+  // Direct data fetching
+  const [isLoading, setIsLoading] = useState(false);
+  const [mediaData, setMediaData] = useState<PaginatedResponse | null>(null);
+  
+  // Function to fetch media data with the current parameters
+  const fetchMedia = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      // Build query parameters
       const params = new URLSearchParams();
-      if (queryParams.search) params.append("search", queryParams.search);
-      if (queryParams.playlistId) params.append("playlistId", queryParams.playlistId.toString());
-      if (queryParams.sort) params.append("sort", queryParams.sort);
-      params.append("page", queryParams.page.toString());
-      params.append("itemsPerPage", queryParams.itemsPerPage.toString());
+      if (search) params.append("search", search);
+      if (playlistId) params.append("playlistId", playlistId.toString());
+      if (sort) params.append("sort", sort);
+      params.append("page", page.toString());
+      params.append("itemsPerPage", itemsPerPage.toString());
       
+      // Make the request
       const url = `/api/client/media?${params.toString()}`;
-      console.log(`Fetching page ${queryParams.page}, ${queryParams.itemsPerPage} items per page | ${url}`);
+      console.log(`FETCHING DATA: Page ${page}, ${itemsPerPage} items/page | ${url}`);
       
-      // Make request with cache-busting headers
-      const response = await fetch(url, { 
+      const response = await fetch(url, {
         credentials: "include",
         headers: {
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache'
+          "Cache-Control": "no-cache, no-store, must-revalidate",
+          "Pragma": "no-cache",
+          "Expires": "0"
         }
       });
       
@@ -82,21 +78,26 @@ export default function HomePage() {
         throw new Error(`API error: ${response.status}`);
       }
       
-      return response.json();
-    },
-    refetchOnWindowFocus: false,
-    staleTime: 0,
-    refetchInterval: false
-  });
+      // Parse and store the response
+      const data = await response.json();
+      console.log(`RECEIVED DATA for page ${page}:`, data.items.length, "items");
+      setMediaData(data);
+    } catch (error) {
+      console.error("Error fetching media:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [search, playlistId, sort, page, itemsPerPage]);
   
-  // Handle page change
+  // Fetch data whenever parameters change
+  useEffect(() => {
+    fetchMedia();
+  }, [fetchMedia]);
+  
+  // Handle page change - direct approach
   const handlePageChange = (newPage: number) => {
     console.log(`Changing to page ${newPage}`);
-    // Update all query parameters at once to maintain consistency
-    setQueryParams(prev => ({
-      ...prev,
-      page: newPage
-    }));
+    setPage(newPage);
   };
   
   // Handler for filter changes
@@ -105,22 +106,17 @@ export default function HomePage() {
     playlistId: number | undefined;
     sort: string;
   }) => {
-    // When filters change, update all parameters and reset to page 1
-    setQueryParams(prev => ({
-      ...prev,
-      ...newFilters,
-      page: 1 // Reset to first page when filters change
-    }));
+    // Reset to page 1 when filters change
+    setSearch(newFilters.search);
+    setPlaylistId(newFilters.playlistId);
+    setSort(newFilters.sort);
+    setPage(1); // Always reset to first page
   };
   
   // Handler for items per page change
   const handleItemsPerPageChange = (newItemsPerPage: number) => {
-    // When items per page changes, update and reset to page 1
-    setQueryParams(prev => ({
-      ...prev,
-      itemsPerPage: newItemsPerPage,
-      page: 1
-    }));
+    setItemsPerPage(newItemsPerPage);
+    setPage(1); // Reset to first page
   };
   
   // Handler for opening media viewer
@@ -135,19 +131,21 @@ export default function HomePage() {
     setContactOpen(true);
   };
   
-  // Extract data from the paginated response with defaults
+  // Extract data with defaults
   const mediaItems = mediaData?.items || [];
-  const pagination = mediaData?.pagination || { 
-    page: queryParams.page, 
-    itemsPerPage: queryParams.itemsPerPage, 
-    totalItems: 0, 
-    totalPages: 0 
+  const pagination = mediaData?.pagination || {
+    page: page,
+    itemsPerPage: itemsPerPage,
+    totalItems: 0,
+    totalPages: 0
   };
   
-  // Calculate pagination information
-  const { page, totalItems, totalPages } = pagination;
-  const startItem = totalItems > 0 ? ((page - 1) * queryParams.itemsPerPage) + 1 : 0;
-  const endItem = Math.min(page * queryParams.itemsPerPage, totalItems);
+  // Calculate pagination display values
+  const totalItems = pagination.totalItems;
+  const totalPages = pagination.totalPages;
+  const currentPage = pagination.page;
+  const startItem = totalItems > 0 ? ((currentPage - 1) * itemsPerPage) + 1 : 0;
+  const endItem = Math.min(currentPage * itemsPerPage, totalItems);
   
   return (
     <div className="min-h-screen flex flex-col">
