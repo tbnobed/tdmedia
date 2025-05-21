@@ -34,24 +34,41 @@ export default function IframeVideoPlayer({
   // This is the critical function - we use an iframe with allowFullScreen={false}
   // which is the most reliable way to restrict fullscreen capabilities
   
-  // Fetch stream info
+  // Fetch stream info - using a more reliable approach
   const { data: streamInfo, isLoading, error } = useQuery<StreamInfo>({
     queryKey: [`/api/stream/${mediaId}`],
     enabled: !!mediaId,
+    retry: 1,
+    staleTime: 300000, // 5 minutes
+    gcTime: 600000, // 10 minutes
     queryFn: async () => {
-      const baseUrl = window.TBN_CONFIG?.apiBaseUrl || '';
-      const url = `/api/stream/${mediaId}`;
-      const fullUrl = `${baseUrl}${url}`;
-      
-      const res = await fetch(fullUrl, {
-        credentials: "include",
-      });
-      
-      if (!res.ok) {
-        throw new Error(`Failed to fetch stream info: ${res.status} ${res.statusText}`);
+      try {
+        // Get API base URL from window config or default to empty string
+        const baseUrl = window.TRILOGY_CONFIG?.apiBaseUrl || '';
+        const url = `/api/stream/${mediaId}`;
+        const fullUrl = `${baseUrl}${url}`;
+        
+        console.log(`Fetching stream info for media ID: ${mediaId}`);
+        
+        const res = await fetch(fullUrl, {
+          credentials: "include",
+          headers: {
+            'Cache-Control': 'no-cache',
+            'Pragma': 'no-cache'
+          }
+        });
+        
+        if (!res.ok) {
+          throw new Error(`Failed to fetch stream info: ${res.status} ${res.statusText}`);
+        }
+        
+        const data = await res.json();
+        console.log(`Stream info received for media ID: ${mediaId}`);
+        return data;
+      } catch (err) {
+        console.error(`Stream fetch error for media ID ${mediaId}:`, err);
+        throw err;
       }
-      
-      return res.json();
     },
   });
   
@@ -111,10 +128,10 @@ export default function IframeVideoPlayer({
   }
   
   // Construct the video URL
-  const videoUrl = `${window.TBN_CONFIG?.apiBaseUrl || ''}${streamInfo.streamUrl}`;
+  const videoUrl = `${window.TRILOGY_CONFIG?.apiBaseUrl || ''}${streamInfo.streamUrl}`;
   
-  // Create an enhanced HTML document that contains the video with appropriate watermarks
-  // and fullscreen restrictions based on user role
+  // Create a simplified HTML document that contains the video with appropriate watermarks
+  // using a more reliable approach to prevent browser crashes
   const iframeContent = `
     <!DOCTYPE html>
     <html>
@@ -130,31 +147,27 @@ export default function IframeVideoPlayer({
           overflow: hidden;
           background-color: #000;
         }
-        html, body {
-          margin: 0;
-          padding: 0;
-          width: 100%;
-          height: 100%;
-          overflow: hidden;
-        }
         body {
           display: flex;
           align-items: center;
           justify-content: center;
-          background-color: #000;
+        }
+        .video-container {
+          width: 100%;
+          max-width: 100%;
+          position: relative;
         }
         video {
           width: 100%;
           height: auto;
-          aspect-ratio: 16/9;
+          max-height: 100%;
           display: block;
-          margin: 0 auto;
         }
         video::-webkit-media-controls-fullscreen-button {
           display: none !important;
         }
         
-        /* Watermark styles */
+        /* Simple watermark styles for better performance */
         .watermark-container {
           position: absolute;
           top: 0;
@@ -163,169 +176,74 @@ export default function IframeVideoPlayer({
           height: 100%;
           pointer-events: none;
           z-index: 10;
-        }
-        
-        .watermark-text {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%) rotate(-30deg);
-          font-size: 2.5rem;
-          font-weight: bold;
-          color: rgba(255, 255, 255, 0.08);
-          white-space: nowrap;
-        }
-        
-        .watermark-grid {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
-          grid-template-rows: repeat(4, 1fr);
-          width: 100%;
-          height: 100%;
+          grid-template-rows: repeat(3, 1fr);
         }
         
-        .watermark-grid-item {
+        .watermark-item {
           display: flex;
           align-items: center;
           justify-content: center;
         }
         
-        .watermark-grid-item span {
+        .watermark-text {
           transform: rotate(-30deg);
-          font-size: 0.8rem;
-          color: rgba(255, 255, 255, 0.06);
+          font-size: 14px;
+          color: rgba(255, 255, 255, 0.08);
           font-weight: 400;
         }
       </style>
     </head>
     <body>
-      <video 
-        src="${videoUrl}" 
-        controls 
-        controlsList="nodownload nofullscreen"
-        playsinline
-        disablePictureInPicture
-        ${streamInfo.thumbnailUrl ? `poster="${window.TBN_CONFIG?.apiBaseUrl || ''}${streamInfo.thumbnailUrl}"` : ''}
-      >
-        Your browser does not support the video tag.
-      </video>
-      
-      <div id="watermarkContainer" class="watermark-container" style="display: none;">
-        <!-- We're removing the center watermark text to avoid duplication -->
+      <div class="video-container">
+        <video 
+          id="videoPlayer"
+          src="${videoUrl}" 
+          controls 
+          controlsList="nodownload nofullscreen"
+          playsinline
+          disablePictureInPicture
+          ${streamInfo.thumbnailUrl ? `poster="${window.TRILOGY_CONFIG?.apiBaseUrl || ''}${streamInfo.thumbnailUrl}"` : ''}
+        >
+          Your browser does not support the video tag.
+        </video>
         
-        <div class="watermark-grid">
-          ${Array.from({ length: 12 }).map((_, index) => `
-            <div class="watermark-grid-item">
-              <span>TBN</span>
+        <div id="watermarkContainer" class="watermark-container">
+          ${Array.from({ length: 9 }).map(() => `
+            <div class="watermark-item">
+              <span class="watermark-text">TBN</span>
             </div>
           `).join('')}
         </div>
       </div>
       
       <script>
-        const video = document.querySelector('video');
+        // Get references to elements
+        const video = document.getElementById('videoPlayer');
         const watermarkContainer = document.getElementById('watermarkContainer');
         
-        // Prevent right-click on the entire document
-        document.addEventListener('contextmenu', function(e) {
-          e.preventDefault();
-          return false;
-        }, false);
+        // Prevent right-click
+        document.addEventListener('contextmenu', e => e.preventDefault());
         
-        // Prevent drag and drop of video elements
-        document.addEventListener('dragstart', function(e) {
-          e.preventDefault();
-          return false;
-        }, false);
+        // Prevent drag and drop
+        document.addEventListener('dragstart', e => e.preventDefault());
         
-        // Function to check response headers for watermarking instructions
-        async function checkWatermarkHeaders() {
-          try {
-            // Make a HEAD request to the video URL to get headers
-            const response = await fetch('${videoUrl}', {
-              method: 'HEAD',
-              credentials: 'include'
-            });
-            
-            // Check if watermarking is required based on headers
-            const watermarkRequired = response.headers.get('X-TBN-Watermark') === 'required';
-            const userRole = response.headers.get('X-TBN-Role') || 'client';
-            
-            console.log('Video headers:', {
-              watermarkRequired,
-              userRole
-            });
-            
-            // Show watermark for client users or if specifically required
-            if (watermarkRequired || userRole === 'client') {
-              watermarkContainer.style.display = 'block';
-            }
-            
-            // Apply fullscreen restrictions based on user role
-            if (userRole !== 'admin') {
-              applyFullscreenRestrictions();
-            }
-          } catch (error) {
-            console.error('Error checking watermark headers:', error);
-            // Default to showing watermark on error
-            watermarkContainer.style.display = 'block';
-            applyFullscreenRestrictions();
+        // Simple fullscreen prevention
+        document.addEventListener('fullscreenchange', () => {
+          if (document.fullscreenElement) document.exitFullscreen();
+        });
+        
+        // Simple keyboard prevention for fullscreen shortcuts
+        document.addEventListener('keydown', e => {
+          if (e.key === 'f' || e.key === 'F' || e.key === 'F11') {
+            e.preventDefault();
           }
-        }
-        
-        // Function to apply fullscreen restrictions
-        function applyFullscreenRestrictions() {
-          // Block fullscreen requests
-          video.addEventListener('webkitfullscreenchange', (e) => {
-            if (document.webkitFullscreenElement) {
-              document.webkitExitFullscreen();
-            }
-          });
-          
-          video.addEventListener('fullscreenchange', (e) => {
-            if (document.fullscreenElement) {
-              document.exitFullscreen();
-            }
-          });
-          
-          // Prevent fullscreen via JS
-          const origRequestFullscreen = video.requestFullscreen;
-          video.requestFullscreen = function() {
-            console.log('Fullscreen blocked by restriction');
-            return Promise.reject(new Error('Fullscreen is disabled'));
-          };
-          
-          // Block keyboard shortcuts
-          document.addEventListener('keydown', (e) => {
-            if (e.key === 'f' || e.key === 'F' || e.key === 'F11') {
-              e.preventDefault();
-              return false;
-            }
-          });
-          
-          // Additional download prevention
-          video.oncontextmenu = function(e) { 
-            e.preventDefault(); 
-            return false; 
-          };
-        }
-        
-        // Check watermark requirements when video is loaded
-        video.addEventListener('loadedmetadata', checkWatermarkHeaders);
-        
-        // Apply fullscreen restrictions by default for safety
-        applyFullscreenRestrictions();
-        
-        // Detect and block any attempts to download or save the video
-        video.addEventListener('copy', function(e) {
-          e.preventDefault();
-          return false;
         });
         
-        video.addEventListener('cut', function(e) {
-          e.preventDefault();
-          return false;
-        });
+        // Prevent download attempts
+        video.addEventListener('copy', e => e.preventDefault());
+        video.addEventListener('cut', e => e.preventDefault());
       </script>
     </body>
     </html>
@@ -344,6 +262,7 @@ export default function IframeVideoPlayer({
         // This is the critical attribute that prevents fullscreen
         allowFullScreen={false}
         allow="autoplay"
+        loading="lazy"
         sandbox="allow-same-origin allow-scripts"
       ></iframe>
       
