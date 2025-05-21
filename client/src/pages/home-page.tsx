@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState, useEffect, useCallback } from "react";
 import { Media } from "@shared/schema";
 import { useAuth } from "@/hooks/use-auth";
 import Header from "@/components/layout/header";
@@ -206,7 +205,7 @@ export default function HomePage() {
                   </label>
                   <select
                     id="itemsPerPage"
-                    value={queryParams.itemsPerPage}
+                    value={itemsPerPage}
                     onChange={(e) => {
                       const newValue = parseInt(e.target.value);
                       handleItemsPerPageChange(newValue);
