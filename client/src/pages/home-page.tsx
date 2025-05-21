@@ -58,7 +58,29 @@ export default function HomePage() {
       filters.sort,
       page,
       itemsPerPage
-    ]
+    ],
+    queryFn: async () => {
+      // Build query string with all parameters
+      const queryParams = new URLSearchParams();
+      if (filters.search) queryParams.append('search', filters.search);
+      if (filters.playlistId) queryParams.append('playlistId', filters.playlistId.toString());
+      if (filters.sort) queryParams.append('sort', filters.sort);
+      queryParams.append('page', page.toString());
+      queryParams.append('itemsPerPage', itemsPerPage.toString());
+      
+      const url = `/api/client/media?${queryParams.toString()}`;
+      console.log("Making GET request to client media with params:", url);
+      
+      const response = await fetch(url, {
+        credentials: 'include'
+      });
+      
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+      
+      return response.json();
+    }
   });
   
   // Handler for filter changes
