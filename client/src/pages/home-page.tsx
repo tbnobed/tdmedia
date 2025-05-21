@@ -56,64 +56,58 @@ export default function HomePage() {
     totalPages: 0
   });
   
-  // Single function to fetch media data with specific page
-  async function fetchMediaData(targetPage: number) {
+  // Function to fetch media data
+  const fetchMediaData = async (pageToFetch = 1) => {
+    // Set loading state
     setIsLoading(true);
+    
     try {
+      // Build query params
       const params = new URLSearchParams();
       if (filters.search) params.append("search", filters.search);
       if (filters.playlistId) params.append("playlistId", filters.playlistId.toString());
       if (filters.sort) params.append("sort", filters.sort);
-      params.append("page", targetPage.toString());
+      params.append("page", pageToFetch.toString());
       params.append("itemsPerPage", itemsPerPage.toString());
       
       const url = `/api/client/media?${params}`;
-      console.log(`Fetching media: page ${targetPage}`);
+      console.log(`Fetching page ${pageToFetch} with ${itemsPerPage} items per page`);
       
+      // Make the request
       const response = await fetch(url, {
         credentials: "include",
-        cache: "no-store",
-        headers: {
-          "Cache-Control": "no-cache"
-        }
+        cache: "no-store"
       });
       
       if (!response.ok) {
         throw new Error(`API error: ${response.status}`);
       }
       
+      // Parse response
       const data: PaginatedResponse = await response.json();
-      console.log(`Got ${data.items.length} items for page ${targetPage}`);
+      console.log(`Received ${data.items.length} items for page ${pageToFetch}`);
       
+      // Update state with data
       setMediaItems(data.items);
       setPaginationInfo(data.pagination);
-    } catch (err) {
-      console.error("Error fetching media:", err);
+      setPage(data.pagination.page);
+    } catch (error) {
+      console.error("Error fetching media:", error);
     } finally {
       setIsLoading(false);
     }
-  }
+  };
   
-  // Fetch when filters or items per page change
+  // Load initial data when component mounts or filters change
   useEffect(() => {
-    // Reset to page 1 when filters or itemsPerPage change
     fetchMediaData(1);
   }, [filters.search, filters.playlistId, filters.sort, itemsPerPage]);
   
-  // Separate effect to handle page changes
-  useEffect(() => {
-    // Don't re-fetch if we're already at page 1, since the first useEffect handles that
-    if (page !== 1) {
-      fetchMediaData(page);
-    }
-  }, [page]);
-  
-  // Handle page change - ensure direct page setting
+  // Simple page change handler
   const handlePageChange = (newPage: number) => {
+    if (isLoading) return; // Don't allow changes while loading
+    
     console.log(`Changing to page ${newPage}`);
-    // Force the page update directly
-    setPage(newPage);
-    // Force fetch of the page data immediately
     fetchMediaData(newPage);
   };
   
