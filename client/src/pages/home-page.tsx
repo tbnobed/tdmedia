@@ -279,14 +279,8 @@ export default function HomePage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    disabled={page === totalPages || totalPages === 0}
-                    onClick={() => {
-                      if (page < totalPages) {
-                        const newPage = page + 1;
-                        console.log(`Moving to next page: ${newPage}`);
-                        handlePageChange(newPage);
-                      }
-                    }}
+                    disabled={page >= totalPages || totalPages === 0}
+                    onClick={() => handlePageChange(page + 1)}
                     className="h-9 rounded-r-md"
                   >
                     <span className="sr-only">Next</span>
