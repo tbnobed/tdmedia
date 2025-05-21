@@ -12,6 +12,17 @@ import ContactForm from "@/components/contact/contact-form";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
+// Interface for paginated API response
+interface PaginatedResponse {
+  items: Media[];
+  pagination: {
+    page: number;
+    itemsPerPage: number;
+    totalItems: number;
+    totalPages: number;
+  };
+}
+
 export default function HomePage() {
   // Get user info for personalized welcome message
   const { user } = useAuth();
@@ -28,7 +39,6 @@ export default function HomePage() {
   
   // Pagination state
   const [page, setPage] = useState(1);
-  const [totalItems, setTotalItems] = useState(0);
   const [itemsPerPage, setItemsPerPage] = useState(8); // Default to 8 items per page
   
   // Media viewer state
@@ -40,24 +50,25 @@ export default function HomePage() {
   const [contactOpen, setContactOpen] = useState(false);
   
   // Fetch media with filters - uses client-specific endpoint for regular users
-  const { data: mediaData, isLoading, refetch } = useQuery<Media[]>({
+  const { data: paginatedData, isLoading, refetch } = useQuery<PaginatedResponse>({
     queryKey: [
       "/api/client/media", 
       filters.search, 
       filters.playlistId, 
       filters.sort,
-      page
+      page,
+      itemsPerPage
     ],
-  });
-  
-  // Set total items for pagination
-  useEffect(() => {
-    if (mediaData) {
-      // In a real implementation, the API would return the total count
-      // For now, we'll use the actual data length
-      setTotalItems(mediaData.length);
+    // Add the pagination parameters to the request
+    meta: {
+      requestOptions: {
+        params: {
+          page,
+          itemsPerPage
+        }
+      }
     }
-  }, [mediaData]);
+  });
   
   // Handler for filter changes
   const handleFilterChange = (newFilters: {
@@ -81,14 +92,12 @@ export default function HomePage() {
     setContactOpen(true);
   };
   
-  // Calculate pagination values
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
-  const startItem = (page - 1) * itemsPerPage + 1;
+  // Get media data and pagination info
+  const mediaItems = paginatedData?.items || [];
+  const totalItems = paginatedData?.pagination?.totalItems || 0;
+  const totalPages = paginatedData?.pagination?.totalPages || 0;
+  const startItem = totalItems > 0 ? ((page - 1) * itemsPerPage) + 1 : 0;
   const endItem = Math.min(page * itemsPerPage, totalItems);
-  
-  // Filtered media for current page
-  const startIndex = (page - 1) * itemsPerPage;
-  const paginatedMedia = mediaData ? mediaData.slice(startIndex, startIndex + itemsPerPage) : [];
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -127,13 +136,13 @@ export default function HomePage() {
               <div className="animate-spin rounded-full h-12 w-12 sm:h-16 sm:w-16 border-t-2 border-b-2 border-primary"></div>
             </div>
           ) : viewType === "grid" ? (
-            <MediaGrid media={paginatedMedia} onOpenMedia={handleOpenMedia} />
+            <MediaGrid media={mediaItems} onOpenMedia={handleOpenMedia} />
           ) : (
-            <MediaList media={paginatedMedia} onOpenMedia={handleOpenMedia} />
+            <MediaList media={mediaItems} onOpenMedia={handleOpenMedia} />
           )}
           
           {/* Pagination */}
-          {mediaData && mediaData.length > 0 && (
+          {mediaItems && mediaItems.length > 0 && (
             <div className="mt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
               <div className="text-xs sm:text-sm text-gray-700 text-center sm:text-left">
                 Showing <span className="font-medium">{startItem}</span> to{" "}

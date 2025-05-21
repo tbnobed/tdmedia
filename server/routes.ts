@@ -1318,11 +1318,17 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const playlistIdParam = (req.query.playlistId || req.query.playlist || req.query.categoryId || req.query.category) as string | undefined;
       const sort = req.query.sort as string | undefined;
       
+      // Pagination parameters
+      const page = req.query.page ? parseInt(req.query.page as string) : 1;
+      const itemsPerPage = req.query.itemsPerPage ? parseInt(req.query.itemsPerPage as string) : 8;
+      
       // Log incoming parameters for debugging
       console.log("Client media request params:", {
         search,
         playlistIdParam,
         sort,
+        page,
+        itemsPerPage,
         user: req.user?.id
       });
       
@@ -1343,8 +1349,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
         Object.assign(filters, { userId });
       }
       
-      const mediaItems = await storage.getMedia(filters);
-      res.json(mediaItems);
+      // Get all media items matching the filters
+      const allMediaItems = await storage.getMedia(filters);
+      
+      // Calculate total items and pages
+      const totalItems = allMediaItems.length;
+      const totalPages = Math.ceil(totalItems / itemsPerPage);
+      
+      // Calculate start and end indices for pagination
+      const startIndex = (page - 1) * itemsPerPage;
+      const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+      
+      // Get the media items for the current page
+      const mediaItems = allMediaItems.slice(startIndex, endIndex);
+      
+      // Return paginated results with metadata
+      res.json({
+        items: mediaItems,
+        pagination: {
+          page,
+          itemsPerPage,
+          totalItems,
+          totalPages
+        }
+      });
     } catch (error) {
       console.error("Error fetching client media:", error);
       res.status(500).json({ message: "Failed to fetch media" });
