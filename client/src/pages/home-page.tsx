@@ -50,42 +50,13 @@ export default function HomePage() {
   const [contactOpen, setContactOpen] = useState(false);
   
   // Fetch media with filters - uses client-specific endpoint for regular users
-  const { data: paginatedData, isLoading, refetch } = useQuery<PaginatedResponse>({
+  const { data: mediaData, isLoading, refetch } = useQuery<Media[]>({
     queryKey: [
       "/api/client/media", 
       filters.search, 
       filters.playlistId, 
-      filters.sort,
-      page,
-      itemsPerPage
-    ],
-    queryFn: async ({ queryKey }) => {
-      const url = new URL(`${window.location.origin}/api/client/media`);
-      
-      // Add search parameter if present
-      if (filters.search) {
-        url.searchParams.append("search", filters.search);
-      }
-      
-      // Add playlist ID if present
-      if (filters.playlistId) {
-        url.searchParams.append("playlistId", filters.playlistId.toString());
-      }
-      
-      // Add sort parameter
-      url.searchParams.append("sort", filters.sort);
-      
-      // Add pagination parameters
-      url.searchParams.append("page", page.toString());
-      url.searchParams.append("itemsPerPage", itemsPerPage.toString());
-      
-      const response = await fetch(url.toString());
-      if (!response.ok) {
-        throw new Error('Failed to fetch media');
-      }
-      
-      return await response.json();
-    }
+      filters.sort
+    ]
   });
   
   // Handler for filter changes
@@ -110,15 +81,17 @@ export default function HomePage() {
     setContactOpen(true);
   };
   
-  // Check if we have a valid response
-  const hasResponse = paginatedData !== undefined;
-  
-  // Get media data and pagination info
-  const mediaItems = paginatedData?.items || [];
-  const totalItems = paginatedData?.pagination?.totalItems || 0;
-  const totalPages = paginatedData?.pagination?.totalPages || 0;
+  // Let's handle the data from the API response in a way that works with our current format
+  // The API still returns the array format, so we need to work with that
+  const mediaItems = Array.isArray(mediaData) ? mediaData : [];
+  const totalItems = mediaItems.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
   const startItem = totalItems > 0 ? ((page - 1) * itemsPerPage) + 1 : 0;
   const endItem = Math.min(page * itemsPerPage, totalItems);
+  
+  // Get paginated media items
+  const startIndex = (page - 1) * itemsPerPage;
+  const paginatedItems = mediaItems.slice(startIndex, startIndex + itemsPerPage);
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -157,9 +130,9 @@ export default function HomePage() {
               <div className="animate-spin rounded-full h-12 w-12 sm:h-16 sm:w-16 border-t-2 border-b-2 border-primary"></div>
             </div>
           ) : viewType === "grid" ? (
-            <MediaGrid media={mediaItems} onOpenMedia={handleOpenMedia} />
+            <MediaGrid media={paginatedItems} onOpenMedia={handleOpenMedia} />
           ) : (
-            <MediaList media={mediaItems} onOpenMedia={handleOpenMedia} />
+            <MediaList media={paginatedItems} onOpenMedia={handleOpenMedia} />
           )}
           
           {/* Pagination */}
