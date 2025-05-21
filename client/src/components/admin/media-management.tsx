@@ -64,17 +64,22 @@ export default function MediaManagement() {
   const [selectedMedia, setSelectedMedia] = useState<Media | null>(null);
   const [selectedUser, setSelectedUser] = useState<string>("");
 
-  // Fetch all media
-  const { data: media, isLoading } = useQuery<Media[]>({
+  // Fetch all media - forcing a short cache time to ensure frequent refetches
+  const { data: media, isLoading, refetch: refetchMedia } = useQuery<Media[]>({
     queryKey: ["/api/media"],
-    queryFn: getQueryFn({ on401: "throw" })
+    queryFn: getQueryFn({ on401: "throw" }),
+    refetchInterval: 2000, // Refetch every 2 seconds while this tab is open
+    refetchOnWindowFocus: true,
+    staleTime: 1000 // Consider data stale after 1 second
   });
   
   // Fetch playlists for each media
   const { data: enhancedMedia, refetch: refetchEnhancedMedia } = useQuery<MediaWithPlaylists[]>({
     queryKey: ["/api/media-with-playlists"],
     enabled: !!media && media.length > 0,
-    staleTime: 0, // Always refetch when the queryKey changes
+    refetchInterval: 2000, // Refetch every 2 seconds while this tab is open
+    refetchOnWindowFocus: true,
+    staleTime: 0, // Always consider data stale
     queryFn: async () => {
       if (!media) return [];
       
