@@ -30,23 +30,14 @@ export default function HomePage() {
   // State for view type
   const [viewType, setViewType] = useState<"grid" | "list">("grid");
   
-  // State for filters
+  // State for filters and pagination
   const [filters, setFilters] = useState({
     search: "",
     playlistId: undefined as number | undefined,
     sort: "newest",
   });
-  
-  // Pagination state
   const [page, setPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(8); // Default to 8 items per page
-  
-  // Page change handler that ensures data refetches
-  const handlePageChange = (newPage: number) => {
-    setPage(newPage);
-    // This will force a refetch since the page is part of the queryKey
-    console.log(`Changing to page ${newPage}`);
-  };
+  const [itemsPerPage, setItemsPerPage] = useState(8);
   
   // Media viewer state
   const [selectedMedia, setSelectedMedia] = useState<Media | null>(null);
@@ -56,39 +47,30 @@ export default function HomePage() {
   const [contactMedia, setContactMedia] = useState<Media | null>(null);
   const [contactOpen, setContactOpen] = useState(false);
   
-  // Fetch media with filters - uses client-specific endpoint for regular users
+  // Create the query for media with all parameters
   const { data: mediaData, isLoading, refetch } = useQuery<PaginatedResponse>({
-    queryKey: [
-      "/api/client/media", 
-      filters.search, 
-      filters.playlistId, 
-      filters.sort,
-      page,
-      itemsPerPage
-    ],
+    queryKey: ["/api/client/media", filters.search, filters.playlistId, filters.sort, page, itemsPerPage],
     queryFn: async () => {
-      // Build query string with all parameters
-      const queryParams = new URLSearchParams();
-      if (filters.search) queryParams.append('search', filters.search);
-      if (filters.playlistId) queryParams.append('playlistId', filters.playlistId.toString());
-      if (filters.sort) queryParams.append('sort', filters.sort);
-      queryParams.append('page', page.toString());
-      queryParams.append('itemsPerPage', itemsPerPage.toString());
+      const params = new URLSearchParams();
+      if (filters.search) params.append("search", filters.search);
+      if (filters.playlistId) params.append("playlistId", filters.playlistId.toString());
+      if (filters.sort) params.append("sort", filters.sort);
+      params.append("page", page.toString());
+      params.append("itemsPerPage", itemsPerPage.toString());
       
-      const url = `/api/client/media?${queryParams.toString()}`;
-      console.log("Making GET request to client media with params:", url);
+      const url = `/api/client/media?${params.toString()}`;
+      console.log(`Fetching media page ${page}, items per page: ${itemsPerPage}`, url);
       
-      const response = await fetch(url, {
-        credentials: 'include'
-      });
-      
-      if (!response.ok) {
-        throw new Error(`API error: ${response.status}`);
-      }
-      
+      const response = await fetch(url, { credentials: "include" });
+      if (!response.ok) throw new Error(`API error: ${response.status}`);
       return response.json();
     }
   });
+  
+  // Handle page change
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+  };
   
   // Handler for filter changes
   const handleFilterChange = (newFilters: {
@@ -97,7 +79,7 @@ export default function HomePage() {
     sort: string;
   }) => {
     setFilters(newFilters);
-    handlePageChange(1); // Reset to first page when filters change
+    setPage(1); // Reset to first page when filters change
   };
   
   // Handler for opening media viewer
@@ -126,7 +108,7 @@ export default function HomePage() {
   const startItem = totalItems > 0 ? ((page - 1) * itemsPerPage) + 1 : 0;
   const endItem = Math.min(page * itemsPerPage, totalItems);
   
-  // Now we can use the items directly from the API's paginated response
+  // Use the items directly from the API's paginated response
   const paginatedItems = mediaItems;
   
   return (
