@@ -217,74 +217,126 @@ export default function HomePage() {
                   </select>
                 </div>
                 
-                <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={paginationInfo.page <= 1}
-                    onClick={() => handlePageChange(paginationInfo.page - 1)}
-                    className="h-9 rounded-l-md"
+                <div className="flex items-center gap-1 bg-white p-1 rounded-md shadow-sm border border-gray-200">
+                  {/* Previous button - simplified */}
+                  <button 
+                    type="button"
+                    disabled={paginationInfo.page <= 1 || isLoading}
+                    onClick={() => !isLoading && handlePageChange(paginationInfo.page - 1)}
+                    className={`px-3 py-1 rounded text-sm flex items-center justify-center ${
+                      paginationInfo.page <= 1 || isLoading 
+                        ? 'text-gray-400 bg-gray-100 cursor-not-allowed' 
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
                   >
-                    <span className="sr-only">Previous</span>
                     <ChevronLeft className="h-4 w-4" />
-                  </Button>
+                  </button>
                   
-                  {/* Mobile view: just show current/total */}
-                  <div className="sm:hidden flex items-center justify-center px-3 py-2 border border-gray-300 bg-white">
+                  {/* Mobile: simple current/total */}
+                  <div className="sm:hidden flex items-center px-3 py-1">
                     <span className="text-xs font-medium text-gray-700">
-                      Page {page} of {totalPages || 1}
+                      {paginationInfo.page} / {paginationInfo.totalPages || 1}
                     </span>
                   </div>
                   
-                  {/* Desktop view: show page numbers */}
+                  {/* Desktop: simplified page numbers - more stable */}
                   <div className="hidden sm:flex">
-                    {Array.from({ length: Math.min(5, totalPages || 1) }, (_, i) => {
-                      let pageNum;
-                      if (totalPages <= 5) {
-                        // If 5 or fewer pages, show all
-                        pageNum = i + 1;
-                      } else if (page <= 3) {
-                        // Near start, show first 5
-                        pageNum = i + 1;
-                      } else if (page >= totalPages - 2) {
-                        // Near end, show last 5
-                        pageNum = totalPages - 4 + i;
-                      } else {
-                        // In middle, show current and 2 on each side
-                        pageNum = page - 2 + i;
-                      }
+                    {(() => {
+                      // Creating a safer array of page numbers
+                      const safePages = [];
+                      const currentPage = paginationInfo.page;
+                      const maxPages = paginationInfo.totalPages || 1;
                       
-                      if (pageNum <= totalPages && pageNum > 0) {
-                        // Get the active page from paginationInfo.page for consistency
-                        const isActive = paginationInfo.page === pageNum;
-                        
-                        return (
-                          <Button
-                            key={pageNum}
-                            variant={isActive ? "default" : "outline"}
-                            className="h-9"
-                            size="sm"
-                            onClick={() => handlePageChange(pageNum)}
-                          >
-                            {pageNum}
-                          </Button>
+                      // Always show first page
+                      safePages.push(
+                        <button
+                          key="page-1"
+                          type="button"
+                          disabled={currentPage === 1 || isLoading}
+                          onClick={() => currentPage !== 1 && !isLoading && handlePageChange(1)}
+                          className={`w-8 h-8 flex items-center justify-center rounded text-sm ${
+                            currentPage === 1 
+                              ? 'bg-black text-white font-medium' 
+                              : 'text-gray-700 hover:bg-gray-100'
+                          }`}
+                        >
+                          1
+                        </button>
+                      );
+                      
+                      // Add dots if we're not showing page 2
+                      if (currentPage > 3) {
+                        safePages.push(
+                          <span key="dots-1" className="text-gray-500 px-1">...</span>
                         );
                       }
-                      return null;
-                    })}
+                      
+                      // Add pages around current page
+                      for (let i = Math.max(2, currentPage - 1); i <= Math.min(maxPages - 1, currentPage + 1); i++) {
+                        // Skip if we're showing first/last page elsewhere
+                        if (i === 1 || i === maxPages) continue;
+                        
+                        safePages.push(
+                          <button
+                            key={`page-${i}`}
+                            type="button"
+                            disabled={currentPage === i || isLoading}
+                            onClick={() => currentPage !== i && !isLoading && handlePageChange(i)}
+                            className={`w-8 h-8 flex items-center justify-center rounded text-sm ${
+                              currentPage === i 
+                                ? 'bg-black text-white font-medium' 
+                                : 'text-gray-700 hover:bg-gray-100'
+                            }`}
+                          >
+                            {i}
+                          </button>
+                        );
+                      }
+                      
+                      // Add dots if needed
+                      if (currentPage < maxPages - 2) {
+                        safePages.push(
+                          <span key="dots-2" className="text-gray-500 px-1">...</span>
+                        );
+                      }
+                      
+                      // Always show last page if we have more than 1 page
+                      if (maxPages > 1) {
+                        safePages.push(
+                          <button
+                            key={`page-${maxPages}`}
+                            type="button"
+                            disabled={currentPage === maxPages || isLoading}
+                            onClick={() => currentPage !== maxPages && !isLoading && handlePageChange(maxPages)}
+                            className={`w-8 h-8 flex items-center justify-center rounded text-sm ${
+                              currentPage === maxPages 
+                                ? 'bg-black text-white font-medium' 
+                                : 'text-gray-700 hover:bg-gray-100'
+                            }`}
+                          >
+                            {maxPages}
+                          </button>
+                        );
+                      }
+                      
+                      return safePages;
+                    })()}
                   </div>
                   
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={paginationInfo.page >= totalPages || totalPages === 0}
-                    onClick={() => handlePageChange(paginationInfo.page + 1)}
-                    className="h-9 rounded-r-md"
+                  {/* Next button - simplified */}
+                  <button 
+                    type="button"
+                    disabled={paginationInfo.page >= paginationInfo.totalPages || isLoading}
+                    onClick={() => !isLoading && handlePageChange(paginationInfo.page + 1)}
+                    className={`px-3 py-1 rounded text-sm flex items-center justify-center ${
+                      paginationInfo.page >= paginationInfo.totalPages || isLoading 
+                        ? 'text-gray-400 bg-gray-100 cursor-not-allowed' 
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
                   >
-                    <span className="sr-only">Next</span>
                     <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </nav>
+                  </button>
+                </div>
               </div>
             </div>
           )}
