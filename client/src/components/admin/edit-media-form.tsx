@@ -358,13 +358,16 @@ export default function EditMediaForm({ media, onComplete }: EditMediaFormProps)
       console.log("Setting thumbnailUrl in form:", thumbnailData.thumbnailUrl);
       form.setValue("thumbnailUrl", thumbnailData.thumbnailUrl);
       
+      // Invalidate all related queries to ensure UI updates without manual refresh
+      queryClient.invalidateQueries({ queryKey: ["/api/media"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/media-with-playlists"] });
+      queryClient.invalidateQueries({ queryKey: [`/api/media/${media.id}/playlists`] });
+      queryClient.invalidateQueries({ queryKey: ["/api/client/media"] });
+      
       toast({
         title: "Thumbnail uploaded",
         description: "Your thumbnail has been uploaded successfully.",
       });
-      
-      // Invalidate the media query to refresh the list
-      queryClient.invalidateQueries({ queryKey: ["/api/media"] });
     },
     onError: (error: Error) => {
       setUploadThumbnailError(error.message);
