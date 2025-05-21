@@ -227,8 +227,8 @@ export default function HomePage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    disabled={page <= 1}
-                    onClick={() => handlePageChange(page - 1)}
+                    disabled={paginationInfo.page <= 1}
+                    onClick={() => handlePageChange(paginationInfo.page - 1)}
                     className="h-9 rounded-l-md"
                   >
                     <span className="sr-only">Previous</span>
@@ -283,8 +283,8 @@ export default function HomePage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    disabled={page >= totalPages || totalPages === 0}
-                    onClick={() => handlePageChange(page + 1)}
+                    disabled={paginationInfo.page >= totalPages || totalPages === 0}
+                    onClick={() => handlePageChange(paginationInfo.page + 1)}
                     className="h-9 rounded-r-md"
                   >
                     <span className="sr-only">Next</span>
