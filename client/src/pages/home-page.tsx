@@ -30,14 +30,14 @@ export default function HomePage() {
   // State for view type
   const [viewType, setViewType] = useState<"grid" | "list">("grid");
   
-  // State for filters and pagination
-  const [filters, setFilters] = useState({
+  // State for filters and pagination in a single state object to ensure consistency
+  const [queryParams, setQueryParams] = useState({
     search: "",
     playlistId: undefined as number | undefined,
     sort: "newest",
+    page: 1,
+    itemsPerPage: 8
   });
-  const [page, setPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(8);
   
   // Media viewer state
   const [selectedMedia, setSelectedMedia] = useState<Media | null>(null);
@@ -47,45 +47,56 @@ export default function HomePage() {
   const [contactMedia, setContactMedia] = useState<Media | null>(null);
   const [contactOpen, setContactOpen] = useState(false);
   
-  // Create the query for media with all parameters
-  // Using staleTime: 0 to ensure we get fresh data every time
-  const { data: mediaData, isLoading, refetch } = useQuery<PaginatedResponse>({
-    queryKey: ["/api/client/media", filters.search, filters.playlistId, filters.sort, page, itemsPerPage],
+  // Create a more reliable query for media
+  const { data: mediaData, isLoading } = useQuery<PaginatedResponse>({
+    queryKey: [
+      "/api/client/media", 
+      queryParams.search, 
+      queryParams.playlistId, 
+      queryParams.sort, 
+      queryParams.page, 
+      queryParams.itemsPerPage
+    ],
     queryFn: async () => {
+      // Build URL with query parameters
       const params = new URLSearchParams();
-      if (filters.search) params.append("search", filters.search);
-      if (filters.playlistId) params.append("playlistId", filters.playlistId.toString());
-      if (filters.sort) params.append("sort", filters.sort);
-      params.append("page", page.toString());
-      params.append("itemsPerPage", itemsPerPage.toString());
+      if (queryParams.search) params.append("search", queryParams.search);
+      if (queryParams.playlistId) params.append("playlistId", queryParams.playlistId.toString());
+      if (queryParams.sort) params.append("sort", queryParams.sort);
+      params.append("page", queryParams.page.toString());
+      params.append("itemsPerPage", queryParams.itemsPerPage.toString());
       
       const url = `/api/client/media?${params.toString()}`;
-      console.log(`Fetching media page ${page}, items per page: ${itemsPerPage}`, url);
+      console.log(`Fetching page ${queryParams.page}, ${queryParams.itemsPerPage} items per page | ${url}`);
       
+      // Make request with cache-busting headers
       const response = await fetch(url, { 
         credentials: "include",
-        // Add cache-busting to force fresh data
         headers: {
           'Cache-Control': 'no-cache',
           'Pragma': 'no-cache'
         }
       });
-      if (!response.ok) throw new Error(`API error: ${response.status}`);
+      
+      if (!response.ok) {
+        throw new Error(`API error: ${response.status}`);
+      }
+      
       return response.json();
     },
     refetchOnWindowFocus: false,
-    staleTime: 0 // Consider data immediately stale to force refetches
+    staleTime: 0,
+    refetchInterval: false
   });
   
-  // Handle page change with improved logging
+  // Handle page change
   const handlePageChange = (newPage: number) => {
-    console.log(`Changing page from ${page} to ${newPage}`);
-    setPage(newPage);
-    // Force immediate refresh
-    setTimeout(() => {
-      console.log(`Forcing data refresh for page ${newPage}`);
-      refetch();
-    }, 10);
+    console.log(`Changing to page ${newPage}`);
+    // Update all query parameters at once to maintain consistency
+    setQueryParams(prev => ({
+      ...prev,
+      page: newPage
+    }));
   };
   
   // Handler for filter changes
@@ -94,8 +105,22 @@ export default function HomePage() {
     playlistId: number | undefined;
     sort: string;
   }) => {
-    setFilters(newFilters);
-    setPage(1); // Reset to first page when filters change
+    // When filters change, update all parameters and reset to page 1
+    setQueryParams(prev => ({
+      ...prev,
+      ...newFilters,
+      page: 1 // Reset to first page when filters change
+    }));
+  };
+  
+  // Handler for items per page change
+  const handleItemsPerPageChange = (newItemsPerPage: number) => {
+    // When items per page changes, update and reset to page 1
+    setQueryParams(prev => ({
+      ...prev,
+      itemsPerPage: newItemsPerPage,
+      page: 1
+    }));
   };
   
   // Handler for opening media viewer
@@ -110,22 +135,19 @@ export default function HomePage() {
     setContactOpen(true);
   };
   
-  // Extract data from the paginated response
+  // Extract data from the paginated response with defaults
   const mediaItems = mediaData?.items || [];
   const pagination = mediaData?.pagination || { 
-    page: 1, 
-    itemsPerPage: 8, 
+    page: queryParams.page, 
+    itemsPerPage: queryParams.itemsPerPage, 
     totalItems: 0, 
     totalPages: 0 
   };
   
-  const totalItems = pagination.totalItems;
-  const totalPages = pagination.totalPages;
-  const startItem = totalItems > 0 ? ((page - 1) * itemsPerPage) + 1 : 0;
-  const endItem = Math.min(page * itemsPerPage, totalItems);
-  
-  // Use the items directly from the API's paginated response
-  const paginatedItems = mediaItems;
+  // Calculate pagination information
+  const { page, totalItems, totalPages } = pagination;
+  const startItem = totalItems > 0 ? ((page - 1) * queryParams.itemsPerPage) + 1 : 0;
+  const endItem = Math.min(page * queryParams.itemsPerPage, totalItems);
   
   return (
     <div className="min-h-screen flex flex-col">
@@ -164,9 +186,9 @@ export default function HomePage() {
               <div className="animate-spin rounded-full h-12 w-12 sm:h-16 sm:w-16 border-t-2 border-b-2 border-primary"></div>
             </div>
           ) : viewType === "grid" ? (
-            <MediaGrid media={paginatedItems} onOpenMedia={handleOpenMedia} />
+            <MediaGrid media={mediaItems} onOpenMedia={handleOpenMedia} />
           ) : (
-            <MediaList media={paginatedItems} onOpenMedia={handleOpenMedia} />
+            <MediaList media={mediaItems} onOpenMedia={handleOpenMedia} />
           )}
           
           {/* Pagination */}
@@ -186,11 +208,10 @@ export default function HomePage() {
                   </label>
                   <select
                     id="itemsPerPage"
-                    value={itemsPerPage}
+                    value={queryParams.itemsPerPage}
                     onChange={(e) => {
                       const newValue = parseInt(e.target.value);
-                      setItemsPerPage(newValue);
-                      handlePageChange(1); // Reset to first page when changing items per page
+                      handleItemsPerPageChange(newValue);
                     }}
                     className="h-8 rounded-md border border-gray-300 text-xs sm:text-sm px-2 py-1 bg-white"
                   >
@@ -205,14 +226,8 @@ export default function HomePage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    disabled={page === 1}
-                    onClick={() => {
-                      if (page > 1) {
-                        const newPage = page - 1;
-                        console.log(`Moving to previous page: ${newPage}`);
-                        handlePageChange(newPage);
-                      }
-                    }}
+                    disabled={page <= 1}
+                    onClick={() => handlePageChange(page - 1)}
                     className="h-9 rounded-l-md"
                   >
                     <span className="sr-only">Previous</span>
@@ -222,32 +237,28 @@ export default function HomePage() {
                   {/* Mobile view: just show current/total */}
                   <div className="sm:hidden flex items-center justify-center px-3 py-2 border border-gray-300 bg-white">
                     <span className="text-xs font-medium text-gray-700">
-                      Page {page} of {totalPages}
+                      Page {page} of {totalPages || 1}
                     </span>
                   </div>
                   
                   {/* Desktop view: show page numbers */}
                   <div className="hidden sm:flex">
-                    {/* Simplified pagination buttons */}
-                    {Array.from({ length: Math.min(5, totalPages || 1) }, (_, index) => {
-                      // Calculate which page numbers to show based on current page
-                      let pageNum = 1;
-                      
+                    {Array.from({ length: Math.min(5, totalPages || 1) }, (_, i) => {
+                      let pageNum;
                       if (totalPages <= 5) {
-                        // If 5 or fewer pages, just show 1 through totalPages
-                        pageNum = index + 1;
+                        // If 5 or fewer pages, show all
+                        pageNum = i + 1;
                       } else if (page <= 3) {
-                        // Near the start: show pages 1-5
-                        pageNum = index + 1;
+                        // Near start, show first 5
+                        pageNum = i + 1;
                       } else if (page >= totalPages - 2) {
-                        // Near the end: show last 5 pages
-                        pageNum = totalPages - 4 + index;
+                        // Near end, show last 5
+                        pageNum = totalPages - 4 + i;
                       } else {
-                        // In the middle: show current page and 2 on each side
-                        pageNum = page - 2 + index;
+                        // In middle, show current and 2 on each side
+                        pageNum = page - 2 + i;
                       }
                       
-                      // Only render if the page number is valid
                       if (pageNum <= totalPages && pageNum > 0) {
                         return (
                           <Button
@@ -255,10 +266,7 @@ export default function HomePage() {
                             variant={page === pageNum ? "default" : "outline"}
                             className="h-9"
                             size="sm"
-                            onClick={() => {
-                              console.log(`Clicked page button ${pageNum}`);
-                              handlePageChange(pageNum);
-                            }}
+                            onClick={() => handlePageChange(pageNum)}
                           >
                             {pageNum}
                           </Button>
