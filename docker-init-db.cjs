@@ -216,18 +216,61 @@ async function alternativeDatabaseInit(pool) {
       thumbnail_url TEXT,
       duration TEXT,
       size TEXT,
+      content_type TEXT,
+      year INTEGER,
+      season_number INTEGER,
+      total_episodes INTEGER,
+      is_active BOOLEAN NOT NULL DEFAULT TRUE,
       created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
       updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
     );
     
-    -- Ensure thumbnail_url column exists (required for thumbnail management system)
+    -- Ensure required columns exist on media table for both thumbnail management and content classification
     DO $$
     BEGIN
+      -- Ensure thumbnail_url column exists
       IF NOT EXISTS (
         SELECT 1 FROM information_schema.columns 
         WHERE table_name = 'media' AND column_name = 'thumbnail_url'
       ) THEN
         ALTER TABLE media ADD COLUMN thumbnail_url TEXT;
+      END IF;
+
+      -- Ensure content classification fields exist
+      IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'media' AND column_name = 'content_type'
+      ) THEN
+        ALTER TABLE media ADD COLUMN content_type TEXT;
+      END IF;
+
+      IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'media' AND column_name = 'year'
+      ) THEN
+        ALTER TABLE media ADD COLUMN year INTEGER;
+      END IF;
+
+      IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'media' AND column_name = 'season_number'
+      ) THEN
+        ALTER TABLE media ADD COLUMN season_number INTEGER;
+      END IF;
+
+      IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'media' AND column_name = 'total_episodes'
+      ) THEN
+        ALTER TABLE media ADD COLUMN total_episodes INTEGER;
+      END IF;
+
+      -- Ensure media activation/deactivation field exists
+      IF NOT EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'media' AND column_name = 'is_active'
+      ) THEN
+        ALTER TABLE media ADD COLUMN is_active BOOLEAN NOT NULL DEFAULT TRUE;
       END IF;
     END $$;
     
@@ -395,6 +438,47 @@ async function alternativeDatabaseInit(pool) {
             -- Create indexes
             CREATE INDEX IF NOT EXISTS idx_media_playlists_media_id ON media_playlists(media_id);
             CREATE INDEX IF NOT EXISTS idx_media_playlists_playlist_id ON media_playlists(playlist_id);
+            
+            -- Add content classification and activation fields to media table if they don't exist
+            DO $$
+            BEGIN
+              -- Ensure content classification fields exist
+              IF NOT EXISTS (
+                SELECT 1 FROM information_schema.columns 
+                WHERE table_name = 'media' AND column_name = 'content_type'
+              ) THEN
+                ALTER TABLE media ADD COLUMN content_type TEXT;
+              END IF;
+
+              IF NOT EXISTS (
+                SELECT 1 FROM information_schema.columns 
+                WHERE table_name = 'media' AND column_name = 'year'
+              ) THEN
+                ALTER TABLE media ADD COLUMN year INTEGER;
+              END IF;
+
+              IF NOT EXISTS (
+                SELECT 1 FROM information_schema.columns 
+                WHERE table_name = 'media' AND column_name = 'season_number'
+              ) THEN
+                ALTER TABLE media ADD COLUMN season_number INTEGER;
+              END IF;
+
+              IF NOT EXISTS (
+                SELECT 1 FROM information_schema.columns 
+                WHERE table_name = 'media' AND column_name = 'total_episodes'
+              ) THEN
+                ALTER TABLE media ADD COLUMN total_episodes INTEGER;
+              END IF;
+
+              -- Ensure media activation/deactivation field exists
+              IF NOT EXISTS (
+                SELECT 1 FROM information_schema.columns 
+                WHERE table_name = 'media' AND column_name = 'is_active'
+              ) THEN
+                ALTER TABLE media ADD COLUMN is_active BOOLEAN NOT NULL DEFAULT TRUE;
+              END IF;
+            END $$;
             
             -- Create default 'Uncategorized' playlist if it doesn't exist
             INSERT INTO playlists (name, description)
