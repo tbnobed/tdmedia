@@ -44,7 +44,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { apiRequest, queryClient, getQueryFn } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
-import { Pencil, Trash2, Plus, Search, FileText, Video, Image, Presentation, Eye, UserCheck, Loader2 } from "lucide-react";
+import { Pencil, Trash2, Plus, Search, FileText, Video, Image, Presentation, Eye, UserCheck, Loader2, ToggleLeft, ToggleRight } from "lucide-react";
 import AddMediaForm from "./add-media-form";
 import EditMediaForm from "./edit-media-form";
 import MediaPreview from "./media-preview";
@@ -429,6 +429,7 @@ export default function MediaManagement() {
                 <TableHead>Type</TableHead>
                 <TableHead>Classification</TableHead>
                 <TableHead>Playlist</TableHead>
+                <TableHead>Status</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -463,6 +464,11 @@ export default function MediaManagement() {
                       {((item as MediaWithPlaylists).playlists?.length ?? 0) > 0
                         ? (item as MediaWithPlaylists).playlists?.map(p => p.playlistName).join(', ')
                         : 'Uncategorized'}
+                    </TableCell>
+                    <TableCell>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${item.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                        {item.isActive ? 'Active' : 'Inactive'}
+                      </span>
                     </TableCell>
                     <TableCell>
                       <div className="flex space-x-2">
