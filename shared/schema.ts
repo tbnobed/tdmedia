@@ -37,9 +37,6 @@ export const mediaTypeEnum = pgEnum('media_type', ['video', 'document', 'image',
 // Content type enum
 export const contentTypeEnum = pgEnum('content_type', ['film', 'tv_show', 'other']);
 
-// Language enum
-export const languageEnum = pgEnum('media_language', ['EN', 'ES', 'EN/ES', 'OTHER']);
-
 // Media items
 export const media = pgTable("media", {
   id: serial("id").primaryKey(),
@@ -52,7 +49,7 @@ export const media = pgTable("media", {
   duration: text("duration"),
   size: text("size"),
   contentType: contentTypeEnum("content_type").default('other'),
-  language: languageEnum("language").default('EN').notNull(),
+  language: varchar("language").default('EN').notNull(),
   year: integer("year"),
   seasonNumber: integer("season_number"),
   totalEpisodes: integer("total_episodes"),
