@@ -542,6 +542,36 @@ export default function AddMediaForm({ onComplete }: AddMediaFormProps) {
           
           <FormField
             control={form.control}
+            name="language"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Language</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select language" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="EN">English (EN)</SelectItem>
+                    <SelectItem value="ES">Spanish (ES)</SelectItem>
+                    <SelectItem value="EN/ES">Bilingual (EN/ES)</SelectItem>
+                    <SelectItem value="OTHER">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormDescription>
+                  Primary language of the content
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
             name="contentType"
             render={({ field }) => (
               <FormItem>

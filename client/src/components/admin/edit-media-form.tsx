@@ -33,6 +33,7 @@ import { Loader2, Upload, FileText, FileImage, Video, PresentationIcon, Check, A
 const mediaFormSchema = insertMediaSchema.extend({
   playlistIds: z.array(z.number()).default([]),
   contentType: z.enum(['film', 'tv_show', 'other']).default('other'),
+  language: z.enum(['EN', 'ES', 'EN/ES', 'OTHER']).default('EN'),
   year: z.coerce.number().min(1900).max(new Date().getFullYear() + 5).optional(),
   seasonNumber: z.coerce.number().min(1).max(100).optional(),
   totalEpisodes: z.coerce.number().min(1).max(1000).optional(),
@@ -115,6 +116,7 @@ export default function EditMediaForm({ media, onComplete }: EditMediaFormProps)
       duration: media.duration || "",
       size: media.size || "",
       contentType: media.contentType as 'film' | 'tv_show' | 'other' || 'other',
+      language: media.language as 'EN' | 'ES' | 'EN/ES' | 'OTHER' || 'EN',
       year: media.year || undefined,
       seasonNumber: media.seasonNumber || undefined,
       totalEpisodes: media.totalEpisodes || undefined,
@@ -493,6 +495,36 @@ export default function EditMediaForm({ media, onComplete }: EditMediaFormProps)
             )}
           />
           
+          <FormField
+            control={form.control}
+            name="language"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Language</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select language" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="EN">English (EN)</SelectItem>
+                    <SelectItem value="ES">Spanish (ES)</SelectItem>
+                    <SelectItem value="EN/ES">Bilingual (EN/ES)</SelectItem>
+                    <SelectItem value="OTHER">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormDescription>
+                  Primary language of the content
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
           <FormField
             control={form.control}
             name="contentType"
