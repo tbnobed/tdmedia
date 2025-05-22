@@ -89,7 +89,7 @@ export default function MediaGrid({ media, onOpenMedia }: MediaGridProps) {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center px-1.5 py-0.5 text-xs font-medium rounded bg-blue-100 text-blue-800">
                     <Globe className="h-3 w-3 mr-1" />
-                    EN
+                    {item.language || "EN"}
                   </div>
                   <span className="text-xs text-gray-500">{getMediaMetadata(item)}</span>
                 </div>
