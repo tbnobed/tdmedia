@@ -1,0 +1,151 @@
+app-1       |
+app-1       |  Warning  You are about to execute current statements:
+app-1       |
+app-1       | DROP INDEX IF EXISTS "IDX_session_expire";
+app-1       | DROP INDEX IF EXISTS "idx_media_content_type";
+app-1       | DROP INDEX IF EXISTS "idx_media_language";
+app-1       | DROP INDEX IF EXISTS "idx_media_playlists_media_id";
+app-1       | DROP INDEX IF EXISTS "idx_media_playlists_playlist_id";
+app-1       | ALTER TABLE "media" DROP COLUMN IF EXISTS "total_seasons";
+app-1       | DROP TYPE "public"."content_classification_type";
+app-1       | DROP TYPE "public"."media_language";
+app-1       |
+app-1       | error: cannot drop type media_language because other objects depend on it
+app-1       |     at /app/node_modules/pg-pool/index.js:45:11
+app-1       |     at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+app-1       |     at async Object.query (/app/node_modules/drizzle-kit/bin.cjs:65361:26)
+app-1       |     at async pgPush (/app/node_modules/drizzle-kit/bin.cjs:83118:13)
+app-1       |     at async Object.handler (/app/node_modules/drizzle-kit/bin.cjs:88645:9)
+app-1       |     at async run (/app/node_modules/drizzle-kit/bin.cjs:86970:7) {
+app-1       |   length: 276,
+app-1       |   severity: 'ERROR',
+app-1       |   code: '2BP01',
+app-1       |   detail: 'default value for column language of table media depends on type media_language',
+app-1       |   hint: 'Use DROP ... CASCADE to drop the dependent objects too.',
+app-1       |   position: undefined,
+app-1       |   internalPosition: undefined,
+app-1       |   internalQuery: undefined,
+app-1       |   where: undefined,
+app-1       |   schema: undefined,
+app-1       |   table: undefined,
+app-1       |   column: undefined,
+app-1       |   dataType: undefined,
+app-1       |   constraint: undefined,
+app-1       |   file: 'dependency.c',
+app-1       |   line: '1196',
+app-1       |   routine: 'reportDependentObjects'
+app-1       | }
+app-1       | [2025-05-22T18:00:23.971Z] Verifying schema...
+app-1       | This command is deprecated, please use updated 'introspect' command (see https://orm.drizzle.team/kit-docs/upgrade-21#how-to-migrate-to-0210)
+app-1       | [2025-05-22T18:00:25.808Z] Database schema initialization completed successfully
+app-1       | Database schema initialized successfully!
+app-1       | Applying all schema migrations...
+app-1       | Schema migration script found, executing...
+app-1       | /app/docker-entrypoint.sh: line 133: ./scripts/apply_schema_migration.sh: not found
+app-1       | ⚠️ Warning: Some schema migrations encountered issues, but we'll continue startup.
+app-1       | See detailed logs above for specific migration failures.
+app-1       | Attempting individual migrations as fallback...
+app-1       | Content classification migration SQL file found, executing...
+app-1       | DO
+app-1       | psql:scripts/content_classification_migration.sql:46: NOTICE:  column "content_type" of relation "media" already exists, skipping
+app-1       | psql:scripts/content_classification_migration.sql:46: NOTICE:  Added content_type column to media table
+app-1       | DO
+app-1       | psql:scripts/content_classification_migration.sql:53: NOTICE:  column "year" of relation "media" already exists, skipping
+app-1       | psql:scripts/content_classification_migration.sql:53: NOTICE:  column "season_number" of relation "media" already exists, skipping
+app-1       | psql:scripts/content_classification_migration.sql:53: NOTICE:  column "total_episodes" of relation "media" already exists, skipping
+app-1       | ALTER TABLE
+app-1       | UPDATE 0
+app-1       | CREATE INDEX
+app-1       | psql:scripts/content_classification_migration.sql:71: NOTICE:  Content classification schema updates completed successfully:
+app-1       | psql:scripts/content_classification_migration.sql:71: NOTICE:  - content_type enum created
+app-1       | psql:scripts/content_classification_migration.sql:71: NOTICE:  - content_type column added to media table
+app-1       | psql:scripts/content_classification_migration.sql:71: NOTICE:  - year, season_number, and total_episodes columns added
+app-1       | psql:scripts/content_classification_migration.sql:71: NOTICE:  - content_type index created
+app-1       | DO
+app-1       | psql:scripts/content_classification_migration.sql:71: NOTICE:  - existing media set to default content_type
+app-1       | Language field migration SQL file found, executing...
+app-1       | psql:scripts/language_field_migration.sql:19: NOTICE:  Language column already exists in media table
+app-1       | DO
+app-1       | UPDATE 0
+app-1       | CREATE INDEX
+app-1       | psql:scripts/language_field_migration.sql:35: NOTICE:  Language field schema updates completed successfully:
+app-1       | psql:scripts/language_field_migration.sql:35: NOTICE:  - language column verified/added to media table
+app-1       | psql:scripts/language_field_migration.sql:35: NOTICE:  - existing media set to default language (EN)
+app-1       | psql:scripts/language_field_migration.sql:35: NOTICE:  - language index created for improved query performance
+app-1       | DO
+app-1       | ✓ Language column verified in media table.
+app-1       | Waiting for database to settle after migration (3 seconds)...
+app-1       | Verifying playlists table exists (max attempts: 5, retry delay: 3s)...
+app-1       | playlists table exists. Verification successful.
+app-1       | Verifying media_playlists table exists (max attempts: 5, retry delay: 3s)...
+app-1       | media_playlists table exists. Verification successful.
+app-1       | Playlist migration verification complete: All required tables exist.
+app-1       | Setting up default users...
+app-1       | [2025-05-22T18:00:29.430Z] Starting user setup...
+app-1       | [2025-05-22T18:00:29.498Z] Admin user already exists
+app-1       | [2025-05-22T18:00:29.501Z] Client user already exists
+app-1       | [2025-05-22T18:00:29.504Z] User setup completed successfully
+app-1       | Setting up session table for authentication...
+app-1       | Session table already exists, verifying session table structure...
+app-1       | Session table exists but index is missing. Creating index...
+app-1       | CREATE INDEX
+app-1       | Verifying language field in media table...
+app-1       | Verifying content classification fields...
+app-1       | Session table setup complete!
+app-1       | Running comprehensive database verification...
+app-1       | /app/docker-entrypoint.sh: line 440: scripts/verify_db_migration.sh: not found
+app-1       | ⚠️ Database verification identified issues, but we'll continue startup.
+app-1       | Please check the logs above for specific missing tables or columns.
+app-1       | Setting up upload directories...
+app-1       | Upload directories setup complete
+app-1       | Setting file size limits for uploads...
+app-1       | System limits configured where allowed by container security
+app-1       | Configuring network settings for large file handling...
+app-1       | Unable to set somaxconn (normal in restricted containers)
+app-1       | Unable to set tcp_max_syn_backlog (normal in restricted containers)
+app-1       | Unable to set tcp_fin_timeout (normal in restricted containers)
+app-1       | Unable to set tcp_keepalive_time (normal in restricted containers)
+app-1       | Network settings configured where allowed by container security
+app-1       | Starting the application...
+app-1       |
+app-1       | > rest-express@1.0.0 start
+app-1       | > NODE_ENV=production node dist/index.js
+app-1       |
+app-1       | Using standard PostgreSQL client (pg) instead of Neon serverless
+app-1       | Configuring CORS with origins: *
+app-1       | Setting up authentication in production environment
+app-1       | Session secret exists: true
+app-1       | 6:00:31 PM [express] serving on port 5000
+app-1       | Session table created for connect-pg-simple
+app-1       | 6:00:45 PM [express] GET /api/user 304 in 10ms :: {"id":1,"username":"admin","email":"admin@obedtv.c…
+app-1       | GET /api/media params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   user: 1,
+app-1       |   isAdmin: true
+app-1       | }
+app-1       | Fetching media for user 1, isAdmin: true, filtering by userId: none (admin view)
+app-1       | Successfully fetched 0 media items
+app-1       | 6:00:45 PM [express] GET /api/media 304 in 23ms :: []
+app-1       | 6:00:45 PM [express] GET /api/playlists 304 in 17ms :: [{"id":6,"name":"Docu-Series","description":"…
+app-1       | GET /api/media params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   user: 1,
+app-1       |   isAdmin: true
+app-1       | }
+app-1       | Fetching media for user 1, isAdmin: true, filtering by userId: none (admin view)
+app-1       | Successfully fetched 0 media items
+app-1       | 6:00:47 PM [express] GET /api/media 304 in 14ms :: []
+app-1       | Client media request params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   page: 1,
+app-1       |   itemsPerPage: 8,
+app-1       |   user: 1
+app-1       | }
+app-1       | 6:00:48 PM [express] GET /api/client/media 200 in 8ms :: {"items":[],"pagination":{"page":1,"itemsPe…
+obtv-admin@dev-tdmedia:~/tdmedia$
