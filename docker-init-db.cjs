@@ -54,6 +54,14 @@ async function initializeDatabase() {
         try {
           // Create tables directly with SQL first
           const directCreateTablesSQL = `
+          -- Create content_type enum if it doesn't exist
+          DO $$ 
+          BEGIN
+            IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'content_classification_type') THEN
+              CREATE TYPE content_classification_type AS ENUM ('film', 'tv_show', 'other');
+            END IF;
+          END $$;
+          
           -- Create playlists table if it doesn't exist
           CREATE TABLE IF NOT EXISTS playlists (
             id SERIAL PRIMARY KEY,
@@ -73,6 +81,47 @@ async function initializeDatabase() {
           -- Create indexes
           CREATE INDEX IF NOT EXISTS idx_media_playlists_media_id ON media_playlists(media_id);
           CREATE INDEX IF NOT EXISTS idx_media_playlists_playlist_id ON media_playlists(playlist_id);
+          
+          -- Add content classification and activation fields to media table if they don't exist
+          DO $$
+          BEGIN
+            -- Add content classification fields
+            IF NOT EXISTS (
+              SELECT 1 FROM information_schema.columns 
+              WHERE table_name = 'media' AND column_name = 'content_type'
+            ) THEN
+              ALTER TABLE media ADD COLUMN content_type TEXT;
+            END IF;
+
+            IF NOT EXISTS (
+              SELECT 1 FROM information_schema.columns 
+              WHERE table_name = 'media' AND column_name = 'year'
+            ) THEN
+              ALTER TABLE media ADD COLUMN year INTEGER;
+            END IF;
+
+            IF NOT EXISTS (
+              SELECT 1 FROM information_schema.columns 
+              WHERE table_name = 'media' AND column_name = 'season_number'
+            ) THEN
+              ALTER TABLE media ADD COLUMN season_number INTEGER;
+            END IF;
+
+            IF NOT EXISTS (
+              SELECT 1 FROM information_schema.columns 
+              WHERE table_name = 'media' AND column_name = 'total_episodes'
+            ) THEN
+              ALTER TABLE media ADD COLUMN total_episodes INTEGER;
+            END IF;
+
+            -- Add media activation/deactivation field
+            IF NOT EXISTS (
+              SELECT 1 FROM information_schema.columns 
+              WHERE table_name = 'media' AND column_name = 'is_active'
+            ) THEN
+              ALTER TABLE media ADD COLUMN is_active BOOLEAN NOT NULL DEFAULT TRUE;
+            END IF;
+          END $$;
           
           -- Create default 'Uncategorized' playlist if it doesn't exist
           INSERT INTO playlists (name, description)
@@ -206,7 +255,15 @@ async function alternativeDatabaseInit(pool) {
       END IF;
     END $$;
     
-    -- Create media table without category_id (replaced by many-to-many relationship)
+    -- Create content_type enum if it doesn't exist
+    DO $$ 
+    BEGIN
+      IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'content_classification_type') THEN
+        CREATE TYPE content_classification_type AS ENUM ('film', 'tv_show', 'other');
+      END IF;
+    END $$;
+    
+    -- Create media table with all required fields
     CREATE TABLE IF NOT EXISTS media (
       id SERIAL PRIMARY KEY,
       title TEXT NOT NULL,
@@ -438,6 +495,14 @@ async function alternativeDatabaseInit(pool) {
             -- Create indexes
             CREATE INDEX IF NOT EXISTS idx_media_playlists_media_id ON media_playlists(media_id);
             CREATE INDEX IF NOT EXISTS idx_media_playlists_playlist_id ON media_playlists(playlist_id);
+            
+            -- Create content classification type if it doesn't exist
+            DO $$ 
+            BEGIN
+              IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'content_classification_type') THEN
+                CREATE TYPE content_classification_type AS ENUM ('film', 'tv_show', 'other');
+              END IF;
+            END $$;
             
             -- Add content classification and activation fields to media table if they don't exist
             DO $$
