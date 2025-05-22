@@ -41,7 +41,7 @@ export default function HomePage() {
   const [filters, setFilters] = useState({
     search: "",
     playlistId: undefined as number | undefined,
-    sort: "newest",
+    sort: "a-z",
   });
   const [page, setPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(8);
