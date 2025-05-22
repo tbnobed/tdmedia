@@ -125,44 +125,60 @@ else
   echo "Warning: Database initialization encountered issues, but we'll continue startup."
 fi
 
-# Apply content classification migration
-echo "Applying content classification migration..."
-if [ -f scripts/content_classification_migration.sql ]; then
-  echo "Content classification migration SQL file found, executing..."
-  PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -f scripts/content_classification_migration.sql
-  
-  if [ $? -eq 0 ]; then
-    echo "Content classification migration completed successfully!"
+# Apply all schema migrations using the unified script
+echo "Applying all schema migrations..."
+if [ -f scripts/apply_schema_migration.sh ]; then
+  echo "Schema migration script found, executing..."
+  chmod +x scripts/apply_schema_migration.sh
+  if ./scripts/apply_schema_migration.sh; then
+    echo "✅ All schema migrations applied successfully!"
   else
-    echo "Warning: Content classification migration encountered issues, but we'll continue startup."
-  fi
-else
-  echo "Content classification migration SQL file not found, skipping."
-fi
-
-# Apply language field migration
-echo "Applying language field migration..."
-if [ -f scripts/language_field_migration.sql ]; then
-  echo "Language field migration SQL file found, executing..."
-  PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -f scripts/language_field_migration.sql
-  
-  if [ $? -eq 0 ]; then
-    echo "Language field migration completed successfully!"
+    echo "⚠️ Warning: Some schema migrations encountered issues, but we'll continue startup."
+    echo "See detailed logs above for specific migration failures."
     
-    # Verify language column exists in media table
-    LANGUAGE_COLUMN_EXISTS=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'media' AND column_name = 'language')")
-    LANGUAGE_COLUMN_EXISTS=$(echo "$LANGUAGE_COLUMN_EXISTS" | xargs)
+    # Fallback to individual migrations if the unified approach fails
+    echo "Attempting individual migrations as fallback..."
     
-    if [ "$LANGUAGE_COLUMN_EXISTS" = "t" ]; then
-      echo "✓ Language column verified in media table."
-    else
-      echo "⚠️ WARNING: Language column not found in media table after migration. This may indicate a migration issue."
+    # Apply content classification migration
+    if [ -f scripts/content_classification_migration.sql ]; then
+      echo "Content classification migration SQL file found, executing..."
+      PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -f scripts/content_classification_migration.sql
     fi
-  else
-    echo "Warning: Language field migration encountered issues, but we'll continue startup."
+    
+    # Apply language field migration
+    if [ -f scripts/language_field_migration.sql ]; then
+      echo "Language field migration SQL file found, executing..."
+      PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -f scripts/language_field_migration.sql
+      
+      # Verify language column exists in media table
+      LANGUAGE_COLUMN_EXISTS=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'media' AND column_name = 'language')")
+      LANGUAGE_COLUMN_EXISTS=$(echo "$LANGUAGE_COLUMN_EXISTS" | xargs)
+      
+      if [ "$LANGUAGE_COLUMN_EXISTS" = "t" ]; then
+        echo "✓ Language column verified in media table."
+      else
+        echo "⚠️ WARNING: Language column not found in media table after migration."
+      fi
+    fi
   fi
 else
-  echo "Language field migration SQL file not found, skipping."
+  echo "Schema migration script not found, falling back to individual migrations..."
+  
+  # Apply content classification migration
+  if [ -f scripts/content_classification_migration.sql ]; then
+    echo "Content classification migration SQL file found, executing..."
+    PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -f scripts/content_classification_migration.sql
+  else
+    echo "Content classification migration SQL file not found, skipping."
+  fi
+  
+  # Apply language field migration
+  if [ -f scripts/language_field_migration.sql ]; then
+    echo "Language field migration SQL file found, executing..."
+    PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -f scripts/language_field_migration.sql
+  else
+    echo "Language field migration SQL file not found, skipping."
+  fi
 fi
 
 # Give PostgreSQL a moment to process any changes
@@ -416,6 +432,20 @@ fi
 # This is a safeguard for connect-pg-simple's behavior
 export PG_SESSION_KEEP_EXISTING=true
 echo "Session table setup complete!"
+
+# Run comprehensive database verification script
+echo "Running comprehensive database verification..."
+if [ -f scripts/verify_db_migration.sh ]; then
+  chmod +x scripts/verify_db_migration.sh
+  if scripts/verify_db_migration.sh; then
+    echo "✅ Database verification completed successfully!"
+  else
+    echo "⚠️ Database verification identified issues, but we'll continue startup."
+    echo "Please check the logs above for specific missing tables or columns."
+  fi
+else
+  echo "Database verification script not found, skipping verification."
+fi
 
 # Ensure upload directories exist with proper permissions
 echo "Setting up upload directories..."
