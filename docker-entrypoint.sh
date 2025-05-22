@@ -142,8 +142,27 @@ fi
 
 # Apply language field migration
 echo "Applying language field migration..."
-if [ -f scripts/language_field_migration.sql ]; then
-  echo "Language field migration SQL file found, executing..."
+if [ -f scripts/docker_language_migration.sql ]; then
+  echo "Docker language field migration SQL file found, executing..."
+  PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -f scripts/docker_language_migration.sql
+  
+  if [ $? -eq 0 ]; then
+    echo "Language field migration completed successfully!"
+    
+    # Verify language column exists in media table
+    LANGUAGE_COLUMN_EXISTS=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'media' AND column_name = 'language')")
+    LANGUAGE_COLUMN_EXISTS=$(echo "$LANGUAGE_COLUMN_EXISTS" | xargs)
+    
+    if [ "$LANGUAGE_COLUMN_EXISTS" = "t" ]; then
+      echo "✓ Language column verified in media table."
+    else
+      echo "⚠️ WARNING: Language column not found in media table after migration. This may indicate a migration issue."
+    fi
+  else
+    echo "Warning: Language field migration encountered issues, but we'll continue startup."
+  fi
+elif [ -f scripts/language_field_migration.sql ]; then
+  echo "Standard language field migration SQL file found, executing..."
   PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -f scripts/language_field_migration.sql
   
   if [ $? -eq 0 ]; then
@@ -162,7 +181,56 @@ if [ -f scripts/language_field_migration.sql ]; then
     echo "Warning: Language field migration encountered issues, but we'll continue startup."
   fi
 else
-  echo "Language field migration SQL file not found, skipping."
+  echo "Language field migration SQL file not found, attempting direct migration..."
+  
+  # Directly run SQL commands to handle language migration
+  PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE <<EOF
+  -- Create language enum type if it doesn't exist
+  DO \$\$
+  BEGIN
+      IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'media_language') THEN
+          CREATE TYPE media_language AS ENUM ('EN', 'ES', 'EN/ES', 'OTHER');
+      END IF;
+  END
+  \$\$;
+
+  -- Check if column exists and is varchar
+  DO \$\$
+  BEGIN
+      IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'media' AND column_name = 'language' AND data_type = 'character varying') THEN
+          -- Create temporary column
+          ALTER TABLE media ADD COLUMN language_new media_language;
+          
+          -- Convert values
+          UPDATE media SET language_new = 
+              CASE 
+                  WHEN language = 'EN' THEN 'EN'::media_language
+                  WHEN language = 'ES' THEN 'ES'::media_language
+                  WHEN language = 'EN/ES' THEN 'EN/ES'::media_language
+                  WHEN language = 'OTHER' THEN 'OTHER'::media_language
+                  ELSE 'EN'::media_language 
+              END;
+          
+          -- Drop old column and rename new one
+          ALTER TABLE media DROP COLUMN language;
+          ALTER TABLE media RENAME COLUMN language_new TO language;
+          ALTER TABLE media ALTER COLUMN language SET DEFAULT 'EN'::media_language;
+      ELSIF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'media' AND column_name = 'language') THEN
+          -- Add column if it doesn't exist
+          ALTER TABLE media ADD COLUMN language media_language DEFAULT 'EN';
+      END IF;
+  END
+  \$\$;
+
+  -- Create index
+  CREATE INDEX IF NOT EXISTS idx_media_language ON media(language);
+EOF
+  
+  if [ $? -eq 0 ]; then
+    echo "Direct language field migration completed successfully!"
+  else
+    echo "Warning: Direct language field migration encountered issues, but we'll continue startup."
+  fi
 fi
 
 # Give PostgreSQL a moment to process any changes
