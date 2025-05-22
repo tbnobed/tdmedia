@@ -5,7 +5,6 @@ import session from "express-session";
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 import { storage } from "./storage";
-import * as bcrypt from "bcrypt";
 import { User } from "@shared/schema";
 
 declare global {
@@ -31,29 +30,10 @@ export async function hashPassword(password: string) {
 }
 
 export async function comparePasswords(supplied: string, stored: string) {
-  // Support for bcrypt format (starts with $2b$)
-  if (stored.startsWith('$2b$')) {
-    try {
-      return await bcrypt.compare(supplied, stored);
-    } catch (error) {
-      console.error('Bcrypt compare error:', error);
-      return false;
-    }
-  }
-  
-  // Original scrypt comparison
-  try {
-    const [hashed, salt] = stored.split(".");
-    // If either part is missing, authentication fails
-    if (!hashed || !salt) return false;
-    
-    const hashedBuf = Buffer.from(hashed, "hex");
-    const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
-    return timingSafeEqual(hashedBuf, suppliedBuf);
-  } catch (error) {
-    console.error('Password comparison error:', error);
-    return false;
-  }
+  const [hashed, salt] = stored.split(".");
+  const hashedBuf = Buffer.from(hashed, "hex");
+  const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
+  return timingSafeEqual(hashedBuf, suppliedBuf);
 }
 
 export function setupAuth(app: Express) {

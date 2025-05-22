@@ -28,7 +28,7 @@ export default function MediaPreview({ media, isOpen, onClose }: MediaPreviewPro
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] flex flex-col overflow-y-auto">
+      <DialogContent className="max-w-4xl h-[80vh] max-h-[90vh] flex flex-col overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{media.title}</DialogTitle>
           <DialogDescription>
@@ -36,10 +36,10 @@ export default function MediaPreview({ media, isOpen, onClose }: MediaPreviewPro
           </DialogDescription>
         </DialogHeader>
         
-        <div className="mt-4 overflow-hidden rounded-md bg-gray-950 relative">
+        <div className="flex-grow mt-4 overflow-hidden rounded-md bg-gray-950 relative">
           {/* Video Player */}
           {media.type === "video" && (
-            <div className="relative w-full aspect-video">
+            <div className="relative w-full h-full">
               <VideoPlayer 
                 mediaId={media.id} 
                 autoPlay={true}
