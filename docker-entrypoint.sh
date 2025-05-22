@@ -125,60 +125,44 @@ else
   echo "Warning: Database initialization encountered issues, but we'll continue startup."
 fi
 
-# Apply all schema migrations using the unified script
-echo "Applying all schema migrations..."
-if [ -f scripts/apply_schema_migration.sh ]; then
-  echo "Schema migration script found, executing..."
-  chmod +x scripts/apply_schema_migration.sh
-  if ./scripts/apply_schema_migration.sh; then
-    echo "✅ All schema migrations applied successfully!"
+# Apply content classification migration
+echo "Applying content classification migration..."
+if [ -f scripts/content_classification_migration.sql ]; then
+  echo "Content classification migration SQL file found, executing..."
+  PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -f scripts/content_classification_migration.sql
+  
+  if [ $? -eq 0 ]; then
+    echo "Content classification migration completed successfully!"
   else
-    echo "⚠️ Warning: Some schema migrations encountered issues, but we'll continue startup."
-    echo "See detailed logs above for specific migration failures."
-    
-    # Fallback to individual migrations if the unified approach fails
-    echo "Attempting individual migrations as fallback..."
-    
-    # Apply content classification migration
-    if [ -f scripts/content_classification_migration.sql ]; then
-      echo "Content classification migration SQL file found, executing..."
-      PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -f scripts/content_classification_migration.sql
-    fi
-    
-    # Apply language field migration
-    if [ -f scripts/language_field_migration.sql ]; then
-      echo "Language field migration SQL file found, executing..."
-      PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -f scripts/language_field_migration.sql
-      
-      # Verify language column exists in media table
-      LANGUAGE_COLUMN_EXISTS=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'media' AND column_name = 'language')")
-      LANGUAGE_COLUMN_EXISTS=$(echo "$LANGUAGE_COLUMN_EXISTS" | xargs)
-      
-      if [ "$LANGUAGE_COLUMN_EXISTS" = "t" ]; then
-        echo "✓ Language column verified in media table."
-      else
-        echo "⚠️ WARNING: Language column not found in media table after migration."
-      fi
-    fi
+    echo "Warning: Content classification migration encountered issues, but we'll continue startup."
   fi
 else
-  echo "Schema migration script not found, falling back to individual migrations..."
+  echo "Content classification migration SQL file not found, skipping."
+fi
+
+# Apply language field migration
+echo "Applying language field migration..."
+if [ -f scripts/language_field_migration.sql ]; then
+  echo "Language field migration SQL file found, executing..."
+  PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -f scripts/language_field_migration.sql
   
-  # Apply content classification migration
-  if [ -f scripts/content_classification_migration.sql ]; then
-    echo "Content classification migration SQL file found, executing..."
-    PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -f scripts/content_classification_migration.sql
+  if [ $? -eq 0 ]; then
+    echo "Language field migration completed successfully!"
+    
+    # Verify language column exists in media table
+    LANGUAGE_COLUMN_EXISTS=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'media' AND column_name = 'language')")
+    LANGUAGE_COLUMN_EXISTS=$(echo "$LANGUAGE_COLUMN_EXISTS" | xargs)
+    
+    if [ "$LANGUAGE_COLUMN_EXISTS" = "t" ]; then
+      echo "✓ Language column verified in media table."
+    else
+      echo "⚠️ WARNING: Language column not found in media table after migration. This may indicate a migration issue."
+    fi
   else
-    echo "Content classification migration SQL file not found, skipping."
+    echo "Warning: Language field migration encountered issues, but we'll continue startup."
   fi
-  
-  # Apply language field migration
-  if [ -f scripts/language_field_migration.sql ]; then
-    echo "Language field migration SQL file found, executing..."
-    PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -f scripts/language_field_migration.sql
-  else
-    echo "Language field migration SQL file not found, skipping."
-  fi
+else
+  echo "Language field migration SQL file not found, skipping."
 fi
 
 # Give PostgreSQL a moment to process any changes
@@ -380,72 +364,10 @@ if [ "$SESSION_TABLE_EXISTS" = "f" ]; then
   '
 fi
 
-# Verify that the language field is present in the media table
-echo "Verifying language field in media table..."
-LANGUAGE_COLUMN_EXISTS=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'media' AND column_name = 'language')")
-LANGUAGE_COLUMN_EXISTS=$(echo "$LANGUAGE_COLUMN_EXISTS" | xargs)
-
-if [ "$LANGUAGE_COLUMN_EXISTS" = "f" ]; then
-  echo "⚠️ WARNING: Language column not found in media table."
-  echo "Attempting direct language column creation..."
-  
-  # Create the language column directly
-  PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -c "
-  ALTER TABLE media ADD COLUMN IF NOT EXISTS language VARCHAR(10) DEFAULT 'EN' NOT NULL;
-  CREATE INDEX IF NOT EXISTS idx_media_language ON media(language);
-  "
-  
-  echo "Language column creation attempted. Verifying..."
-  LANGUAGE_COLUMN_EXISTS=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'media' AND column_name = 'language')")
-  LANGUAGE_COLUMN_EXISTS=$(echo "$LANGUAGE_COLUMN_EXISTS" | xargs)
-  
-  if [ "$LANGUAGE_COLUMN_EXISTS" = "t" ]; then
-    echo "✓ Language column successfully created."
-  else
-    echo "❌ Failed to create language column."
-  fi
-fi
-
-# Verify content classification fields
-echo "Verifying content classification fields..."
-CONTENT_TYPE_EXISTS=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'media' AND column_name = 'content_type')")
-CONTENT_TYPE_EXISTS=$(echo "$CONTENT_TYPE_EXISTS" | xargs)
-
-if [ "$CONTENT_TYPE_EXISTS" = "f" ]; then
-  echo "⚠️ WARNING: Content type column not found in media table."
-  echo "Attempting direct content_type column creation..."
-  
-  # Create the content_type column directly
-  PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -c "
-  ALTER TABLE media ADD COLUMN IF NOT EXISTS content_type VARCHAR(20) DEFAULT 'other';
-  ALTER TABLE media ADD COLUMN IF NOT EXISTS year INTEGER;
-  ALTER TABLE media ADD COLUMN IF NOT EXISTS season_number INTEGER;
-  ALTER TABLE media ADD COLUMN IF NOT EXISTS total_episodes INTEGER;
-  ALTER TABLE media ADD COLUMN IF NOT EXISTS total_seasons INTEGER;
-  CREATE INDEX IF NOT EXISTS idx_media_content_type ON media(content_type);
-  "
-  
-  echo "Content classification columns creation attempted."
-fi
-
 # Make sure express-session won't try to drop the table by setting session_table_noexists
 # This is a safeguard for connect-pg-simple's behavior
 export PG_SESSION_KEEP_EXISTING=true
 echo "Session table setup complete!"
-
-# Run comprehensive database verification script
-echo "Running comprehensive database verification..."
-if [ -f scripts/verify_db_migration.sh ]; then
-  chmod +x scripts/verify_db_migration.sh
-  if scripts/verify_db_migration.sh; then
-    echo "✅ Database verification completed successfully!"
-  else
-    echo "⚠️ Database verification identified issues, but we'll continue startup."
-    echo "Please check the logs above for specific missing tables or columns."
-  fi
-else
-  echo "Database verification script not found, skipping verification."
-fi
 
 # Ensure upload directories exist with proper permissions
 echo "Setting up upload directories..."

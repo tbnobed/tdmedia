@@ -1,22 +1,15 @@
--- Check if the language column exists already
+-- Create language enum type if it doesn't exist
 DO $$
-DECLARE
-    column_exists BOOLEAN;
 BEGIN
-    SELECT EXISTS (
-        SELECT FROM information_schema.columns 
-        WHERE table_name = 'media' AND column_name = 'language'
-    ) INTO column_exists;
-    
-    IF NOT column_exists THEN
-        -- Add language column as VARCHAR instead of enum
-        ALTER TABLE media ADD COLUMN language VARCHAR(10) DEFAULT 'EN' NOT NULL;
-        RAISE NOTICE 'Added language column as VARCHAR to media table';
-    ELSE
-        RAISE NOTICE 'Language column already exists in media table';
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'media_language') THEN
+        CREATE TYPE media_language AS ENUM ('EN', 'ES', 'EN/ES', 'OTHER');
     END IF;
 END
 $$;
+
+-- Add language column to media table if it doesn't exist
+ALTER TABLE media
+ADD COLUMN IF NOT EXISTS language media_language DEFAULT 'EN';
 
 -- Set all existing media to 'EN' language if null
 UPDATE media SET language = 'EN' WHERE language IS NULL;
@@ -28,7 +21,8 @@ CREATE INDEX IF NOT EXISTS idx_media_language ON media(language);
 DO $$
 BEGIN
     RAISE NOTICE 'Language field schema updates completed successfully:';
-    RAISE NOTICE '- language column verified/added to media table';
+    RAISE NOTICE '- media_language enum created';
+    RAISE NOTICE '- language column added to media table';
     RAISE NOTICE '- existing media set to default language (EN)';
     RAISE NOTICE '- language index created for improved query performance';
 END
