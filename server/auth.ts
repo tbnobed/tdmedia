@@ -30,10 +30,33 @@ export async function hashPassword(password: string) {
 }
 
 export async function comparePasswords(supplied: string, stored: string) {
-  const [hashed, salt] = stored.split(".");
-  const hashedBuf = Buffer.from(hashed, "hex");
-  const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
-  return timingSafeEqual(hashedBuf, suppliedBuf);
+  // Support for bcrypt format (starts with $2b$)
+  if (stored.startsWith('$2b$')) {
+    return new Promise((resolve) => {
+      bcrypt.compare(supplied, stored, (err, result) => {
+        if (err) {
+          console.error('Bcrypt compare error:', err);
+          resolve(false);
+        } else {
+          resolve(result);
+        }
+      });
+    });
+  }
+  
+  // Original scrypt comparison
+  try {
+    const [hashed, salt] = stored.split(".");
+    // If either part is missing, authentication fails
+    if (!hashed || !salt) return false;
+    
+    const hashedBuf = Buffer.from(hashed, "hex");
+    const suppliedBuf = (await scryptAsync(supplied, salt, 64)) as Buffer;
+    return timingSafeEqual(hashedBuf, suppliedBuf);
+  } catch (error) {
+    console.error('Password comparison error:', error);
+    return false;
+  }
 }
 
 export function setupAuth(app: Express) {
