@@ -310,12 +310,14 @@ export default function VideoPlayer({
       {showWatermark && !small && (
         <div className="watermark-container absolute inset-0 pointer-events-none z-10">
           {/* Grid watermark pattern - without central watermark to avoid duplication */}
-          <div className="watermark-grid absolute inset-0 grid grid-cols-3 grid-rows-3 opacity-5">
+          <div className="watermark-grid absolute inset-0 grid grid-cols-3 grid-rows-3">
             {Array.from({ length: 9 }).map((_, index) => (
               <div key={index} className="flex items-center justify-center">
-                <div className="transform rotate-[-30deg] text-white text-xs font-normal">
-                  TRILOGY DIGITAL
-                </div>
+                <img 
+                  src="/images/tbn-logo-white.png" 
+                  alt="TBN Logo" 
+                  className="w-12 opacity-15 transform rotate-[-30deg]"
+                />
               </div>
             ))}
           </div>
@@ -372,8 +374,12 @@ export default function VideoPlayer({
       
       {/* Small watermark in the preview version */}
       {small && showWatermark && (
-        <div className="absolute top-1 right-1 text-white text-xs opacity-40 bg-black/20 px-1 rounded">
-          TBN
+        <div className="absolute top-1 right-1 opacity-40 px-1 rounded">
+          <img 
+            src="/images/tbn-logo-white.png" 
+            alt="TBN Logo" 
+            className="w-8 h-auto"
+          />
         </div>
       )}
     </div>

@@ -139,12 +139,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transform: rotate(-30deg);
-    color: white;
-    font-size: 1.25rem;
-    font-weight: 600;
     user-select: none;
-    text-shadow: 0 0 2px rgba(0,0,0,0.7);
+  }
+  
+  .watermark-grid-item img {
+    transform: rotate(-30deg);
+    filter: drop-shadow(0 0 2px rgba(0,0,0,0.7));
   }
   
   /* Prevent video download and right-click */

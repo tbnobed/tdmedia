@@ -145,8 +145,12 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
               {/* Grid watermark pattern for images only */}
               <div className="watermark-grid">
                 {Array.from({ length: 9 }).map((_, index) => (
-                  <div key={index} className="watermark-grid-item text-sm sm:text-base font-medium">
-                    TBN
+                  <div key={index} className="watermark-grid-item">
+                    <img 
+                      src="/images/tbn-logo-white.png" 
+                      alt="TBN Logo" 
+                      className="w-12 h-auto opacity-15"
+                    />
                   </div>
                 ))}
               </div>
