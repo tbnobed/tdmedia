@@ -322,6 +322,18 @@ export class DatabaseStorage implements IStorage {
         query = query.where(eq(media.isActive, filters.isActive));
       }
       
+      // Apply sorting if specified
+      if (filters.sort) {
+        if (filters.sort === 'a-z') {
+          query = query.orderBy(asc(media.title));
+        } else if (filters.sort === 'z-a') {
+          query = query.orderBy(desc(media.title));
+        }
+      } else {
+        // Default sort by title ascending
+        query = query.orderBy(asc(media.title));
+      }
+      
       if (filters.playlistId && filters.playlistId > 0) {
         // Use raw SQL to avoid column naming inconsistencies
         // Create query and parameters separately to handle conditional parameters correctly
@@ -346,6 +358,18 @@ export class DatabaseStorage implements IStorage {
         if (filters.isActive !== undefined) {
           sqlQuery += ` AND m.is_active = $${params.length + 1}`;
           params.push(filters.isActive);
+        }
+        
+        // Add ORDER BY clause based on sort parameter
+        if (filters.sort) {
+          if (filters.sort === 'a-z') {
+            sqlQuery += ` ORDER BY m.title ASC`;
+          } else if (filters.sort === 'z-a') {
+            sqlQuery += ` ORDER BY m.title DESC`;
+          }
+        } else {
+          // Default sort by title
+          sqlQuery += ` ORDER BY m.title ASC`;
         }
         
         // Add sorting

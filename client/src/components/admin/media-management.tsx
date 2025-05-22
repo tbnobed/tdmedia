@@ -66,8 +66,14 @@ export default function MediaManagement() {
 
   // Fetch all media - forcing a short cache time to ensure frequent refetches
   const { data: media, isLoading, refetch: refetchMedia } = useQuery<Media[]>({
-    queryKey: ["/api/media"],
-    queryFn: getQueryFn({ on401: "throw" }),
+    queryKey: ["/api/media", { sort: sortOption }],
+    queryFn: async ({ queryKey }) => {
+      // Extract sort from queryKey
+      const options = queryKey[1] as { sort: string };
+      // Make request with sort parameter
+      const response = await apiRequest("GET", `/api/media?sort=${options.sort}`);
+      return await response.json();
+    },
     refetchInterval: 2000, // Refetch every 2 seconds while this tab is open
     refetchOnWindowFocus: true,
     staleTime: 1000 // Consider data stale after 1 second
