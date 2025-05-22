@@ -1378,39 +1378,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Get all media items matching the filters
       const allMediaItems = await storage.getMedia(filters);
       
-      // Add language property to media items
-      // This is a temporary implementation until we add language to the database schema
-      const enhancedMediaItems = allMediaItems.map(item => {
-        // Determine language based on title
-        let language = 'EN'; // Default to English
-        
-        // Check if title contains "Spanish" or "Español" or has "(ES)" suffix
-        if (
-          item.title.toLowerCase().includes("spanish") || 
-          item.title.toLowerCase().includes("español") ||
-          item.title.includes("(ES)")
-        ) {
-          language = 'ES';
-        }
-        
-        // Check for bilingual content
-        if (
-          item.title.toLowerCase().includes("bilingual") ||
-          item.title.toLowerCase().includes("english/spanish") ||
-          item.title.toLowerCase().includes("español/inglés") ||
-          item.title.includes("(EN/ES)")
-        ) {
-          language = 'EN/ES';
-        }
-        
-        return {
-          ...item,
-          language
-        };
-      });
-      
       // Calculate total items and pages
-      const totalItems = enhancedMediaItems.length;
+      const totalItems = allMediaItems.length;
       const totalPages = Math.ceil(totalItems / itemsPerPage);
       
       // Calculate start and end indices for pagination
@@ -1418,7 +1387,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
       
       // Get the media items for the current page
-      const mediaItems = enhancedMediaItems.slice(startIndex, endIndex);
+      const mediaItems = allMediaItems.slice(startIndex, endIndex);
       
       // Return paginated results with metadata
       res.json({
