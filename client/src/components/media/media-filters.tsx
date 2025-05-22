@@ -45,7 +45,7 @@ export default function MediaFilters({ onFilterChange, onViewChange, view }: Med
     <div className="bg-white shadow">
       <div className="max-w-7xl mx-auto py-4 sm:py-6 px-3 sm:px-6 lg:px-8">
         <div className="flex flex-wrap justify-between items-center">
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 sm:mb-0">Media Library</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 sm:mb-0">Media Catalog</h1>
           
           {/* Grid/List View Toggle - Moved to top right for better mobile access */}
           <div className="flex space-x-2">

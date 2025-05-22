@@ -40,7 +40,7 @@ export default function Header() {
 
             <nav className="hidden sm:ml-6 sm:flex sm:space-x-8">
               <Link href="/" className={`${location === '/' ? 'border-white text-white' : 'border-transparent text-gray-300 hover:border-gray-400 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}>
-                Library
+                Catalog
               </Link>
               {user?.isAdmin && (
                 <Link href="/admin" className={`${location === '/admin' ? 'border-white text-white' : 'border-transparent text-gray-300 hover:border-gray-400 hover:text-white'} inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}>
