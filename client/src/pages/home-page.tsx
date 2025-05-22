@@ -240,88 +240,47 @@ export default function HomePage() {
                     </span>
                   </div>
                   
-                  {/* Desktop: simplified page numbers - more stable */}
-                  <div className="hidden sm:flex">
-                    {(() => {
-                      // Creating a safer array of page numbers
-                      const safePages = [];
-                      const currentPage = paginationInfo.page;
-                      const maxPages = paginationInfo.totalPages || 1;
-                      
-                      // Always show first page
-                      safePages.push(
-                        <button
-                          key="page-1"
-                          type="button"
-                          disabled={currentPage === 1 || isLoading}
-                          onClick={() => currentPage !== 1 && !isLoading && handlePageChange(1)}
-                          className={`w-8 h-8 flex items-center justify-center rounded text-sm ${
-                            currentPage === 1 
-                              ? 'bg-black text-white font-medium' 
-                              : 'text-gray-700 hover:bg-gray-100'
-                          }`}
-                        >
-                          1
-                        </button>
-                      );
-                      
-                      // Add dots if we're not showing page 2
-                      if (currentPage > 3) {
-                        safePages.push(
-                          <span key="dots-1" className="text-gray-500 px-1">...</span>
-                        );
-                      }
-                      
-                      // Add pages around current page
-                      for (let i = Math.max(2, currentPage - 1); i <= Math.min(maxPages - 1, currentPage + 1); i++) {
-                        // Skip if we're showing first/last page elsewhere
-                        if (i === 1 || i === maxPages) continue;
-                        
-                        safePages.push(
-                          <button
-                            key={`page-${i}`}
-                            type="button"
-                            disabled={currentPage === i || isLoading}
-                            onClick={() => currentPage !== i && !isLoading && handlePageChange(i)}
-                            className={`w-8 h-8 flex items-center justify-center rounded text-sm ${
-                              currentPage === i 
-                                ? 'bg-black text-white font-medium' 
-                                : 'text-gray-700 hover:bg-gray-100'
-                            }`}
-                          >
-                            {i}
-                          </button>
-                        );
-                      }
-                      
-                      // Add dots if needed
-                      if (currentPage < maxPages - 2) {
-                        safePages.push(
-                          <span key="dots-2" className="text-gray-500 px-1">...</span>
-                        );
-                      }
-                      
-                      // Always show last page if we have more than 1 page
-                      if (maxPages > 1) {
-                        safePages.push(
-                          <button
-                            key={`page-${maxPages}`}
-                            type="button"
-                            disabled={currentPage === maxPages || isLoading}
-                            onClick={() => currentPage !== maxPages && !isLoading && handlePageChange(maxPages)}
-                            className={`w-8 h-8 flex items-center justify-center rounded text-sm ${
-                              currentPage === maxPages 
-                                ? 'bg-black text-white font-medium' 
-                                : 'text-gray-700 hover:bg-gray-100'
-                            }`}
-                          >
-                            {maxPages}
-                          </button>
-                        );
-                      }
-                      
-                      return safePages;
-                    })()}
+                  {/* Super simplified pagination for stability */}
+                  <div className="hidden sm:flex items-center space-x-2">
+                    {/* First page button */}
+                    <button
+                      type="button"
+                      disabled={paginationInfo.page === 1 || isLoading}
+                      onClick={() => !isLoading && handlePageChange(1)}
+                      className={`w-8 h-8 flex items-center justify-center rounded text-sm ${
+                        paginationInfo.page === 1 
+                          ? 'bg-black text-white font-medium' 
+                          : 'text-gray-700 hover:bg-gray-100'
+                      }`}
+                    >
+                      1
+                    </button>
+                    
+                    {/* Simple page numbers without complex calculations */}
+                    {paginationInfo.totalPages > 1 && paginationInfo.page > 1 && paginationInfo.page < paginationInfo.totalPages && (
+                      <button
+                        type="button"
+                        className="w-8 h-8 flex items-center justify-center rounded text-sm bg-black text-white font-medium"
+                      >
+                        {paginationInfo.page}
+                      </button>
+                    )}
+                    
+                    {/* Last page button (if more than one page) */}
+                    {paginationInfo.totalPages > 1 && (
+                      <button
+                        type="button"
+                        disabled={paginationInfo.page === paginationInfo.totalPages || isLoading}
+                        onClick={() => !isLoading && handlePageChange(paginationInfo.totalPages)}
+                        className={`w-8 h-8 flex items-center justify-center rounded text-sm ${
+                          paginationInfo.page === paginationInfo.totalPages 
+                            ? 'bg-black text-white font-medium' 
+                            : 'text-gray-700 hover:bg-gray-100'
+                        }`}
+                      >
+                        {paginationInfo.totalPages}
+                      </button>
+                    )}
                   </div>
                   
                   {/* Next button - simplified */}
