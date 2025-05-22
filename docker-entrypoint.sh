@@ -364,6 +364,54 @@ if [ "$SESSION_TABLE_EXISTS" = "f" ]; then
   '
 fi
 
+# Verify that the language field is present in the media table
+echo "Verifying language field in media table..."
+LANGUAGE_COLUMN_EXISTS=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'media' AND column_name = 'language')")
+LANGUAGE_COLUMN_EXISTS=$(echo "$LANGUAGE_COLUMN_EXISTS" | xargs)
+
+if [ "$LANGUAGE_COLUMN_EXISTS" = "f" ]; then
+  echo "⚠️ WARNING: Language column not found in media table."
+  echo "Attempting direct language column creation..."
+  
+  # Create the language column directly
+  PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -c "
+  ALTER TABLE media ADD COLUMN IF NOT EXISTS language VARCHAR(10) DEFAULT 'EN' NOT NULL;
+  CREATE INDEX IF NOT EXISTS idx_media_language ON media(language);
+  "
+  
+  echo "Language column creation attempted. Verifying..."
+  LANGUAGE_COLUMN_EXISTS=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'media' AND column_name = 'language')")
+  LANGUAGE_COLUMN_EXISTS=$(echo "$LANGUAGE_COLUMN_EXISTS" | xargs)
+  
+  if [ "$LANGUAGE_COLUMN_EXISTS" = "t" ]; then
+    echo "✓ Language column successfully created."
+  else
+    echo "❌ Failed to create language column."
+  fi
+fi
+
+# Verify content classification fields
+echo "Verifying content classification fields..."
+CONTENT_TYPE_EXISTS=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT EXISTS (SELECT FROM information_schema.columns WHERE table_name = 'media' AND column_name = 'content_type')")
+CONTENT_TYPE_EXISTS=$(echo "$CONTENT_TYPE_EXISTS" | xargs)
+
+if [ "$CONTENT_TYPE_EXISTS" = "f" ]; then
+  echo "⚠️ WARNING: Content type column not found in media table."
+  echo "Attempting direct content_type column creation..."
+  
+  # Create the content_type column directly
+  PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -c "
+  ALTER TABLE media ADD COLUMN IF NOT EXISTS content_type VARCHAR(20) DEFAULT 'other';
+  ALTER TABLE media ADD COLUMN IF NOT EXISTS year INTEGER;
+  ALTER TABLE media ADD COLUMN IF NOT EXISTS season_number INTEGER;
+  ALTER TABLE media ADD COLUMN IF NOT EXISTS total_episodes INTEGER;
+  ALTER TABLE media ADD COLUMN IF NOT EXISTS total_seasons INTEGER;
+  CREATE INDEX IF NOT EXISTS idx_media_content_type ON media(content_type);
+  "
+  
+  echo "Content classification columns creation attempted."
+fi
+
 # Make sure express-session won't try to drop the table by setting session_table_noexists
 # This is a safeguard for connect-pg-simple's behavior
 export PG_SESSION_KEEP_EXISTING=true
