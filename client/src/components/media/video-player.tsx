@@ -316,7 +316,7 @@ export default function VideoPlayer({
                 <img 
                   src="/images/tbn-logo-white.png" 
                   alt="TBN Logo" 
-                  className="w-12 opacity-15 transform rotate-[-30deg]"
+                  className="w-20 opacity-15 transform rotate-[-30deg]"
                 />
               </div>
             ))}
@@ -378,7 +378,7 @@ export default function VideoPlayer({
           <img 
             src="/images/tbn-logo-white.png" 
             alt="TBN Logo" 
-            className="w-8 h-auto"
+            className="w-14 h-auto"
           />
         </div>
       )}

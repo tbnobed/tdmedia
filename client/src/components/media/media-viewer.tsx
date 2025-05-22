@@ -149,7 +149,7 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
                     <img 
                       src="/images/tbn-logo-white.png" 
                       alt="TBN Logo" 
-                      className="w-12 h-auto opacity-15"
+                      className="w-20 h-auto opacity-15"
                     />
                   </div>
                 ))}

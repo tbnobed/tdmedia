@@ -199,7 +199,7 @@ export default function IframeVideoPlayer({
         
         .watermark-logo {
           transform: rotate(-30deg);
-          width: 60px;
+          width: 105px; /* Increased by 75% from 60px */
           opacity: 0.15;
           filter: drop-shadow(0 0 2px rgba(0,0,0,0.5));
         }
