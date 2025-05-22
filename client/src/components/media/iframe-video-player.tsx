@@ -34,6 +34,18 @@ export default function IframeVideoPlayer({
   // This is the critical function - we use an iframe with allowFullScreen={false}
   // which is the most reliable way to restrict fullscreen capabilities
   
+  // Get user info from auth context
+  console.log("VideoPlayer user info:", user);
+  const isDisableFullscreen = !user?.isAdmin;
+  console.log("Fullscreen disabled:", isDisableFullscreen);
+  console.log("VideoPlayer Config:", {
+    isAdmin: user?.isAdmin,
+    disableFullscreen: isDisableFullscreen,
+    containerProps: {
+      allowFullScreen: false
+    }
+  });
+  
   // Fetch stream info - using a more reliable approach
   const { data: streamInfo, isLoading, error } = useQuery<StreamInfo>({
     queryKey: [`/api/stream/${mediaId}`],
@@ -47,8 +59,6 @@ export default function IframeVideoPlayer({
         const baseUrl = window.TRILOGY_CONFIG?.apiBaseUrl || '';
         const url = `/api/stream/${mediaId}`;
         const fullUrl = `${baseUrl}${url}`;
-        
-        console.log(`Fetching stream info for media ID: ${mediaId}`);
         
         const res = await fetch(fullUrl, {
           credentials: "include",

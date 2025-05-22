@@ -65,6 +65,11 @@ export function getMediaMetadata(media: Media): string {
 
 // Function to get content classification information
 export function getContentClassification(media: Media): string {
+  // Safety check - if media object is null or undefined
+  if (!media) {
+    return '';
+  }
+  
   // If no content type is provided or it's set to "other", return empty string
   if (!media.contentType || media.contentType === 'other') {
     return '';

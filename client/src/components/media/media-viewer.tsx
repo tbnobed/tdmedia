@@ -206,7 +206,7 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
             <DialogTitle className="text-lg sm:text-xl">{media.title}</DialogTitle>
             
             {/* Content Classification Badge */}
-            {getContentClassification(media) && (
+            {media && getContentClassification(media) && (
               <div className="text-xs text-blue-600 font-medium bg-blue-50 inline-block px-2 py-1 rounded">
                 {getContentClassification(media)}
               </div>
