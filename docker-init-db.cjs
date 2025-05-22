@@ -263,6 +263,14 @@ async function alternativeDatabaseInit(pool) {
       END IF;
     END $$;
     
+    -- Create language enum type if it doesn't exist
+    DO $$ 
+    BEGIN
+      IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'media_language') THEN
+        CREATE TYPE media_language AS ENUM ('EN', 'ES', 'EN/ES', 'OTHER');
+      END IF;
+    END $$;
+    
     -- Create media table with all required fields
     CREATE TABLE IF NOT EXISTS media (
       id SERIAL PRIMARY KEY,
@@ -278,6 +286,7 @@ async function alternativeDatabaseInit(pool) {
       season_number INTEGER,
       total_episodes INTEGER,
       is_active BOOLEAN NOT NULL DEFAULT TRUE,
+      language media_language DEFAULT 'EN',
       created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
       updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
     );
@@ -328,6 +337,45 @@ async function alternativeDatabaseInit(pool) {
         WHERE table_name = 'media' AND column_name = 'is_active'
       ) THEN
         ALTER TABLE media ADD COLUMN is_active BOOLEAN NOT NULL DEFAULT TRUE;
+      END IF;
+      
+      -- Properly handle language column migration if it exists as VARCHAR
+      IF EXISTS (
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'media' AND column_name = 'language' AND data_type = 'character varying'
+      ) THEN
+        -- Create a temporary column with the enum type
+        ALTER TABLE media ADD COLUMN language_new media_language;
+        
+        -- Update the new column based on existing values
+        UPDATE media SET language_new = 
+          CASE 
+            WHEN language = 'EN' THEN 'EN'::media_language
+            WHEN language = 'ES' THEN 'ES'::media_language
+            WHEN language = 'EN/ES' THEN 'EN/ES'::media_language
+            WHEN language = 'OTHER' THEN 'OTHER'::media_language
+            ELSE 'EN'::media_language 
+          END;
+        
+        -- Drop the old column
+        ALTER TABLE media DROP COLUMN language;
+        
+        -- Rename the new column to the original name
+        ALTER TABLE media RENAME COLUMN language_new TO language;
+        
+        -- Set the default value
+        ALTER TABLE media ALTER COLUMN language SET DEFAULT 'EN'::media_language;
+        
+        RAISE NOTICE 'Successfully migrated language column from VARCHAR to ENUM';
+      ELSE
+        -- If language column doesn't exist at all, add it
+        IF NOT EXISTS (
+          SELECT 1 FROM information_schema.columns 
+          WHERE table_name = 'media' AND column_name = 'language'
+        ) THEN
+          ALTER TABLE media ADD COLUMN language media_language DEFAULT 'EN';
+          RAISE NOTICE 'Added new language column with enum type';
+        END IF;
       END IF;
     END $$;
     
