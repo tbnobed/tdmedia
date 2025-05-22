@@ -405,6 +405,17 @@ export class DatabaseStorage implements IStorage {
     return updatedMedia;
   }
   
+  async updateMediaStatus(id: number, isActive: boolean) {
+    const [updatedMedia] = await db.update(media)
+      .set({ 
+        isActive: isActive,
+        updatedAt: new Date() 
+      })
+      .where(eq(media.id, id))
+      .returning();
+    return updatedMedia;
+  }
+  
   async deleteMedia(id: number) {
     // First delete any contact entries referencing this media
     await db.delete(contacts).where(eq(contacts.mediaId, id));

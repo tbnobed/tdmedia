@@ -137,6 +137,28 @@ export default function MediaManagement() {
     enabled: assignDialogOpen, // Only fetch when assign dialog is open
   });
 
+  // Toggle media status mutation
+  const toggleStatusMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const response = await apiRequest("PUT", `/api/media/${id}/toggle-status`);
+      return await response.json();
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/media"] });
+      toast({
+        title: data.isActive ? "Media Activated" : "Media Deactivated",
+        description: `The media item is now ${data.isActive ? "active" : "inactive"}.`,
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: `Failed to toggle media status: ${error.message}`,
+        variant: "destructive",
+      });
+    },
+  });
+  
   // Delete media mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: number) => {
