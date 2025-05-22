@@ -1361,15 +1361,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const userId = req.user!.id;
       
       // Only show media items the user has access to (if not admin)
+      // And always only show active media for non-admin users
       const filters: { 
         search?: string; 
         playlistId?: number; 
         sort?: string;
         userId?: number;
+        isActive?: boolean;
       } = { search, playlistId, sort };
       
       if (!req.user!.isAdmin) {
-        Object.assign(filters, { userId });
+        // For non-admin users, only show media they have access to AND that is active
+        Object.assign(filters, { userId, isActive: true });
       }
       
       // Get all media items matching the filters

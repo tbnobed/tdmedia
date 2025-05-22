@@ -240,14 +240,21 @@ export class DatabaseStorage implements IStorage {
   }
   
   // Media methods
-  async getMedia(filters: { search?: string, playlistId?: number, sort?: string, userId?: number } = {}) {
+  async getMedia(filters: { search?: string, playlistId?: number, sort?: string, userId?: number, isActive?: boolean } = {}) {
     // For regular clients, we need to limit media to what they have access to
     if (filters.userId) {
       // If a non-admin user ID is provided, get only the media they have access to
-      const accessibleMediaIds = await db.select({ id: media.id })
+      let query = db.select({ id: media.id })
         .from(media)
         .innerJoin(mediaAccess, eq(media.id, mediaAccess.media_id))
         .where(eq(mediaAccess.user_id, filters.userId));
+      
+      // Add isActive filter if specified
+      if (filters.isActive !== undefined) {
+        query = query.where(eq(media.isActive, filters.isActive));
+      }
+      
+      const accessibleMediaIds = await query;
       
       // If user has no media access, return empty array
       if (accessibleMediaIds.length === 0) {
@@ -258,11 +265,11 @@ export class DatabaseStorage implements IStorage {
       const mediaIds = accessibleMediaIds.map((item: { id: number }) => item.id);
       
       // Build a query using these media IDs
-      let query = db.select().from(media).where(inArray(media.id, mediaIds));
+      let mediaQuery = db.select().from(media).where(inArray(media.id, mediaIds));
       
       // Apply additional filters
       if (filters.search) {
-        query = query.where(like(media.title, `%${filters.search}%`));
+        mediaQuery = mediaQuery.where(like(media.title, `%${filters.search}%`));
       }
       
       if (filters.playlistId && filters.playlistId > 0) {
@@ -286,33 +293,39 @@ export class DatabaseStorage implements IStorage {
       if (filters.sort) {
         switch (filters.sort) {
           case 'a-z':
-            query = query.orderBy(asc(media.title));
+            mediaQuery = mediaQuery.orderBy(asc(media.title));
             break;
           case 'z-a':
-            query = query.orderBy(desc(media.title));
+            mediaQuery = mediaQuery.orderBy(desc(media.title));
             break;
           default:
             // Default to alphabetical order
-            query = query.orderBy(asc(media.title));
+            mediaQuery = mediaQuery.orderBy(asc(media.title));
         }
       } else {
         // Default to alphabetical order
-        query = query.orderBy(asc(media.title));
+        mediaQuery = mediaQuery.orderBy(asc(media.title));
       }
       
-      return await query;
+      return await mediaQuery;
     } else {
       // For admin users, return all media with filters
       let query = db.select().from(media);
       
+      // Apply search filter if specified
       if (filters.search) {
         query = query.where(like(media.title, `%${filters.search}%`));
+      }
+      
+      // Apply active status filter if specified
+      if (filters.isActive !== undefined) {
+        query = query.where(eq(media.isActive, filters.isActive));
       }
       
       if (filters.playlistId && filters.playlistId > 0) {
         // Use raw SQL to avoid column naming inconsistencies
         // Create query and parameters separately to handle conditional parameters correctly
-        let query = `
+        let sqlQuery = `
           SELECT m.id, m.title, m.description, m.type, m.file_url as "fileUrl", 
                  m.thumbnail_url as "thumbnailUrl", m.duration, m.size, 
                  m.created_at as "createdAt", m.updated_at as "updatedAt"
@@ -325,16 +338,22 @@ export class DatabaseStorage implements IStorage {
         
         // Add search condition if provided
         if (filters.search) {
-          query += ` AND m.title LIKE $${params.length + 1}`;
+          sqlQuery += ` AND m.title LIKE $${params.length + 1}`;
           params.push(`%${filters.search}%`);
         }
         
+        // Add isActive filter if specified
+        if (filters.isActive !== undefined) {
+          sqlQuery += ` AND m.is_active = $${params.length + 1}`;
+          params.push(filters.isActive);
+        }
+        
         // Add sorting
-        query += ` ORDER BY m.created_at DESC`;
+        sqlQuery += ` ORDER BY m.created_at DESC`;
         
-        console.log("Executing SQL query with params:", query, params);
+        console.log("Executing SQL query with params:", sqlQuery, params);
         
-        const results = await executeRawSQL(query, params);
+        const results = await executeRawSQL(sqlQuery, params);
         return results.rows;
       }
       
