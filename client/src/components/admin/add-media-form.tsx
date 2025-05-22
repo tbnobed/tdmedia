@@ -548,7 +548,8 @@ export default function AddMediaForm({ onComplete }: AddMediaFormProps) {
                 <Select
                   onValueChange={(value) => {
                     field.onChange(value);
-                    setContentType(value as 'film' | 'tv_show' | 'other');
+                    const typedValue = value as 'film' | 'tv_show' | 'other';
+                    handleContentTypeChange(typedValue);
                   }}
                   defaultValue={field.value}
                 >
