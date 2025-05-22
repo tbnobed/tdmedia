@@ -70,7 +70,7 @@ export default function StableMediaViewer({ media, isOpen, onClose, onContactReq
   
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-4xl p-0 overflow-hidden">
+      <DialogContent className="max-w-[1200px] w-[90vw] p-0 overflow-hidden">
         {/* Close button */}
         <div className="absolute right-2 top-2 z-10">
           <Button
@@ -83,8 +83,8 @@ export default function StableMediaViewer({ media, isOpen, onClose, onContactReq
           </Button>
         </div>
         
-        {/* Video player */}
-        <div className="bg-black aspect-video w-full">
+        {/* Video player - increased height by 50% */}
+        <div className="bg-black w-full" style={{ aspectRatio: '16/9' }}>
           <IframeVideoPlayer
             mediaId={media.id}
             className="w-full h-full"
