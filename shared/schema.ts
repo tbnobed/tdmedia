@@ -52,6 +52,7 @@ export const media = pgTable("media", {
   year: integer("year"),
   seasonNumber: integer("season_number"),
   totalEpisodes: integer("total_episodes"),
+  isActive: boolean("is_active").default(true).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull()
 });

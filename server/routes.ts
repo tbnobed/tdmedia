@@ -592,6 +592,29 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Toggle media active status endpoint
+  app.put("/api/media/:id/toggle-status", isAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      
+      // Get current media status
+      const media = await storage.getMediaById(id);
+      if (!media) {
+        return res.status(404).json({ message: "Media not found" });
+      }
+      
+      // Toggle the active status
+      const newStatus = !media.isActive;
+      const updatedMedia = await storage.updateMediaStatus(id, newStatus);
+      
+      console.log(`Media ID ${id} status changed to ${newStatus ? 'active' : 'inactive'}`);
+      res.json(updatedMedia);
+    } catch (error) {
+      console.error("Error toggling media status:", error);
+      res.status(500).json({ message: "Failed to toggle media status" });
+    }
+  });
+
   app.delete("/api/media/:id", isAdmin, async (req, res) => {
     try {
       const id = parseInt(req.params.id);

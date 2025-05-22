@@ -31,6 +31,7 @@ export interface IStorage {
   getMediaById(id: number): Promise<any>;
   createMedia(mediaData: any): Promise<any>;
   updateMedia(id: number, mediaData: any): Promise<any>;
+  updateMediaStatus(id: number, isActive: boolean): Promise<any>;
   deleteMedia(id: number): Promise<void>;
   
   // Media Access methods
