@@ -508,6 +508,15 @@ export default function MediaManagement() {
                         >
                           <UserCheck className="h-4 w-4" />
                         </Button>
+                        <Button
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => toggleStatusMutation.mutate(item.id)}
+                          className={item.isActive ? "text-amber-600 hover:text-amber-800" : "text-emerald-600 hover:text-emerald-800"}
+                          title={item.isActive ? "Deactivate Media" : "Activate Media"}
+                        >
+                          {item.isActive ? <ToggleRight className="h-4 w-4" /> : <ToggleLeft className="h-4 w-4" />}
+                        </Button>
                         <Button 
                           variant="outline" 
                           size="sm" 
