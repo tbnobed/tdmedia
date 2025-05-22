@@ -16,7 +16,8 @@ import {
   File,
   Play,
   Eye,
-  ArrowRight
+  ArrowRight,
+  Globe
 } from "lucide-react";
 
 interface MediaGridProps {
@@ -86,7 +87,10 @@ export default function MediaGrid({ media, onOpenMedia }: MediaGridProps) {
               
               <div className="p-3 sm:p-4 flex-grow">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs px-1.5 py-0.5 bg-gray-100 rounded font-medium text-gray-700">EN</span>
+                  <div className="flex items-center px-1.5 py-0.5 text-xs font-medium rounded bg-blue-100 text-blue-800">
+                    <Globe className="h-3 w-3 mr-1" />
+                    EN
+                  </div>
                   <span className="text-xs text-gray-500">{getMediaMetadata(item)}</span>
                 </div>
                 <h3 className="mt-2 text-base sm:text-lg font-medium text-gray-900">{item.title}</h3>

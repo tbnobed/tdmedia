@@ -1,7 +1,7 @@
 import { Media } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { getMediaTypeColor, getMediaMetadata, getMediaActionText, getMediaActionIcon } from "@/lib/media-utils";
-import { Play, Eye, ArrowRight, File, FileQuestion } from "lucide-react";
+import { Play, Eye, ArrowRight, File, FileQuestion, Globe } from "lucide-react";
 
 interface MediaListProps {
   media: Media[];
@@ -77,9 +77,10 @@ export default function MediaList({ media, onOpenMedia }: MediaListProps) {
                       {item.type.charAt(0).toUpperCase() + item.type.slice(1)}
                     </span>
                     {/* Language Badge */}
-                    <span className="px-1.5 py-0.5 text-xs font-medium rounded bg-blue-100 text-blue-800">
+                    <div className="flex items-center px-1.5 py-0.5 text-xs font-medium rounded bg-blue-100 text-blue-800">
+                      <Globe className="h-3 w-3 mr-1" />
                       EN
-                    </span>
+                    </div>
                     <span className="text-xs text-gray-500">{getMediaMetadata(item)}</span>
                   </div>
                   <h3 className="text-sm sm:text-base font-medium text-gray-900 truncate mt-1">{item.title}</h3>
