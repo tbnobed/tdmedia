@@ -55,6 +55,16 @@ export default function AddMediaForm({ onComplete }: AddMediaFormProps) {
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadThumbnailError, setUploadThumbnailError] = useState<string | null>(null);
   const [contentType, setContentType] = useState<'film' | 'tv_show' | 'other'>('other');
+  
+  // Handle content type changes to set default values
+  const handleContentTypeChange = (value: 'film' | 'tv_show' | 'other') => {
+    setContentType(value);
+    
+    // Auto-fill Season field with 1 when TV Show is selected
+    if (value === 'tv_show') {
+      form.setValue('seasonNumber', 1);
+    }
+  };
   const [uploadedFile, setUploadedFile] = useState<{
     fileUrl: string;
     thumbnailUrl?: string;
