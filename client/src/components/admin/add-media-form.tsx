@@ -487,7 +487,7 @@ export default function AddMediaForm({ onComplete }: AddMediaFormProps) {
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Description</FormLabel>
+              <FormLabel>Synopsis</FormLabel>
               <FormControl>
                 <Textarea 
                   placeholder="Media description" 
@@ -657,7 +657,7 @@ export default function AddMediaForm({ onComplete }: AddMediaFormProps) {
                 name="seasonNumber"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Season Number</FormLabel>
+                    <FormLabel>Total Number of Seasons</FormLabel>
                     <FormControl>
                       <Input type="number" placeholder="1" {...field} 
                         value={field.value || ""} 

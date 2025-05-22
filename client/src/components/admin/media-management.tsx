@@ -510,7 +510,7 @@ export default function MediaManagement() {
           <DialogHeader>
             <DialogTitle>Add New Media</DialogTitle>
             <DialogDescription>
-              Add a new media item to the library. Fill out the details below.
+              Add a new media item to the catalog. Fill out the details below.
             </DialogDescription>
           </DialogHeader>
           <AddMediaForm onComplete={() => setAddDialogOpen(false)} />
