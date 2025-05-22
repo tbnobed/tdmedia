@@ -148,6 +148,16 @@ if [ -f scripts/language_field_migration.sql ]; then
   
   if [ $? -eq 0 ]; then
     echo "Language field migration completed successfully!"
+    
+    # Verify language column exists in media table
+    LANGUAGE_COLUMN_EXISTS=$(PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -t -c "SELECT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'media' AND column_name = 'language')")
+    LANGUAGE_COLUMN_EXISTS=$(echo "$LANGUAGE_COLUMN_EXISTS" | xargs)
+    
+    if [ "$LANGUAGE_COLUMN_EXISTS" = "t" ]; then
+      echo "✓ Language column verified in media table."
+    else
+      echo "⚠️ WARNING: Language column not found in media table after migration. This may indicate a migration issue."
+    fi
   else
     echo "Warning: Language field migration encountered issues, but we'll continue startup."
   fi

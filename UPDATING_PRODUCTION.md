@@ -116,6 +116,9 @@ docker compose up -d
    - "Database schema initialization completed successfully" - confirms the entire process completed
    - "Content classification migration SQL file found, executing..." - confirms content type migration was found
    - "Content classification migration completed successfully!" - confirms content type fields were added
+   - "Language field migration SQL file found, executing..." - confirms language migration was found
+   - "Language field migration completed successfully!" - confirms language field was added
+   - "✓ Language column verified in media table." - confirms language column exists after migration
 
 3. Log in to the admin panel and verify that:
    - The "Playlists" tab appears in the admin dashboard
