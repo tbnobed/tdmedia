@@ -368,14 +368,9 @@ export class DatabaseStorage implements IStorage {
             sqlQuery += ` ORDER BY m.title DESC`;
           }
         } else {
-          // Default sort by title
-          sqlQuery += ` ORDER BY m.title ASC`;
+          // Default sort by creation date
+          sqlQuery += ` ORDER BY m.created_at DESC`;
         }
-        
-        // Add sorting
-        sqlQuery += ` ORDER BY m.created_at DESC`;
-        
-        console.log("Executing SQL query with params:", sqlQuery, params);
         
         const results = await executeRawSQL(sqlQuery, params);
         return results.rows;
