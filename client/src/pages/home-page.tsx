@@ -6,7 +6,7 @@ import Footer from "@/components/layout/footer";
 import MediaFilters from "@/components/media/media-filters";
 import MediaGrid from "@/components/media/media-grid";
 import MediaList from "@/components/media/media-list";
-import MediaViewer from "@/components/media/media-viewer";
+import StableMediaViewer from "@/components/media/stable-media-viewer";
 import ContactForm from "@/components/contact/contact-form";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -306,7 +306,7 @@ export default function HomePage() {
       <Footer />
       
       {/* Media viewer */}
-      <MediaViewer
+      <StableMediaViewer
         media={selectedMedia}
         isOpen={viewerOpen}
         onClose={() => setViewerOpen(false)}

@@ -239,13 +239,15 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
             <DialogTitle className="text-lg sm:text-xl">{media.title}</DialogTitle>
             
             {/* Content Classification Badge - Simplified for stability */}
-            <div className="text-xs text-blue-600 font-medium bg-blue-50 inline-block px-2 py-1 rounded">
-              {media.contentType === 'film' ? 
-                `Film${media.year ? ` (${media.year})` : ''}` : 
-                media.contentType === 'tv_show' ? 
-                  `TV Show${media.seasonNumber ? ` • ${media.seasonNumber} Season${media.seasonNumber > 1 ? 's' : ''}` : ''}${media.totalEpisodes ? ` • ${media.totalEpisodes} Episodes` : ''}${media.year ? ` • ${media.year}` : ''}` : 
-                  ''}
-            </div>}
+            {media.contentType && media.contentType !== 'other' && (
+              <div className="text-xs text-blue-600 font-medium bg-blue-50 inline-block px-2 py-1 rounded">
+                {media.contentType === 'film' ? 
+                  `Film${media.year ? ` (${media.year})` : ''}` : 
+                  media.contentType === 'tv_show' ? 
+                    `TV Show${media.seasonNumber ? ` • ${media.seasonNumber} Season${media.seasonNumber > 1 ? 's' : ''}` : ''}${media.totalEpisodes ? ` • ${media.totalEpisodes} Episodes` : ''}${media.year ? ` • ${media.year}` : ''}` : 
+                    ''}
+              </div>
+            )}
             
             <DialogDescription className="text-xs sm:text-sm">{media.description}</DialogDescription>
           </DialogHeader>
