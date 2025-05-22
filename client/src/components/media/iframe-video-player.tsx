@@ -201,6 +201,7 @@ export default function IframeVideoPlayer({
           id="videoPlayer"
           src="${videoUrl}" 
           controls 
+          autoplay
           controlsList="nodownload nofullscreen"
           playsinline
           disablePictureInPicture
