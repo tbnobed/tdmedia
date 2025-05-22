@@ -25,7 +25,7 @@ interface MediaFiltersProps {
 export default function MediaFilters({ onFilterChange, onViewChange, view }: MediaFiltersProps) {
   const [search, setSearch] = useState("");
   const [playlistId, setPlaylistId] = useState<string>("all");
-  const [sort, setSort] = useState("newest");
+  const [sort, setSort] = useState("a-z");
   
   // Fetch playlists
   const { data: playlists } = useQuery<Playlist[]>({
@@ -116,8 +116,6 @@ export default function MediaFilters({ onFilterChange, onViewChange, view }: Med
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="newest">Newest</SelectItem>
-                <SelectItem value="oldest">Oldest</SelectItem>
                 <SelectItem value="a-z">A-Z</SelectItem>
                 <SelectItem value="z-a">Z-A</SelectItem>
               </SelectContent>
