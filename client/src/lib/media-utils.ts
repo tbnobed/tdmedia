@@ -63,6 +63,14 @@ export function getMediaMetadata(media: Media): string {
   return metadata;
 }
 
+// Function to get language display for media items
+export function getLanguageDisplay(media: Media): string {
+  // Handle case where language might not be defined yet in the database
+  // We'll default to 'EN' if not specified
+  const language = media.language || 'EN';
+  return language;
+}
+
 // Function to get content classification information
 export function getContentClassification(media: Media): string {
   // Safety check - if media object is null or undefined
