@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Media } from "@shared/schema";
-import { getMediaTypeColor, getContentClassification } from "@/lib/media-utils";
+import { getMediaTypeColor } from "@/lib/media-utils";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -14,6 +14,33 @@ import { useQuery } from "@tanstack/react-query";
 import VideoPlayer from "./video-player";
 import IframeVideoPlayer from "./iframe-video-player";
 import "./media-viewer.css";
+
+// Simple helper function for content classification display
+function getContentClassificationDisplay(media: Media | null): string {
+  if (!media || !media.contentType || media.contentType === 'other') {
+    return '';
+  }
+  
+  if (media.contentType === 'film') {
+    return media.year ? `Film (${media.year})` : 'Film';
+  }
+  
+  if (media.contentType === 'tv_show') {
+    let info = 'TV Show';
+    if (media.seasonNumber) {
+      info += ` • ${media.seasonNumber} Season${media.seasonNumber > 1 ? 's' : ''}`;
+    }
+    if (media.totalEpisodes) {
+      info += ` • ${media.totalEpisodes} Episodes`;
+    }
+    if (media.year) {
+      info += ` • ${media.year}`;
+    }
+    return info;
+  }
+  
+  return 'Other Content';
+}
 
 interface MediaViewerProps {
   media: Media | null;
@@ -33,6 +60,9 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
   const [streamInfo, setStreamInfo] = useState<StreamInfo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+  
+  // Safety check - if no media or not open, don't render anything
+  if (!media || !isOpen) return null;
   
   // Set the appropriate viewer based on media type
   useEffect(() => {
@@ -59,23 +89,26 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
     queryKey: [`/api/stream/${media?.id}`],
     enabled: isOpen && !!media && activeViewer === "image",
     queryFn: async () => {
-      const baseUrl = window.TRILOGY_CONFIG?.apiBaseUrl || '';
-      const url = `/api/stream/${media?.id}`;
-      const fullUrl = `${baseUrl}${url}`;
-      
-      const res = await fetch(fullUrl, {
-        credentials: "include",
-      });
-      
-      if (!res.ok) {
-        throw new Error(`Failed to fetch stream info: ${res.status} ${res.statusText}`);
+      try {
+        const baseUrl = window.TRILOGY_CONFIG?.apiBaseUrl || '';
+        const url = `/api/stream/${media?.id}`;
+        const fullUrl = `${baseUrl}${url}`;
+        
+        const res = await fetch(fullUrl, {
+          credentials: "include",
+        });
+        
+        if (!res.ok) {
+          throw new Error(`Failed to fetch stream info: ${res.status} ${res.statusText}`);
+        }
+        
+        return res.json();
+      } catch (err) {
+        console.error("Error fetching stream info:", err);
+        throw err;
       }
-      
-      return res.json();
     },
   });
-  
-  if (!media) return null;
   
   const typeColor = getMediaTypeColor(media.type);
   
@@ -205,12 +238,14 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
           <DialogHeader className="space-y-1 sm:space-y-2">
             <DialogTitle className="text-lg sm:text-xl">{media.title}</DialogTitle>
             
-            {/* Content Classification Badge */}
-            {media && getContentClassification(media) && (
-              <div className="text-xs text-blue-600 font-medium bg-blue-50 inline-block px-2 py-1 rounded">
-                {getContentClassification(media)}
-              </div>
-            )}
+            {/* Content Classification Badge - Simplified for stability */}
+            <div className="text-xs text-blue-600 font-medium bg-blue-50 inline-block px-2 py-1 rounded">
+              {media.contentType === 'film' ? 
+                `Film${media.year ? ` (${media.year})` : ''}` : 
+                media.contentType === 'tv_show' ? 
+                  `TV Show${media.seasonNumber ? ` • ${media.seasonNumber} Season${media.seasonNumber > 1 ? 's' : ''}` : ''}${media.totalEpisodes ? ` • ${media.totalEpisodes} Episodes` : ''}${media.year ? ` • ${media.year}` : ''}` : 
+                  ''}
+            </div>}
             
             <DialogDescription className="text-xs sm:text-sm">{media.description}</DialogDescription>
           </DialogHeader>

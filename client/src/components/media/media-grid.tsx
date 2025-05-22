@@ -91,9 +91,13 @@ export default function MediaGrid({ media, onOpenMedia }: MediaGridProps) {
                 <h3 className="mt-2 text-base sm:text-lg font-medium text-gray-900">{item.title}</h3>
                 
                 {/* Content Classification */}
-                {getContentClassification(item) && (
+                {item.contentType && item.contentType !== 'other' && (
                   <div className="mt-1 text-xs text-blue-600 font-medium">
-                    {getContentClassification(item)}
+                    {item.contentType === 'film' ? 
+                      `Film${item.year ? ` (${item.year})` : ''}` : 
+                      item.contentType === 'tv_show' ? 
+                        `TV Show${item.seasonNumber ? ` • ${item.seasonNumber} Season${item.seasonNumber > 1 ? 's' : ''}` : ''}${item.totalEpisodes ? ` • ${item.totalEpisodes} Episodes` : ''}${item.year ? ` • ${item.year}` : ''}` : 
+                        ''}
                   </div>
                 )}
                 
