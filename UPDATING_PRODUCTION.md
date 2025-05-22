@@ -4,13 +4,20 @@ This document provides instructions for updating the production deployment of Tr
 
 ## Recent Changes
 
-1. **Content Classification System**
+1. **Language Indicator System**
+   - Added language field (EN, ES, EN/ES, OTHER) for media content
+   - Enhanced media display with language badges in both grid and list views
+   - Added language selection dropdowns to Add Media and Edit Media forms
+   - Automatic database migration for language field with default value of 'EN'
+   - Improved media filtering and organization by language
+
+2. **Content Classification System**
    - Added content type classification (Film/TV Show) for media items
    - Added conditional fields for film release year and TV show season/episode details
    - Enhanced media display to show content classification information to clients
    - Automatic database migration for new content type fields
 
-2. **Playlist System Implementation**
+3. **Playlist System Implementation**
    - Replaced Categories with Playlists for more flexible media organization
    - Added many-to-many relationship between media and playlists
    - Automatic migration from old category system to new playlist system

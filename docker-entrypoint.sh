@@ -140,6 +140,21 @@ else
   echo "Content classification migration SQL file not found, skipping."
 fi
 
+# Apply language field migration
+echo "Applying language field migration..."
+if [ -f scripts/language_field_migration.sql ]; then
+  echo "Language field migration SQL file found, executing..."
+  PGPASSWORD=$PGPASSWORD psql -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE -f scripts/language_field_migration.sql
+  
+  if [ $? -eq 0 ]; then
+    echo "Language field migration completed successfully!"
+  else
+    echo "Warning: Language field migration encountered issues, but we'll continue startup."
+  fi
+else
+  echo "Language field migration SQL file not found, skipping."
+fi
+
 # Give PostgreSQL a moment to process any changes
 echo "Waiting for database to settle after migration (3 seconds)..."
 sleep 3
