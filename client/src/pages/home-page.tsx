@@ -103,12 +103,13 @@ export default function HomePage() {
     fetchMediaData(1);
   }, [filters.search, filters.playlistId, filters.sort, itemsPerPage]);
   
-  // Simple page change handler
+  // Improved page change handler with state synchronization
   const handlePageChange = (newPage: number) => {
     if (isLoading) return; // Don't allow changes while loading
     
     console.log(`Changing to page ${newPage}`);
-    fetchMediaData(newPage);
+    setPage(newPage); // Update page state first
+    fetchMediaData(newPage); // Then fetch data
   };
   
   // Handle filter changes
