@@ -197,11 +197,10 @@ export default function IframeVideoPlayer({
           justify-content: center;
         }
         
-        .watermark-text {
+        .watermark-logo {
+          width: 70px;
+          opacity: 0.15;
           transform: rotate(-30deg);
-          font-size: 18px;
-          color: rgba(255, 255, 255, 0.15);
-          font-weight: 500;
         }
       </style>
     </head>
@@ -223,7 +222,7 @@ export default function IframeVideoPlayer({
         <div id="watermarkContainer" class="watermark-container">
           ${Array.from({ length: 9 }).map(() => `
             <div class="watermark-item">
-              <span class="watermark-text">TBN</span>
+              <img src="/images/tbn-logo-white.png" alt="TBN" class="watermark-logo" />
             </div>
           `).join('')}
         </div>
