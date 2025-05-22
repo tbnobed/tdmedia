@@ -281,15 +281,9 @@ export class DatabaseStorage implements IStorage {
         return results.rows;
       }
       
-      // Apply sorting
+      // Apply sorting - only supporting A-Z and Z-A now
       if (filters.sort) {
         switch (filters.sort) {
-          case 'newest':
-            query = query.orderBy(desc(media.createdAt));
-            break;
-          case 'oldest':
-            query = query.orderBy(asc(media.createdAt));
-            break;
           case 'a-z':
             query = query.orderBy(asc(media.title));
             break;
@@ -297,10 +291,12 @@ export class DatabaseStorage implements IStorage {
             query = query.orderBy(desc(media.title));
             break;
           default:
-            query = query.orderBy(desc(media.createdAt));
+            // Default to alphabetical order
+            query = query.orderBy(asc(media.title));
         }
       } else {
-        query = query.orderBy(desc(media.createdAt));
+        // Default to alphabetical order
+        query = query.orderBy(asc(media.title));
       }
       
       return await query;
