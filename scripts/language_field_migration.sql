@@ -9,13 +9,13 @@ $$;
 
 -- Add language column to media table if it doesn't exist
 ALTER TABLE media
-ADD COLUMN IF NOT EXISTS language_code media_language DEFAULT 'EN';
+ADD COLUMN IF NOT EXISTS language media_language DEFAULT 'EN';
 
 -- Set all existing media to 'EN' language if null
-UPDATE media SET language_code = 'EN' WHERE language_code IS NULL;
+UPDATE media SET language = 'EN' WHERE language IS NULL;
 
 -- Create index on language for better performance with filters
-CREATE INDEX IF NOT EXISTS idx_media_language ON media(language_code);
+CREATE INDEX IF NOT EXISTS idx_media_language ON media(language);
 
 -- Output success message
 DO $$

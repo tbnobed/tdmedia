@@ -52,7 +52,7 @@ export const media = pgTable("media", {
   duration: text("duration"),
   size: text("size"),
   contentType: contentTypeEnum("content_type").default('other'),
-  language: languageEnum("language_code").default('EN').notNull(),
+  language: languageEnum("language").default('EN').notNull(),
   year: integer("year"),
   seasonNumber: integer("season_number"),
   totalEpisodes: integer("total_episodes"),
