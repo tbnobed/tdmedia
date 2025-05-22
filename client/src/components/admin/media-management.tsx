@@ -53,7 +53,7 @@ import { getContentClassification } from "@/lib/media-utils";
 export default function MediaManagement() {
   const { toast } = useToast();
   const [search, setSearch] = useState("");
-  const [sortOption, setSortOption] = useState("newest");
+  const [sortOption, setSortOption] = useState("a-z");
   const [typeFilter, setTypeFilter] = useState("all");
   const [playlistFilter, setPlaylistFilter] = useState("all");
   const [addDialogOpen, setAddDialogOpen] = useState(false);
@@ -345,10 +345,7 @@ export default function MediaManagement() {
                   ? 'Uncategorized' 
                   : playlists?.find(p => p.id.toString() === playlistFilter)?.name || ''
               }`}
-              {sortOption !== 'newest' && ` • Sorted by: ${
-                sortOption === 'oldest' ? 'Oldest first' : 
-                sortOption === 'az' ? 'A-Z' : 'Z-A'
-              }`}
+              {` • Sorted by: ${sortOption === 'a-z' ? 'A-Z' : 'Z-A'}`}
             </span>
           )}
         </div>
@@ -390,10 +387,8 @@ export default function MediaManagement() {
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="newest">Newest First</SelectItem>
-              <SelectItem value="oldest">Oldest First</SelectItem>
-              <SelectItem value="az">A-Z</SelectItem>
-              <SelectItem value="za">Z-A</SelectItem>
+              <SelectItem value="a-z">A-Z</SelectItem>
+              <SelectItem value="z-a">Z-A</SelectItem>
             </SelectContent>
           </Select>
         </div>
