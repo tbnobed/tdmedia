@@ -76,6 +76,10 @@ export default function MediaList({ media, onOpenMedia }: MediaListProps) {
                     <span className={`px-2 py-1 text-xs font-medium rounded-full ${typeColor.bg} ${typeColor.text}`}>
                       {item.type.charAt(0).toUpperCase() + item.type.slice(1)}
                     </span>
+                    {/* Language Badge */}
+                    <span className="px-1.5 py-0.5 text-xs font-medium rounded bg-blue-100 text-blue-800">
+                      EN
+                    </span>
                     <span className="text-xs text-gray-500">{getMediaMetadata(item)}</span>
                   </div>
                   <h3 className="text-sm sm:text-base font-medium text-gray-900 truncate mt-1">{item.title}</h3>

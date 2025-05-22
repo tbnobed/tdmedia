@@ -85,7 +85,8 @@ export default function MediaGrid({ media, onOpenMedia }: MediaGridProps) {
               </div>
               
               <div className="p-3 sm:p-4 flex-grow">
-                <div className="flex items-center justify-end">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs px-1.5 py-0.5 bg-gray-100 rounded font-medium text-gray-700">EN</span>
                   <span className="text-xs text-gray-500">{getMediaMetadata(item)}</span>
                 </div>
                 <h3 className="mt-2 text-base sm:text-lg font-medium text-gray-900">{item.title}</h3>
