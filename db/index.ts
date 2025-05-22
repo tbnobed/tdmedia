@@ -24,18 +24,11 @@ let pool;
 let db;
 let isNeonClient = false;
 
-// Use the correct client based on environment
-if (isDocker || process.env.USE_NEON_CLIENT === 'false') {
-  console.log('Using standard PostgreSQL client (pg) instead of Neon serverless');
-  pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
-  db = pgDrizzle(pool, { schema });
-  isNeonClient = false;
-} else {
-  console.log('Using Neon serverless client for development environment');
-  pool = new NeonPool({ connectionString: process.env.DATABASE_URL });
-  db = neonDrizzle(pool, { schema });
-  isNeonClient = true;
-}
+// Always use standard PostgreSQL client for both Docker and Replit environments
+console.log('Using standard PostgreSQL client (pg)');
+pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+db = pgDrizzle(pool, { schema });
+isNeonClient = false;
 
 // Function to help with SQL query execution for both Neon and regular PostgreSQL
 async function executeRawSQL(queryText: string, values: any[] = []) {
