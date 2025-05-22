@@ -189,9 +189,9 @@ export default function IframeVideoPlayer({
         
         .watermark-text {
           transform: rotate(-30deg);
-          font-size: 14px;
-          color: rgba(255, 255, 255, 0.08);
-          font-weight: 400;
+          font-size: 18px;
+          color: rgba(255, 255, 255, 0.15);
+          font-weight: 500;
         }
       </style>
     </head>

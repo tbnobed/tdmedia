@@ -132,7 +132,7 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(4, 1fr);
-    opacity: 0.05;
+    opacity: 0.12;
   }
 
   .watermark-grid-item {
@@ -141,9 +141,10 @@
     justify-content: center;
     transform: rotate(-30deg);
     color: white;
-    font-size: 1rem;
-    font-weight: 500;
+    font-size: 1.25rem;
+    font-weight: 600;
     user-select: none;
+    text-shadow: 0 0 2px rgba(0,0,0,0.7);
   }
   
   /* Prevent video download and right-click */
