@@ -79,7 +79,7 @@ export function getContentClassification(media: Media): string {
   if (media.contentType === 'tv_show') {
     let info = 'TV Show';
     if (media.seasonNumber) {
-      info += ` • Season ${media.seasonNumber}`;
+      info += ` • ${media.seasonNumber} Season${media.seasonNumber > 1 ? 's' : ''}`;
     }
     if (media.totalEpisodes) {
       info += ` • ${media.totalEpisodes} Episodes`;
