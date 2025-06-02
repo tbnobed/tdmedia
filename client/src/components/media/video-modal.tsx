@@ -38,28 +38,28 @@ export function VideoModal({ isOpen, onClose, mediaId }: VideoModalProps) {
         const windowWidth = window.innerWidth;
         const windowHeight = window.innerHeight;
         
-        // Reserve space for media info (approximately 300px)
-        const mediaInfoHeight = 300;
-        const availableHeight = windowHeight - mediaInfoHeight;
+        // Reserve space for media info (approximately 250px) and padding
+        const mediaInfoHeight = 250;
+        const padding = 40;
+        const availableHeight = windowHeight - padding;
+        const availableWidth = windowWidth - padding;
         
-        // Calculate width based on 16:9 aspect ratio and available space
-        const maxWidth = Math.min(windowWidth * 0.9, 1200); // Max 90% width or 1200px
-        const videoHeight = (maxWidth / 16) * 9; // 16:9 aspect ratio
+        // Try to use maximum available width first
+        let modalWidth = Math.min(availableWidth * 0.95, availableWidth);
+        let videoHeight = (modalWidth / 16) * 9; // 16:9 aspect ratio
         
-        // Ensure video fits in available height
-        let finalWidth = maxWidth;
-        if (videoHeight > availableHeight * 0.8) {
-          finalWidth = (availableHeight * 0.8 * 16) / 9;
+        // If the video would be too tall, constrain by height instead
+        const maxVideoHeight = availableHeight - mediaInfoHeight;
+        if (videoHeight > maxVideoHeight) {
+          videoHeight = maxVideoHeight;
+          modalWidth = (videoHeight * 16) / 9;
         }
         
-        const totalHeight = Math.min(
-          (finalWidth / 16) * 9 + mediaInfoHeight,
-          windowHeight * 0.9
-        );
+        const totalHeight = videoHeight + mediaInfoHeight;
         
         setModalDimensions({
-          width: `${finalWidth}px`,
-          height: `${totalHeight}px`
+          width: `${Math.floor(modalWidth)}px`,
+          height: `${Math.floor(totalHeight)}px`
         });
       };
       
