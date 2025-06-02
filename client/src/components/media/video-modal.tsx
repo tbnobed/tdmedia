@@ -114,6 +114,8 @@ export function VideoModal({ isOpen, onClose, mediaId }: VideoModalProps) {
         }}
       >
         <div className="flex flex-col">
+          <DialogTitle className="sr-only">{media?.title || "Media Player"}</DialogTitle>
+          
           {/* Close Button */}
           <Button
             variant="ghost"
