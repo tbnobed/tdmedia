@@ -3,7 +3,7 @@ FROM node:20-alpine
 WORKDIR /app
 
 # Install dependencies for building and running
-RUN apk add --no-cache python3 make g++ postgresql-client
+RUN apk update && apk add --no-cache python3 make g++ postgresql-client
 
 # Install additional tools for media processing and large file support
 RUN apk add --no-cache ffmpeg
