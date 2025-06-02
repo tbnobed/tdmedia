@@ -160,7 +160,7 @@ export function VideoModal({ isOpen, onClose, mediaId }: VideoModalProps) {
           </div>
           
           {/* Media Information Section - Below Video */}
-          <div className="bg-gradient-to-b from-gray-900/80 via-gray-950/90 to-black border-t border-gray-700/40 p-6 backdrop-blur-sm">
+          <div className="bg-gradient-to-b from-gray-900/80 via-gray-950/90 to-black border-t border-gray-700/40 p-6 pb-8 backdrop-blur-sm flex-1">
             <div className="max-w-5xl mx-auto">
               {isLoading ? (
                 <div className="animate-pulse">
