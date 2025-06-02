@@ -55,10 +55,10 @@ services:
       - CONTACT_NOTIFICATION_EMAIL=${CONTACT_NOTIFICATION_EMAIL:-support@trilogydigitalmedia.com}
       - APP_DOMAIN=${APP_DOMAIN:-tdev.obdtv.com}
       
-      # Large file upload configuration - optimized for high-memory server
+      # Large file upload configuration - stable high-performance settings
       - NODE_MAX_HTTP_HEADER_SIZE=81920
-      - UV_THREADPOOL_SIZE=64
-      - NODE_OPTIONS=--max-old-space-size=81920
+      - UV_THREADPOOL_SIZE=32
+      - NODE_OPTIONS=--max-old-space-size=16384
       - NODE_TIMEOUT=3600000
     volumes:
       - upload_videos:/app/uploads/videos
@@ -70,15 +70,15 @@ services:
     restart: unless-stopped
     networks:
       - trilogy_network
-    # Configure container limits for high-performance server (80GB RAM, 64 vCPUs)
+    # Configure container limits for stable high-performance operation
     deploy:
       resources:
         limits:
-          memory: 80G
-          cpus: '48'
+          memory: 32G
+          cpus: '24'
         reservations:
-          memory: 16G
-          cpus: '8'
+          memory: 8G
+          cpus: '4'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5000/api/healthcheck"]
       interval: 30s
