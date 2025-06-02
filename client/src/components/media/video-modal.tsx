@@ -66,8 +66,8 @@ export function VideoModal({ isOpen, onClose, mediaId }: VideoModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[90vw] max-w-none bg-black border-gray-700 p-0 overflow-hidden">
-        <div className="flex flex-col">
+      <DialogContent className="w-[90vw] max-w-none max-h-[90vh] bg-black border-gray-700 p-0 overflow-hidden">
+        <div className="flex flex-col h-full">
           {/* Close Button */}
           <Button
             variant="ghost"
@@ -78,8 +78,8 @@ export function VideoModal({ isOpen, onClose, mediaId }: VideoModalProps) {
             <X className="h-4 w-4" />
           </Button>
 
-          {/* Video Player Section - 16:9 Aspect Ratio */}
-          <div className="relative bg-black aspect-video">
+          {/* Video Player Section - Responsive Height */}
+          <div className="relative bg-black flex-1 min-h-0" style={{ maxHeight: 'calc(90vh - 280px)' }}>
             {/* TBN Logo Watermark */}
             <div className="absolute inset-0 pointer-events-none z-10">
               <div className="absolute inset-0 grid grid-cols-4 grid-rows-3 gap-12 p-12">
