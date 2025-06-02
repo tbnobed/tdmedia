@@ -66,29 +66,29 @@ export function VideoModal({ isOpen, onClose, mediaId }: VideoModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-7xl w-full h-[90vh] bg-black border-gray-700 p-0">
-        <div className="flex h-full">
-          {/* Video Player Section */}
-          <div className="flex-1 relative">
-            {/* Close Button */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute top-4 right-4 z-20 text-white hover:bg-white/20"
-              onClick={onClose}
-            >
-              <X className="h-4 w-4" />
-            </Button>
+      <DialogContent className="max-w-7xl w-full h-[95vh] bg-black border-gray-700 p-0 overflow-hidden">
+        <div className="h-full flex flex-col">
+          {/* Close Button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute top-4 right-4 z-20 text-white hover:bg-white/20"
+            onClick={onClose}
+          >
+            <X className="h-4 w-4" />
+          </Button>
 
+          {/* Video Player Section */}
+          <div className="flex-1 relative bg-black">
             {/* TBN Logo Watermark */}
             <div className="absolute inset-0 pointer-events-none z-10">
-              <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 gap-8 p-8">
-                {Array.from({ length: 9 }).map((_, index) => (
+              <div className="absolute inset-0 grid grid-cols-4 grid-rows-3 gap-12 p-12">
+                {Array.from({ length: 12 }).map((_, index) => (
                   <div key={index} className="flex items-center justify-center">
                     <img 
                       src="/images/tbn-logo-white.png" 
                       alt="TBN" 
-                      className="transform rotate-[-30deg] opacity-20 w-16" 
+                      className="transform rotate-[-30deg] opacity-15 w-16" 
                     />
                   </div>
                 ))}
@@ -96,13 +96,15 @@ export function VideoModal({ isOpen, onClose, mediaId }: VideoModalProps) {
             </div>
             
             {/* Video Player */}
-            <div className="h-full flex items-center justify-center">
+            <div className="h-full flex items-center justify-center p-8">
               {videoUrl ? (
-                <CustomVideoPlayer
-                  src={videoUrl}
-                  autoPlay={true}
-                  onContextMenu={(e) => e.preventDefault()}
-                />
+                <div className="w-full max-w-5xl">
+                  <CustomVideoPlayer
+                    src={videoUrl}
+                    autoPlay={true}
+                    onContextMenu={(e) => e.preventDefault()}
+                  />
+                </div>
               ) : (
                 <div className="w-full h-96 bg-gray-800 flex items-center justify-center rounded-lg">
                   <p className="text-white">Loading video...</p>
@@ -111,82 +113,81 @@ export function VideoModal({ isOpen, onClose, mediaId }: VideoModalProps) {
             </div>
           </div>
           
-          {/* Media Information Sidebar */}
-          <div className="w-80 bg-gray-900 border-l border-gray-700 overflow-y-auto">
-            <DialogHeader className="p-6 border-b border-gray-700">
-              <DialogTitle className="text-white text-lg">
-                {media?.title || 'Loading...'}
-              </DialogTitle>
-            </DialogHeader>
-            
-            <div className="p-6">
+          {/* Media Information Section - Below Video */}
+          <div className="bg-gradient-to-r from-gray-900 to-black border-t border-gray-700 p-6">
+            <div className="max-w-5xl mx-auto">
               {isLoading ? (
-                <div className="animate-pulse space-y-4">
-                  <div className="h-4 bg-gray-700 rounded"></div>
-                  <div className="h-4 bg-gray-700 rounded"></div>
-                  <div className="h-4 bg-gray-700 rounded w-3/4"></div>
-                  <div className="flex gap-2">
+                <div className="animate-pulse">
+                  <div className="h-8 bg-gray-700 rounded mb-4 w-1/2"></div>
+                  <div className="h-4 bg-gray-700 rounded mb-2"></div>
+                  <div className="h-4 bg-gray-700 rounded mb-4 w-3/4"></div>
+                  <div className="flex gap-2 mb-4">
                     <div className="h-6 w-16 bg-gray-700 rounded"></div>
                     <div className="h-6 w-20 bg-gray-700 rounded"></div>
                   </div>
                 </div>
               ) : media ? (
                 <div className="space-y-4">
-                  {media.description && (
-                    <p className="text-gray-300 text-sm leading-relaxed">
-                      {media.description}
-                    </p>
-                  )}
-                  
-                  {/* Badges */}
-                  <div className="flex flex-wrap gap-2">
-                    {media.type && (
-                      <Badge variant="outline" className={getTypeBadgeColor(media.type)}>
-                        <Tag className="h-3 w-3 mr-1" />
-                        {media.type}
-                      </Badge>
-                    )}
-                    {media.language && (
-                      <Badge variant="outline" className={getLanguageBadgeColor(media.language)}>
-                        <Globe className="h-3 w-3 mr-1" />
-                        {media.language}
-                      </Badge>
+                  {/* Title */}
+                  <div>
+                    <h2 className="text-2xl font-bold text-white mb-2">{media.title}</h2>
+                    {media.description && (
+                      <p className="text-gray-300 leading-relaxed">
+                        {media.description}
+                      </p>
                     )}
                   </div>
                   
-                  {/* Media Details */}
-                  <div className="space-y-2 text-sm text-gray-400">
-                    {media.duration && (
-                      <div className="flex items-center">
-                        <Clock className="h-4 w-4 mr-2" />
-                        Duration: {media.duration}
-                      </div>
-                    )}
-                    {media.createdAt && (
-                      <div className="flex items-center">
-                        <Calendar className="h-4 w-4 mr-2" />
-                        Added: {new Date(media.createdAt).toLocaleDateString()}
-                      </div>
-                    )}
-                    {media.fileSize && (
-                      <div className="flex items-center">
-                        <Tag className="h-4 w-4 mr-2" />
-                        Size: {media.fileSize}
-                      </div>
-                    )}
+                  {/* Media Details and Badges in a Row */}
+                  <div className="flex flex-wrap items-center gap-6">
+                    {/* Badges */}
+                    <div className="flex flex-wrap gap-2">
+                      {media.type && (
+                        <Badge variant="outline" className="bg-blue-600/20 text-blue-300 border-blue-500">
+                          <Tag className="h-3 w-3 mr-1" />
+                          {media.type}
+                        </Badge>
+                      )}
+                      {media.language && (
+                        <Badge variant="outline" className="bg-green-600/20 text-green-300 border-green-500">
+                          <Globe className="h-3 w-3 mr-1" />
+                          {media.language}
+                        </Badge>
+                      )}
+                    </div>
+                    
+                    {/* Media Details */}
+                    <div className="flex flex-wrap items-center gap-6 text-sm text-gray-400">
+                      {media.duration && (
+                        <div className="flex items-center">
+                          <Clock className="h-4 w-4 mr-2" />
+                          {media.duration}
+                        </div>
+                      )}
+                      {media.createdAt && (
+                        <div className="flex items-center">
+                          <Calendar className="h-4 w-4 mr-2" />
+                          {new Date(media.createdAt).toLocaleDateString()}
+                        </div>
+                      )}
+                      {media.fileSize && (
+                        <div className="flex items-center">
+                          <Tag className="h-4 w-4 mr-2" />
+                          {media.fileSize}
+                        </div>
+                      )}
+                    </div>
                   </div>
                   
                   {/* Playlist Information */}
                   {media.playlist && (
                     <div className="pt-4 border-t border-gray-700">
                       <p className="text-sm text-gray-400">
-                        <strong className="text-gray-300">Playlist:</strong> {media.playlist.name}
+                        <span className="text-white font-medium">Playlist:</span> {media.playlist.name}
+                        {media.playlist.description && (
+                          <span className="ml-2 text-gray-500">• {media.playlist.description}</span>
+                        )}
                       </p>
-                      {media.playlist.description && (
-                        <p className="text-xs text-gray-500 mt-1">
-                          {media.playlist.description}
-                        </p>
-                      )}
                     </div>
                   )}
                 </div>
