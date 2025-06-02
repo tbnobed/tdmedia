@@ -160,7 +160,7 @@ export function VideoModal({ isOpen, onClose, mediaId }: VideoModalProps) {
           </div>
           
           {/* Media Information Section - Below Video */}
-          <div className="bg-gradient-to-r from-gray-900 to-black border-t border-gray-700 p-6">
+          <div className="bg-black/90 backdrop-blur-sm p-6">
             <div className="max-w-5xl mx-auto">
               {isLoading ? (
                 <div className="animate-pulse">
@@ -226,7 +226,7 @@ export function VideoModal({ isOpen, onClose, mediaId }: VideoModalProps) {
                   
                   {/* Playlist Information */}
                   {media.playlist && (
-                    <div className="pt-4 border-t border-gray-700">
+                    <div className="pt-4 border-t border-gray-600/30">
                       <p className="text-sm text-gray-400">
                         <span className="text-white font-medium">Playlist:</span> {media.playlist.name}
                         {media.playlist.description && (
