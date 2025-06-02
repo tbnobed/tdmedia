@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, Globe, Tag, X } from "lucide-react";
+import { Calendar, Clock, Globe, Tag, X, Film, Tv, FileText } from "lucide-react";
 import { CustomVideoPlayer } from "./custom-video-player";
 import { Button } from "@/components/ui/button";
 
@@ -154,6 +154,13 @@ export function VideoModal({ isOpen, onClose, mediaId }: VideoModalProps) {
                           {media.language}
                         </Badge>
                       )}
+                      {media.contentType && media.contentType !== 'other' && (
+                        <Badge variant="outline" className="bg-purple-600/20 text-purple-300 border-purple-500">
+                          {media.contentType === 'film' ? <Film className="h-3 w-3 mr-1" /> : <Tv className="h-3 w-3 mr-1" />}
+                          {media.contentType === 'film' ? 'Film' : 'TV Show'}
+                          {media.year && ` (${media.year})`}
+                        </Badge>
+                      )}
                     </div>
                     
                     {/* Media Details */}
@@ -164,16 +171,17 @@ export function VideoModal({ isOpen, onClose, mediaId }: VideoModalProps) {
                           {media.duration}
                         </div>
                       )}
-                      {media.createdAt && (
+                      {media.size && (
                         <div className="flex items-center">
-                          <Calendar className="h-4 w-4 mr-2" />
-                          {new Date(media.createdAt).toLocaleDateString()}
+                          <FileText className="h-4 w-4 mr-2" />
+                          {media.size}
                         </div>
                       )}
-                      {media.fileSize && (
+                      {media.contentType === 'tv_show' && media.seasonNumber && (
                         <div className="flex items-center">
-                          <Tag className="h-4 w-4 mr-2" />
-                          {media.fileSize}
+                          <Tv className="h-4 w-4 mr-2" />
+                          {media.seasonNumber} Season{media.seasonNumber > 1 ? 's' : ''}
+                          {media.totalEpisodes && ` • ${media.totalEpisodes} Episodes`}
                         </div>
                       )}
                     </div>
