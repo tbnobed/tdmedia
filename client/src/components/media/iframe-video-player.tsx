@@ -176,6 +176,12 @@ export default function IframeVideoPlayer({
         video::-webkit-media-controls-fullscreen-button {
           display: none !important;
         }
+        video::-webkit-media-controls {
+          z-index: 1000 !important;
+        }
+        video::-webkit-media-controls-panel {
+          z-index: 1000 !important;
+        }
         
         /* Simple watermark styles for better performance */
         .watermark-container {

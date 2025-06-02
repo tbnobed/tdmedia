@@ -153,10 +153,10 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
             </div>
           )}
           
-          {/* Video Player - Using iframe player for better fullscreen control */}
+          {/* Video Player - Using regular player with working controls */}
           {activeViewer === "video" && media && (
             <div className="w-full h-full">
-              <IframeVideoPlayer 
+              <VideoPlayer 
                 mediaId={media.id}
                 showWatermark={true}
                 onError={(e) => setError(e)}
