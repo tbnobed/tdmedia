@@ -78,8 +78,8 @@ export function VideoModal({ isOpen, onClose, mediaId }: VideoModalProps) {
             <X className="h-4 w-4" />
           </Button>
 
-          {/* Video Player Section - Responsive Height */}
-          <div className="relative bg-black flex-1 min-h-0" style={{ maxHeight: 'calc(90vh - 280px)' }}>
+          {/* Video Player Section - Fixed Aspect Ratio */}
+          <div className="relative bg-black aspect-video">
             {/* TBN Logo Watermark */}
             <div className="absolute inset-0 pointer-events-none z-10">
               <div className="absolute inset-0 grid grid-cols-4 grid-rows-3 gap-12 p-12">
