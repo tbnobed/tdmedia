@@ -63,10 +63,11 @@ export default function VideoPage() {
               className="w-full h-auto bg-black"
               src={videoUrl}
               onContextMenu={(e) => e.preventDefault()}
-              controlsList="nodownload"
+              controlsList="nodownload nofullscreen"
               disablePictureInPicture
               playsInline
               preload="metadata"
+              style={{ maxHeight: '70vh' }}
             >
               Your browser does not support the video tag.
             </video>
