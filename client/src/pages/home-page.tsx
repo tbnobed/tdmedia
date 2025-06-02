@@ -9,6 +9,7 @@ import MediaGrid from "@/components/media/media-grid";
 import MediaList from "@/components/media/media-list";
 import StableMediaViewer from "@/components/media/stable-media-viewer";
 import ContactForm from "@/components/contact/contact-form";
+import { VideoModal } from "@/components/media/video-modal";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -34,6 +35,10 @@ export default function HomePage() {
   // Media viewer state
   const [selectedMedia, setSelectedMedia] = useState<Media | null>(null);
   const [viewerOpen, setViewerOpen] = useState(false);
+  
+  // Video modal state
+  const [videoModalOpen, setVideoModalOpen] = useState(false);
+  const [selectedVideoId, setSelectedVideoId] = useState<number | null>(null);
   
   // Contact form state
   const [contactMedia, setContactMedia] = useState<Media | null>(null);
@@ -130,10 +135,11 @@ export default function HomePage() {
     setPage(1); // Reset to first page
   };
   
-  // Handler for opening media viewer - navigate to dedicated video page
+  // Handler for opening media viewer - use modal for videos, stable viewer for other media
   const handleOpenMedia = (media: Media) => {
     if (media.type === 'video') {
-      setLocation(`/video?id=${media.id}`);
+      setSelectedVideoId(media.id);
+      setVideoModalOpen(true);
     } else {
       setSelectedMedia(media);
       setViewerOpen(true);
@@ -310,6 +316,13 @@ export default function HomePage() {
       </main>
       
       <Footer />
+      
+      {/* Video modal */}
+      <VideoModal
+        isOpen={videoModalOpen}
+        onClose={() => setVideoModalOpen(false)}
+        mediaId={selectedVideoId}
+      />
       
       {/* Media viewer */}
       <StableMediaViewer
