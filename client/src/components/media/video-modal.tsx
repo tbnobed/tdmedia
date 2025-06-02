@@ -66,7 +66,7 @@ export function VideoModal({ isOpen, onClose, mediaId }: VideoModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-7xl w-[87vw] bg-black border-gray-700 p-0 overflow-hidden">
+      <DialogContent className="w-[60vw] h-[60vh] bg-black border-gray-700 p-0 overflow-hidden">
         <div className="flex flex-col">
           {/* Close Button */}
           <Button
