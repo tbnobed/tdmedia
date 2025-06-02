@@ -128,57 +128,58 @@ export function VideoModal({ isOpen, onClose, mediaId }: VideoModalProps) {
                 </div>
               ) : media ? (
                 <div className="space-y-4">
-                  {/* Title */}
-                  <div>
-                    <h2 className="text-2xl font-bold text-white mb-2">{media.title}</h2>
-                    {media.description && (
-                      <p className="text-gray-300 leading-relaxed">
-                        {media.description}
-                      </p>
-                    )}
-                  </div>
-                  
-                  {/* Media Details and Badges in a Row */}
-                  <div className="flex flex-wrap items-center gap-6">
-                    {/* Badges */}
-                    <div className="flex flex-wrap gap-2">
-                      {media.type && (
-                        <Badge variant="outline" className="bg-blue-600/20 text-blue-300 border-blue-500">
-                          <Tag className="h-3 w-3 mr-1" />
-                          {media.type}
-                        </Badge>
-                      )}
-                      {media.language && (
-                        <Badge variant="outline" className="bg-green-600/20 text-green-300 border-green-500">
-                          <Globe className="h-3 w-3 mr-1" />
-                          {media.language}
-                        </Badge>
-                      )}
-                      {media.contentType && media.contentType !== 'other' && (
-                        <Badge variant="outline" className="bg-purple-600/20 text-purple-300 border-purple-500">
-                          {media.contentType === 'film' ? <Film className="h-3 w-3 mr-1" /> : <Tv className="h-3 w-3 mr-1" />}
-                          {media.contentType === 'film' ? 'Film' : 'TV Show'}
-                          {media.year && ` (${media.year})`}
-                        </Badge>
+                  {/* Title and Badges Row */}
+                  <div className="flex justify-between items-start gap-4">
+                    <div className="flex-1">
+                      <h2 className="text-2xl font-bold text-white mb-2">{media.title}</h2>
+                      {media.description && (
+                        <p className="text-gray-300 leading-relaxed">
+                          {media.description}
+                        </p>
                       )}
                     </div>
                     
-                    {/* Media Details */}
-                    <div className="flex flex-wrap items-center gap-6 text-sm text-gray-400">
-                      {media.duration && (
-                        <div className="flex items-center">
-                          <Clock className="h-4 w-4 mr-2" />
-                          {media.duration}
-                        </div>
-                      )}
-
-                      {media.contentType === 'tv_show' && media.seasonNumber && (
-                        <div className="flex items-center">
-                          <Tv className="h-4 w-4 mr-2" />
-                          {media.seasonNumber} Season{media.seasonNumber > 1 ? 's' : ''}
-                          {media.totalEpisodes && ` • ${media.totalEpisodes} Episodes`}
-                        </div>
-                      )}
+                    {/* Badges and Details - Top Right */}
+                    <div className="flex flex-col items-end gap-2">
+                      {/* Badges */}
+                      <div className="flex flex-wrap gap-2 justify-end">
+                        {media.type && (
+                          <Badge variant="outline" className="bg-blue-600/20 text-blue-300 border-blue-500">
+                            <Tag className="h-3 w-3 mr-1" />
+                            {media.type}
+                          </Badge>
+                        )}
+                        {media.language && (
+                          <Badge variant="outline" className="bg-green-600/20 text-green-300 border-green-500">
+                            <Globe className="h-3 w-3 mr-1" />
+                            {media.language}
+                          </Badge>
+                        )}
+                        {media.contentType && media.contentType !== 'other' && (
+                          <Badge variant="outline" className="bg-purple-600/20 text-purple-300 border-purple-500">
+                            {media.contentType === 'film' ? <Film className="h-3 w-3 mr-1" /> : <Tv className="h-3 w-3 mr-1" />}
+                            {media.contentType === 'film' ? 'Film' : 'TV Show'}
+                            {media.year && ` (${media.year})`}
+                          </Badge>
+                        )}
+                      </div>
+                      
+                      {/* Media Details */}
+                      <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400">
+                        {media.duration && (
+                          <div className="flex items-center">
+                            <Clock className="h-4 w-4 mr-2" />
+                            {media.duration}
+                          </div>
+                        )}
+                        {media.contentType === 'tv_show' && media.seasonNumber && (
+                          <div className="flex items-center">
+                            <Tv className="h-4 w-4 mr-2" />
+                            {media.seasonNumber} Season{media.seasonNumber > 1 ? 's' : ''}
+                            {media.totalEpisodes && ` • ${media.totalEpisodes} Episodes`}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                   
