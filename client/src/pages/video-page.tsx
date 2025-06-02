@@ -66,45 +66,20 @@ export default function VideoPage() {
             </div>
           </div>
           
-          {/* Video Player - Custom container to block fullscreen */}
+          {/* Video Player - Simple and reliable */}
           {videoUrl && (
-            <div 
-              className="relative bg-black" 
-              style={{ 
-                width: '100%', 
-                maxHeight: '70vh',
-                overflow: 'hidden'
-              }}
+            <video
+              controls={true}
+              autoPlay
+              src={videoUrl}
+              style={{ width: '100%', maxHeight: '70vh', backgroundColor: 'black' }}
+              controlsList="nodownload nofullscreen"
+              disablePictureInPicture
+              playsInline
+              preload="metadata"
             >
-              <video
-                controls
-                autoPlay
-                className="w-full h-auto bg-black"
-                src={videoUrl}
-                onContextMenu={(e) => e.preventDefault()}
-                controlsList="nodownload nofullscreen noremoteplayback"
-                disablePictureInPicture
-                playsInline
-                preload="metadata"
-                width="100%"
-                height="auto"
-                onKeyDown={(e) => {
-                  // Prevent fullscreen keyboard shortcuts
-                  if (e.key === 'f' || e.key === 'F' || 
-                      (e.key === 'Enter' && e.altKey) ||
-                      e.key === 'F11') {
-                    e.preventDefault();
-                  }
-                }}
-                onDoubleClick={(e) => {
-                  // Prevent double-click fullscreen
-                  e.preventDefault();
-                }}
-
-              >
-                Your browser does not support the video tag.
-              </video>
-            </div>
+              Your browser does not support the video tag.
+            </video>
           )}
           
           {!videoUrl && (
