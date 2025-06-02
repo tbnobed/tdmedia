@@ -330,8 +330,9 @@ export default function VideoPlayer({
           <video
             ref={videoRef}
             className={`w-full ${small ? 'h-24 object-cover' : 'h-full'} ${disableFullscreen ? 'client-video fullscreen-disabled' : ''}`}
-            controls={controls}
+            controls={true}
             controlsList={`nodownload ${disableFullscreen ? 'nofullscreen' : ''}`}
+            style={{ position: 'relative', zIndex: 1 }}
             onContextMenu={preventRightClick}
             onDragStart={preventDragStart}
             autoPlay={autoPlay}
