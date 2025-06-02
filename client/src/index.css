@@ -152,30 +152,5 @@
     display: none;
   }
   
-  /* Force video controls to always be visible */
-  video {
-    position: relative !important;
-  }
-  
-  video::-webkit-media-controls {
-    opacity: 1 !important;
-    visibility: visible !important;
-    display: block !important;
-  }
-  
-  video::-webkit-media-controls-enclosure {
-    overflow: visible !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    display: block !important;
-  }
-  
-  video::-webkit-media-controls-panel {
-    width: 100% !important;
-    display: flex !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    position: relative !important;
-    z-index: 1000 !important;
-  }
+  /* Remove all video control styling to let browser defaults work */
 }

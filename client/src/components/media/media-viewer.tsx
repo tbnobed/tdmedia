@@ -154,39 +154,14 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
             </div>
           )}
           
-          {/* Video Player - Simple HTML5 video with forced controls */}
+          {/* Video Player - Minimal test */}
           {activeViewer === "video" && media && streamInfo && (
-            <div className="w-full h-full relative">
-              {/* TBN Logo Watermark */}
-              <div className="absolute inset-0 pointer-events-none z-10">
-                <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 gap-4 p-4">
-                  {Array.from({ length: 9 }).map((_, index) => (
-                    <div key={index} className="flex items-center justify-center">
-                      <img 
-                        src="/images/tbn-logo-white.png" 
-                        alt="TBN" 
-                        className="transform rotate-[-30deg] opacity-30 w-16" 
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
-              
+            <div style={{ width: '100%', height: '100%', backgroundColor: 'black' }}>
               <video
-                controls
-                autoPlay
-                className="w-full h-full bg-black"
+                controls={true}
+                width="100%"
+                height="100%"
                 src={`${window.TRILOGY_CONFIG?.apiBaseUrl || ''}${streamInfo.streamUrl}`}
-                style={{
-                  position: 'relative',
-                  zIndex: 1,
-                  display: 'block'
-                }}
-                onContextMenu={(e) => e.preventDefault()}
-                controlsList="nodownload"
-                disablePictureInPicture
-                playsInline
-                preload="metadata"
               >
                 Your browser does not support the video tag.
               </video>
