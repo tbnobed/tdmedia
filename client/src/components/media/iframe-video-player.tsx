@@ -222,7 +222,7 @@ export default function IframeVideoPlayer({
         <div id="watermarkContainer" class="watermark-container">
           ${Array.from({ length: 9 }).map(() => `
             <div class="watermark-item">
-              <img src="${window.location.origin}/images/tbn-logo-white.png" alt="TBN" class="watermark-logo" />
+              <img src="/images/tbn-logo-white.png" alt="TBN" class="watermark-logo" />
             </div>
           `).join('')}
         </div>
