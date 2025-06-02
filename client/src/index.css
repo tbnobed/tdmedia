@@ -152,28 +152,8 @@
     display: none;
   }
   
-  /* Completely hide fullscreen buttons in all browsers */
+  /* Only hide fullscreen button, keep other controls */
   video::-webkit-media-controls-fullscreen-button {
-    display: none !important;
-    visibility: hidden !important;
-    opacity: 0 !important;
-    width: 0 !important;
-    height: 0 !important;
-  }
-  
-  video::-moz-media-controls-fullscreen-button {
-    display: none !important;
-  }
-  
-  video[controls]::-webkit-media-controls-panel .fullscreen-button {
-    display: none !important;
-  }
-  
-  /* Hide any element that might be a fullscreen button */
-  video[controls] button[aria-label*="full"],
-  video[controls] button[aria-label*="Full"],
-  video[controls] .fullscreen,
-  video[controls] .full-screen {
     display: none !important;
   }
 }
