@@ -96,9 +96,9 @@ export function VideoModal({ isOpen, onClose, mediaId }: VideoModalProps) {
             </div>
             
             {/* Video Player */}
-            <div className="absolute inset-0 flex items-center justify-center p-2">
+            <div className="absolute inset-0 flex items-center justify-center">
               {videoUrl ? (
-                <div className="w-full h-full max-w-7xl flex items-center justify-center">
+                <div className="w-full h-full">
                   <CustomVideoPlayer
                     src={videoUrl}
                     autoPlay={true}

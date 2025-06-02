@@ -110,8 +110,7 @@ export function CustomVideoPlayer({ src, autoPlay = false, onContextMenu }: Cust
 
   return (
     <div 
-      className="relative bg-black w-full"
-      style={{ maxHeight: '70vh' }}
+      className="relative bg-black w-full h-full"
       onMouseEnter={() => setShowControls(true)}
       onMouseLeave={() => setShowControls(true)} // Keep controls visible
     >
@@ -121,8 +120,7 @@ export function CustomVideoPlayer({ src, autoPlay = false, onContextMenu }: Cust
         autoPlay={autoPlay}
         playsInline
         preload="metadata"
-        className="w-full h-auto"
-        style={{ maxHeight: '70vh' }}
+        className="w-full h-full object-contain"
         onContextMenu={onContextMenu}
       />
       
