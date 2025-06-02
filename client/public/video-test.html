@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: black;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        video {
+            width: 100%;
+            height: auto;
+            background: black;
+        }
+        .watermark {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            opacity: 0.3;
+            width: 60px;
+            transform: rotate(-30deg);
+        }
+        .video-container {
+            position: relative;
+            margin: 20px 0;
+        }
+        h1 {
+            color: white;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>TBN Video Player Test</h1>
+        <div class="video-container">
+            <video controls preload="metadata">
+                <source src="/api/raw-stream/7" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <img src="/images/tbn-logo-white.png" alt="TBN" class="watermark">
+        </div>
+        <p style="color: white; text-align: center;">
+            This is a direct HTML5 video player test. Controls should be visible at the bottom.
+        </p>
+    </div>
+</body>
+</html>

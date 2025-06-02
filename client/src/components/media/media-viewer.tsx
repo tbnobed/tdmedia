@@ -155,24 +155,16 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
             </div>
           )}
           
-          {/* Video Player - Test button to open video in new window */}
-          {activeViewer === "video" && media && streamInfo && (
-            <div className="w-full h-full flex items-center justify-center bg-black">
-              <div className="text-center">
-                <h3 className="text-white text-xl mb-4">{media.title}</h3>
-                <button
-                  onClick={() => {
-                    const videoUrl = `${window.TRILOGY_CONFIG?.apiBaseUrl || ''}${streamInfo.streamUrl}`;
-                    window.open(videoUrl, '_blank');
-                  }}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg"
-                >
-                  Open Video in New Tab (with Controls)
-                </button>
-                <p className="text-gray-300 text-sm mt-4">
-                  This will open the video directly in a new tab where browser controls should work normally.
-                </p>
-              </div>
+          {/* Video Player - Back to original working version */}
+          {activeViewer === "video" && media && (
+            <div className="w-full h-full">
+              <VideoPlayer 
+                mediaId={media.id}
+                showWatermark={true}
+                onError={(e) => setError(e)}
+                onLoad={() => setIsLoading(false)}
+                className="w-full h-full"
+              />
             </div>
           )}
           
