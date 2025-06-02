@@ -70,15 +70,15 @@ services:
     restart: unless-stopped
     networks:
       - trilogy_network
-    # Configure container limits for high-memory server (80GB allocation)
+    # Configure container limits for high-performance server (80GB RAM, 64 vCPUs)
     deploy:
       resources:
         limits:
           memory: 80G
-          cpus: '16'
+          cpus: '48'
         reservations:
           memory: 16G
-          cpus: '4'
+          cpus: '8'
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5000/api/healthcheck"]
       interval: 30s
