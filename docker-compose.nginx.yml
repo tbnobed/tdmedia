@@ -1,0 +1,152 @@
+services:
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - upload_videos:/app/uploads/videos:ro
+      - upload_images:/app/uploads/images:ro
+      - upload_documents:/app/uploads/documents:ro
+      - upload_presentations:/app/uploads/presentations:ro
+      - upload_thumbnails:/app/uploads/thumbnails:ro
+      - /var/cache/nginx:/var/cache/nginx
+    depends_on:
+      - app
+    restart: unless-stopped
+    networks:
+      - trilogy_network
+    environment:
+      - NGINX_ENVSUBST_TEMPLATE_SUFFIX=.template
+    # Create necessary cache directories
+    command: /bin/sh -c "mkdir -p /var/cache/nginx/client_temp /var/cache/nginx/proxy_temp && nginx -g 'daemon off;'"
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      network: host
+    # Remove port mapping since nginx will handle external traffic
+    expose:
+      - "5000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    environment:
+      # Database configuration
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-trilogy_user}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-trilogy_db}
+      
+      # Application configuration
+      - NODE_ENV=${NODE_ENV:-production}
+      - DOCKER_ENV=true
+      - PORT=5000
+      - HOST=0.0.0.0
+      - SESSION_SECRET=${SESSION_SECRET:-trilogy_session_secret}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-*}
+      
+      # Admin user configuration
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-admin@example.com}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-adminpassword}
+      - ADMIN_USERNAME=${ADMIN_USERNAME:-admin}
+      
+      # Client user configuration
+      - CLIENT_EMAIL=${CLIENT_EMAIL:-client@example.com}
+      - CLIENT_PASSWORD=${CLIENT_PASSWORD:-demopassword}
+      - CLIENT_USERNAME=${CLIENT_USERNAME:-client}
+      
+      # Database client configuration
+      - USE_NEON_CLIENT=false
+      - DRIZZLE_SKIP_TABLE_SESSION=true
+      - DRIZZLE_ALWAYS_MIGRATE=true
+      
+      # Database schema migration settings
+      - ENABLE_PLAYLIST_MIGRATION=true
+      - PRESERVE_CATEGORIES_TABLE=false
+      - CREATE_DEFAULT_PLAYLIST=true
+      - PG_SESSION_KEEP_EXISTING=true
+      - FORCE_DIRECT_TABLE_CREATION=true
+      - DB_INIT_RETRY_COUNT=5
+      - DB_INIT_RETRY_DELAY=3
+      
+      # Email configuration
+      - SENDGRID_API_KEY=${SENDGRID_API_KEY:-}
+      - SENDGRID_FROM_EMAIL=${SENDGRID_FROM_EMAIL:-alerts@obedtv.com}
+      - CONTACT_NOTIFICATION_EMAIL=${CONTACT_NOTIFICATION_EMAIL:-support@trilogydigitalmedia.com}
+      - APP_DOMAIN=${APP_DOMAIN:-tdev.obdtv.com}
+      
+      # Large file upload configuration - increased limits
+      - NODE_MAX_HTTP_HEADER_SIZE=81920
+      - UV_THREADPOOL_SIZE=32
+      - NODE_OPTIONS=--max-old-space-size=8192
+      - NODE_TIMEOUT=3600000  # 1 hour timeout for large uploads
+    volumes:
+      - upload_videos:/app/uploads/videos
+      - upload_images:/app/uploads/images
+      - upload_documents:/app/uploads/documents
+      - upload_presentations:/app/uploads/presentations
+      - upload_thumbnails:/app/uploads/thumbnails
+      - /tmp/uploads:/tmp/uploads
+    restart: unless-stopped
+    networks:
+      - trilogy_network
+    deploy:
+      resources:
+        limits:
+          memory: 8G  # Increased for large file processing
+        reservations:
+          memory: 2G
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5000/api/healthcheck"]
+      interval: 30s
+      timeout: 30s
+      retries: 5
+      start_period: 60s
+
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-trilogy_user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_DB=${POSTGRES_DB:-trilogy_db}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    expose:
+      - "5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-trilogy_user} -d ${POSTGRES_DB:-trilogy_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - trilogy_network
+
+networks:
+  trilogy_network:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.host_binding_ipv4: "0.0.0.0"
+      com.docker.network.bridge.enable_icc: "true"
+      com.docker.network.bridge.enable_ip_masquerade: "true"
+    ipam:
+      config:
+        - subnet: 172.18.0.0/16
+          gateway: 172.18.0.1
+
+volumes:
+  db_data:
+    name: trilogy_db_data
+  upload_videos:
+    name: trilogy_upload_videos
+  upload_images:
+    name: trilogy_upload_images
+  upload_documents:
+    name: trilogy_upload_documents
+  upload_presentations:
+    name: trilogy_upload_presentations
+  upload_thumbnails:
+    name: trilogy_upload_thumbnails
