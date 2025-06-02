@@ -153,10 +153,11 @@
   }
   
   video::-webkit-media-controls-enclosure {
-    overflow: hidden;
+    overflow: visible;
   }
   
   video::-webkit-media-controls-panel {
-    width: calc(100% + 30px);
+    width: 100%;
+    display: flex !important;
   }
 }
