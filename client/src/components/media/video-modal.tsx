@@ -171,12 +171,7 @@ export function VideoModal({ isOpen, onClose, mediaId }: VideoModalProps) {
                           {media.duration}
                         </div>
                       )}
-                      {media.size && (
-                        <div className="flex items-center">
-                          <FileText className="h-4 w-4 mr-2" />
-                          {media.size}
-                        </div>
-                      )}
+
                       {media.contentType === 'tv_show' && media.seasonNumber && (
                         <div className="flex items-center">
                           <Tv className="h-4 w-4 mr-2" />
