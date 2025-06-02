@@ -183,9 +183,9 @@ export default function IframeVideoPlayer({
           top: 0;
           left: 0;
           width: 100%;
-          height: 100%;
+          height: calc(100% - 40px);
           pointer-events: none;
-          z-index: 10;
+          z-index: 1;
           display: grid;
           grid-template-columns: repeat(3, 1fr);
           grid-template-rows: repeat(3, 1fr);
