@@ -143,12 +143,7 @@ export function VideoModal({ isOpen, onClose, mediaId }: VideoModalProps) {
                     <div className="flex flex-col items-end gap-2">
                       {/* Badges */}
                       <div className="flex flex-wrap gap-2 justify-end">
-                        {media.type && (
-                          <Badge variant="outline" className="bg-blue-600/20 text-blue-300 border-blue-500">
-                            <Tag className="h-3 w-3 mr-1" />
-                            {media.type}
-                          </Badge>
-                        )}
+
                         {media.language && (
                           <Badge variant="outline" className="bg-green-600/20 text-green-300 border-green-500">
                             <Globe className="h-3 w-3 mr-1" />
