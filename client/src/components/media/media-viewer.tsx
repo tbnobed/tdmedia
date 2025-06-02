@@ -61,6 +61,7 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
   const [streamInfo, setStreamInfo] = useState<StreamInfo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
+  const [showFullscreenVideo, setShowFullscreenVideo] = useState(false);
   
   // Safety check - if no media or not open, don't render anything
   if (!media || !isOpen) return null;
@@ -154,17 +155,24 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
             </div>
           )}
           
-          {/* Video Player - Minimal test */}
+          {/* Video Player - Test button to open video in new window */}
           {activeViewer === "video" && media && streamInfo && (
-            <div style={{ width: '100%', height: '100%', backgroundColor: 'black' }}>
-              <video
-                controls={true}
-                width="100%"
-                height="100%"
-                src={`${window.TRILOGY_CONFIG?.apiBaseUrl || ''}${streamInfo.streamUrl}`}
-              >
-                Your browser does not support the video tag.
-              </video>
+            <div className="w-full h-full flex items-center justify-center bg-black">
+              <div className="text-center">
+                <h3 className="text-white text-xl mb-4">{media.title}</h3>
+                <button
+                  onClick={() => {
+                    const videoUrl = `${window.TRILOGY_CONFIG?.apiBaseUrl || ''}${streamInfo.streamUrl}`;
+                    window.open(videoUrl, '_blank');
+                  }}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg"
+                >
+                  Open Video in New Tab (with Controls)
+                </button>
+                <p className="text-gray-300 text-sm mt-4">
+                  This will open the video directly in a new tab where browser controls should work normally.
+                </p>
+              </div>
             </div>
           )}
           
