@@ -13,6 +13,7 @@ import { Mail, X } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import VideoPlayer from "./video-player";
 import IframeVideoPlayer from "./iframe-video-player";
+import CustomVideoPlayer from "./custom-video-player";
 import "./media-viewer.css";
 
 // Simple helper function for content classification display
@@ -153,14 +154,12 @@ export default function MediaViewer({ media, isOpen, onClose, onContactRequest }
             </div>
           )}
           
-          {/* Video Player - Using regular player with working controls */}
-          {activeViewer === "video" && media && (
+          {/* Video Player - Using custom player with guaranteed controls */}
+          {activeViewer === "video" && media && streamInfo && (
             <div className="w-full h-full">
-              <VideoPlayer 
-                mediaId={media.id}
+              <CustomVideoPlayer 
+                src={`${window.TRILOGY_CONFIG?.apiBaseUrl || ''}${streamInfo.streamUrl}`}
                 showWatermark={true}
-                onError={(e) => setError(e)}
-                onLoad={() => setIsLoading(false)}
                 className="w-full h-full"
               />
             </div>
