@@ -27,6 +27,17 @@ export default function VideoPage() {
 
   return (
     <div className="min-h-screen bg-black">
+      <style>{`
+        video::-webkit-media-controls-fullscreen-button {
+          display: none !important;
+        }
+        video::-moz-media-controls-fullscreen-button {
+          display: none !important;
+        }
+        video::--ms-media-controls-fullscreen-button {
+          display: none !important;
+        }
+      `}</style>
       <div className="p-4">
         <Button
           variant="ghost"
@@ -68,6 +79,18 @@ export default function VideoPage() {
               playsInline
               preload="metadata"
               style={{ maxHeight: '70vh' }}
+              onKeyDown={(e) => {
+                // Prevent fullscreen keyboard shortcuts
+                if (e.key === 'f' || e.key === 'F' || 
+                    (e.key === 'Enter' && e.altKey) ||
+                    e.key === 'F11') {
+                  e.preventDefault();
+                }
+              }}
+              onDoubleClick={(e) => {
+                // Prevent double-click fullscreen
+                e.preventDefault();
+              }}
             >
               Your browser does not support the video tag.
             </video>
