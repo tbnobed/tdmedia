@@ -9,6 +9,7 @@ import AdminPage from "@/pages/admin-page";
 import ContactPage from "@/pages/contact-page";
 import TermsPage from "@/pages/terms-page";
 import PrivacyPage from "@/pages/privacy-page";
+import VideoPage from "@/pages/video-page";
 import { AuthProvider } from "./hooks/use-auth";
 import { ProtectedRoute } from "./lib/protected-route";
 
@@ -16,6 +17,7 @@ function Router() {
   return (
     <Switch>
       <ProtectedRoute path="/" component={HomePage} />
+      <ProtectedRoute path="/video" component={VideoPage} />
       <ProtectedRoute path="/admin" component={AdminPage} adminOnly={true} />
       <Route path="/auth" component={AuthPage} />
       <Route path="/contact" component={ContactPage} />

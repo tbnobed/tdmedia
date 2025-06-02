@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Media } from "@shared/schema";
 import { useAuth } from "@/hooks/use-auth";
+import { useLocation } from "wouter";
 import Header from "@/components/layout/header";
 import Footer from "@/components/layout/footer";
 import MediaFilters from "@/components/media/media-filters";
@@ -25,6 +26,7 @@ interface PaginatedResponse {
 export default function HomePage() {
   // Get user info for personalized welcome message
   const { user } = useAuth();
+  const [, setLocation] = useLocation();
   
   // State for view type
   const [viewType, setViewType] = useState<"grid" | "list">("grid");
@@ -128,10 +130,14 @@ export default function HomePage() {
     setPage(1); // Reset to first page
   };
   
-  // Handler for opening media viewer
+  // Handler for opening media viewer - navigate to dedicated video page
   const handleOpenMedia = (media: Media) => {
-    setSelectedMedia(media);
-    setViewerOpen(true);
+    if (media.type === 'video') {
+      setLocation(`/video?id=${media.id}`);
+    } else {
+      setSelectedMedia(media);
+      setViewerOpen(true);
+    }
   };
   
   // Handler for opening contact form
