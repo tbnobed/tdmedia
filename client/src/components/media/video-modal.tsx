@@ -15,6 +15,7 @@ interface VideoModalProps {
 
 export function VideoModal({ isOpen, onClose, mediaId }: VideoModalProps) {
   const [videoUrl, setVideoUrl] = useState<string>("");
+  const [modalDimensions, setModalDimensions] = useState({ width: "90vw", height: "90vh" });
 
   // Fetch media details
   const { data: media, isLoading } = useQuery({
@@ -32,6 +33,39 @@ export function VideoModal({ isOpen, onClose, mediaId }: VideoModalProps) {
 
   useEffect(() => {
     if (mediaId && isOpen) {
+      // Calculate optimal modal dimensions based on window size
+      const calculateModalDimensions = () => {
+        const windowWidth = window.innerWidth;
+        const windowHeight = window.innerHeight;
+        
+        // Reserve space for media info (approximately 300px)
+        const mediaInfoHeight = 300;
+        const availableHeight = windowHeight - mediaInfoHeight;
+        
+        // Calculate width based on 16:9 aspect ratio and available space
+        const maxWidth = Math.min(windowWidth * 0.9, 1200); // Max 90% width or 1200px
+        const videoHeight = (maxWidth / 16) * 9; // 16:9 aspect ratio
+        
+        // Ensure video fits in available height
+        let finalWidth = maxWidth;
+        if (videoHeight > availableHeight * 0.8) {
+          finalWidth = (availableHeight * 0.8 * 16) / 9;
+        }
+        
+        const totalHeight = Math.min(
+          (finalWidth / 16) * 9 + mediaInfoHeight,
+          windowHeight * 0.9
+        );
+        
+        setModalDimensions({
+          width: `${finalWidth}px`,
+          height: `${totalHeight}px`
+        });
+      };
+      
+      calculateModalDimensions();
+      window.addEventListener('resize', calculateModalDimensions);
+      
       // Fetch the stream URL for this media
       fetch(`/api/stream/${mediaId}`, {
         credentials: 'include'
@@ -41,6 +75,10 @@ export function VideoModal({ isOpen, onClose, mediaId }: VideoModalProps) {
         setVideoUrl(`${window.TRILOGY_CONFIG?.apiBaseUrl || ''}${data.streamUrl}`);
       })
       .catch(err => console.error('Error loading video:', err));
+      
+      return () => {
+        window.removeEventListener('resize', calculateModalDimensions);
+      };
     } else {
       setVideoUrl("");
     }
@@ -66,7 +104,15 @@ export function VideoModal({ isOpen, onClose, mediaId }: VideoModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-[90vw] max-w-none max-h-[90vh] bg-black border-gray-700 p-0 overflow-y-auto">
+      <DialogContent 
+        className="bg-black border-gray-700 p-0 overflow-y-auto"
+        style={{ 
+          width: modalDimensions.width, 
+          height: modalDimensions.height,
+          maxWidth: 'none',
+          maxHeight: 'none'
+        }}
+      >
         <div className="flex flex-col">
           {/* Close Button */}
           <Button
