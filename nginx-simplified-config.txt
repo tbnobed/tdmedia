@@ -1,0 +1,86 @@
+server {
+    server_name contentcatalog.tbn.tv;
+
+    # Critical settings for large file uploads
+    client_max_body_size 0;          # Remove file size limit completely
+    client_body_timeout 1800s;       # 30 minutes for upload timeout
+    client_header_timeout 60s;
+    client_body_buffer_size 128k;
+
+    # Proxy settings for large uploads
+    proxy_request_buffering off;      # Stream uploads directly to backend
+    proxy_max_temp_file_size 0;       # Disable temp file creation
+    proxy_buffering off;              # Disable response buffering for streaming
+    proxy_connect_timeout 60s;
+    proxy_send_timeout 1800s;         # 30 minutes for upload timeout
+    proxy_read_timeout 1800s;         # 30 minutes for response timeout
+
+    location / {
+        proxy_pass http://localhost:5000;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Real-IP $remote_addr;
+        
+        # Important: Don't buffer large uploads
+        proxy_request_buffering off;
+        proxy_buffering off;
+    }
+
+    # Special handling for file upload endpoints
+    location ~ ^/api/(upload|media/.*/upload) {
+        # Remove all size and rate limits for uploads
+        client_max_body_size 0;
+        proxy_request_buffering off;
+        proxy_buffering off;
+        proxy_read_timeout 3600s;      # 1 hour for very large uploads
+        proxy_send_timeout 3600s;
+        
+        proxy_pass http://localhost:5000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Upload-Size $content_length;
+    }
+
+    # Media streaming endpoints - optimized for range requests
+    location ~ ^/api/(raw-stream|stream)/ {
+        proxy_pass http://localhost:5000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Range $http_range;
+        
+        # Enable range requests for video streaming
+        proxy_set_header Accept-Ranges bytes;
+        proxy_cache_bypass $http_range;
+        
+        # Don't buffer streaming responses
+        proxy_buffering off;
+        proxy_request_buffering off;
+    }
+
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/contentcatalog.tbn.tv/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/contentcatalog.tbn.tv/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+}
+
+server {
+    if ($host = contentcatalog.tbn.tv) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+    listen 80;
+    server_name contentcatalog.tbn.tv;
+    return 404; # managed by Certbot
+}
