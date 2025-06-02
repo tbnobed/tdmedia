@@ -1,41 +1,61 @@
-import { useRef, useState, useEffect } from "react";
-import { Play, Pause, Volume2, VolumeX, Maximize2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
+import { useRef, useState, useEffect } from 'react';
+import { Play, Pause, Volume2, VolumeX } from 'lucide-react';
 
 interface CustomVideoPlayerProps {
   src: string;
-  showWatermark?: boolean;
-  className?: string;
+  autoPlay?: boolean;
+  onContextMenu?: (e: React.MouseEvent) => void;
 }
 
-export default function CustomVideoPlayer({ 
-  src, 
-  showWatermark = true, 
-  className = "" 
-}: CustomVideoPlayerProps) {
+export function CustomVideoPlayer({ src, autoPlay = false, onContextMenu }: CustomVideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(autoPlay);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
+  const [showControls, setShowControls] = useState(true);
 
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    const updateTime = () => setCurrentTime(video.currentTime);
-    const updateDuration = () => setDuration(video.duration);
+    const handleLoadedData = () => {
+      setDuration(video.duration);
+    };
 
-    video.addEventListener('timeupdate', updateTime);
-    video.addEventListener('loadedmetadata', updateDuration);
-    video.addEventListener('ended', () => setIsPlaying(false));
+    const handleTimeUpdate = () => {
+      setCurrentTime(video.currentTime);
+    };
+
+    const handlePlay = () => setIsPlaying(true);
+    const handlePause = () => setIsPlaying(false);
+
+    video.addEventListener('loadeddata', handleLoadedData);
+    video.addEventListener('timeupdate', handleTimeUpdate);
+    video.addEventListener('play', handlePlay);
+    video.addEventListener('pause', handlePause);
+
+    // Disable right-click context menu
+    video.addEventListener('contextmenu', (e) => e.preventDefault());
+
+    // Disable keyboard shortcuts that might trigger fullscreen
+    video.addEventListener('keydown', (e) => {
+      if (e.key === 'f' || e.key === 'F' || e.key === 'F11' || 
+          (e.key === 'Enter' && e.altKey)) {
+        e.preventDefault();
+      }
+    });
+
+    // Disable double-click fullscreen
+    video.addEventListener('dblclick', (e) => e.preventDefault());
 
     return () => {
-      video.removeEventListener('timeupdate', updateTime);
-      video.removeEventListener('loadedmetadata', updateDuration);
-      video.removeEventListener('ended', () => setIsPlaying(false));
+      video.removeEventListener('loadeddata', handleLoadedData);
+      video.removeEventListener('timeupdate', handleTimeUpdate);
+      video.removeEventListener('play', handlePlay);
+      video.removeEventListener('pause', handlePause);
+      video.removeEventListener('contextmenu', (e) => e.preventDefault());
     };
   }, []);
 
@@ -48,20 +68,22 @@ export default function CustomVideoPlayer({
     } else {
       video.play();
     }
-    setIsPlaying(!isPlaying);
   };
 
-  const handleSeek = (value: number[]) => {
+  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
     const video = videoRef.current;
     if (!video) return;
-    video.currentTime = value[0];
-    setCurrentTime(value[0]);
+
+    const time = (parseFloat(e.target.value) / 100) * duration;
+    video.currentTime = time;
+    setCurrentTime(time);
   };
 
-  const handleVolumeChange = (value: number[]) => {
+  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const video = videoRef.current;
     if (!video) return;
-    const newVolume = value[0];
+
+    const newVolume = parseFloat(e.target.value) / 100;
     video.volume = newVolume;
     setVolume(newVolume);
     setIsMuted(newVolume === 0);
@@ -70,9 +92,9 @@ export default function CustomVideoPlayer({
   const toggleMute = () => {
     const video = videoRef.current;
     if (!video) return;
-    
+
     if (isMuted) {
-      video.volume = volume > 0 ? volume : 0.5;
+      video.volume = volume;
       setIsMuted(false);
     } else {
       video.volume = 0;
@@ -87,77 +109,73 @@ export default function CustomVideoPlayer({
   };
 
   return (
-    <div className={`relative bg-black ${className}`}>
+    <div 
+      className="relative bg-black w-full"
+      style={{ maxHeight: '70vh' }}
+      onMouseEnter={() => setShowControls(true)}
+      onMouseLeave={() => setShowControls(true)} // Keep controls visible
+    >
       <video
         ref={videoRef}
         src={src}
-        className="w-full h-full object-contain"
-        onContextMenu={(e) => e.preventDefault()}
-        onDragStart={(e) => e.preventDefault()}
+        autoPlay={autoPlay}
         playsInline
-        disablePictureInPicture
         preload="metadata"
+        className="w-full h-auto"
+        style={{ maxHeight: '70vh' }}
+        onContextMenu={onContextMenu}
       />
       
-      {/* TBN Logo Watermark */}
-      {showWatermark && (
-        <div className="absolute inset-0 pointer-events-none z-10">
-          <div className="absolute inset-0 grid grid-cols-3 grid-rows-3 gap-4 p-4">
-            {Array.from({ length: 9 }).map((_, index) => (
-              <div key={index} className="flex items-center justify-center">
-                <img 
-                  src="/images/tbn-logo-white.png" 
-                  alt="TBN" 
-                  className="transform rotate-[-30deg] opacity-30 w-16" 
-                />
-              </div>
-            ))}
-          </div>
+      {/* Custom Controls Overlay */}
+      <div 
+        className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 transition-opacity duration-300 ${
+          showControls ? 'opacity-100' : 'opacity-0'
+        }`}
+      >
+        {/* Progress Bar */}
+        <div className="mb-2">
+          <input
+            type="range"
+            min="0"
+            max="100"
+            value={duration ? (currentTime / duration) * 100 : 0}
+            onChange={handleSeek}
+            className="w-full h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
+          />
         </div>
-      )}
-      
-      {/* Custom Controls */}
-      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4 z-20">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={togglePlay}
-            className="text-white hover:bg-white/20"
-          >
-            {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
-          </Button>
-          
-          <span className="text-white text-sm">{formatTime(currentTime)}</span>
-          
-          <div className="flex-1">
-            <Slider
-              value={[currentTime]}
-              max={duration || 100}
-              step={1}
-              onValueChange={handleSeek}
-              className="cursor-pointer"
-            />
+        
+        {/* Control Buttons */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            {/* Play/Pause Button */}
+            <button
+              onClick={togglePlay}
+              className="text-white hover:text-gray-300 p-1"
+            >
+              {isPlaying ? <Pause size={24} /> : <Play size={24} />}
+            </button>
+            
+            {/* Time Display */}
+            <span className="text-white text-sm">
+              {formatTime(currentTime)} / {formatTime(duration)}
+            </span>
           </div>
           
-          <span className="text-white text-sm">{formatTime(duration)}</span>
-          
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={toggleMute}
-            className="text-white hover:bg-white/20"
-          >
-            {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-          </Button>
-          
-          <div className="w-20">
-            <Slider
-              value={[isMuted ? 0 : volume]}
-              max={1}
-              step={0.1}
-              onValueChange={handleVolumeChange}
-              className="cursor-pointer"
+          {/* Volume Controls */}
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={toggleMute}
+              className="text-white hover:text-gray-300 p-1"
+            >
+              {isMuted ? <VolumeX size={20} /> : <Volume2 size={20} />}
+            </button>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={isMuted ? 0 : volume * 100}
+              onChange={handleVolumeChange}
+              className="w-20 h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer slider"
             />
           </div>
         </div>

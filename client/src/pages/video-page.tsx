@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import { CustomVideoPlayer } from "@/components/media/custom-video-player";
 
 export default function VideoPage() {
   const [, setLocation] = useLocation();
@@ -66,20 +67,13 @@ export default function VideoPage() {
             </div>
           </div>
           
-          {/* Video Player - Simple and reliable */}
+          {/* Custom Video Player - No fullscreen capability */}
           {videoUrl && (
-            <video
-              controls={true}
-              autoPlay
+            <CustomVideoPlayer
               src={videoUrl}
-              style={{ width: '100%', maxHeight: '70vh', backgroundColor: 'black' }}
-              controlsList="nodownload nofullscreen"
-              disablePictureInPicture
-              playsInline
-              preload="metadata"
-            >
-              Your browser does not support the video tag.
-            </video>
+              autoPlay={true}
+              onContextMenu={(e) => e.preventDefault()}
+            />
           )}
           
           {!videoUrl && (
