@@ -199,8 +199,9 @@ export default function IframeVideoPlayer({
         
         .watermark-logo {
           width: 70px;
-          opacity: 0.15;
+          opacity: 0.3;
           transform: rotate(-30deg);
+          filter: brightness(2);
         }
       </style>
     </head>
@@ -222,7 +223,8 @@ export default function IframeVideoPlayer({
         <div id="watermarkContainer" class="watermark-container">
           ${Array.from({ length: 9 }).map(() => `
             <div class="watermark-item">
-              <img src="/images/tbn-logo-white.png" alt="TBN" class="watermark-logo" />
+              <img src="/images/tbn-logo-white.png" alt="TBN" class="watermark-logo" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+              <div class="watermark-text" style="display: none; transform: rotate(-30deg); font-size: 18px; color: rgba(255, 255, 255, 0.3); font-weight: 600;">TBN</div>
             </div>
           `).join('')}
         </div>
