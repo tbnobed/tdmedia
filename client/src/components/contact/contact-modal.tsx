@@ -82,14 +82,6 @@ export function ContactModal({ isOpen, onClose, mediaId, mediaTitle }: ContactMo
             Contact Us
             {mediaTitle && <span className="text-sm text-muted-foreground">- {mediaTitle}</span>}
           </DialogTitle>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute top-4 right-4"
-            onClick={onClose}
-          >
-            <X className="h-4 w-4" />
-          </Button>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-4">
