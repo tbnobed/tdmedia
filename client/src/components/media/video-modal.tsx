@@ -153,6 +153,11 @@ export function VideoModal({ isOpen, onClose, mediaId }: VideoModalProps) {
                     src={videoUrl}
                     autoPlay={true}
                     onContextMenu={(e) => e.preventDefault()}
+                    mediaId={mediaId || undefined}
+                    mediaTitle={media?.title}
+                    onContactUs={(mediaId, mediaTitle) => {
+                      setShowContactModal(true);
+                    }}
                   />
                 </div>
               ) : (
@@ -247,6 +252,14 @@ export function VideoModal({ isOpen, onClose, mediaId }: VideoModalProps) {
           </div>
         </div>
       </DialogContent>
+      
+      {/* Contact Modal */}
+      <ContactModal
+        isOpen={showContactModal}
+        onClose={() => setShowContactModal(false)}
+        mediaId={mediaId || undefined}
+        mediaTitle={media?.title}
+      />
     </Dialog>
   );
 }
