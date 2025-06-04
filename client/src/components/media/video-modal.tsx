@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, Globe, Tag, X, Film, Tv, FileText } from "lucide-react";
 import { CustomVideoPlayer } from "./custom-video-player";
+import { ContactModal } from "../contact/contact-modal";
 import { Button } from "@/components/ui/button";
 
 interface VideoModalProps {
@@ -16,6 +17,7 @@ interface VideoModalProps {
 export function VideoModal({ isOpen, onClose, mediaId }: VideoModalProps) {
   const [videoUrl, setVideoUrl] = useState<string>("");
   const [modalDimensions, setModalDimensions] = useState({ width: "90vw", height: "90vh" });
+  const [showContactModal, setShowContactModal] = useState(false);
 
   // Fetch media details
   const { data: media, isLoading } = useQuery({
