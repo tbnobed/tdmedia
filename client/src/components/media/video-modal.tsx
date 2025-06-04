@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Calendar, Clock, Globe, Tag, X, Film, Tv, FileText } from "lucide-react";
+import { Calendar, Clock, Globe, Tag, X, Film, Tv, FileText, Mail } from "lucide-react";
 import { CustomVideoPlayer } from "./custom-video-player";
 import { ContactModal } from "../contact/contact-modal";
 import { Button } from "@/components/ui/button";
@@ -188,10 +188,19 @@ export function VideoModal({ isOpen, onClose, mediaId }: VideoModalProps) {
                     <div className="flex-1">
                       <h2 className="text-2xl font-bold text-white mb-2">{media.title}</h2>
                       {media.description && (
-                        <p className="text-gray-300 leading-relaxed">
+                        <p className="text-gray-300 leading-relaxed mb-4">
                           {media.description}
                         </p>
                       )}
+                      
+                      {/* Contact Us Button */}
+                      <Button
+                        onClick={() => setShowContactModal(true)}
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 mt-3"
+                      >
+                        <Mail className="h-4 w-4 mr-2" />
+                        Contact Us About This Media
+                      </Button>
                     </div>
                     
                     {/* Badges and Details - Top Right */}

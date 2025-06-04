@@ -18,7 +18,7 @@ export function CustomVideoPlayer({ src, autoPlay = false, onContextMenu, mediaI
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
-  const [showControls, setShowControls] = useState(true);
+  const [showControls, setShowControls] = useState(false);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -163,20 +163,8 @@ export function CustomVideoPlayer({ src, autoPlay = false, onContextMenu, mediaI
             </span>
           </div>
           
-          {/* Volume Controls and Contact Us */}
+          {/* Volume Controls */}
           <div className="flex items-center space-x-2">
-            {/* Contact Us Button */}
-            {onContactUs && mediaId && mediaTitle && (
-              <Button
-                onClick={() => onContactUs(mediaId, mediaTitle)}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 text-sm"
-                size="sm"
-              >
-                <Mail size={16} className="mr-1" />
-                Contact Us
-              </Button>
-            )}
-            
             <button
               onClick={toggleMute}
               className="text-white hover:text-gray-300 p-1"
