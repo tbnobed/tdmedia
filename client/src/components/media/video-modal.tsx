@@ -188,25 +188,27 @@ export function VideoModal({ isOpen, onClose, mediaId }: VideoModalProps) {
                     <div className="flex-1">
                       <h2 className="text-2xl font-bold text-white mb-2">{media.title}</h2>
                       {media.description && (
-                        <p className="text-gray-300 leading-relaxed mb-4">
+                        <p className="text-gray-300 leading-relaxed">
                           {media.description}
                         </p>
                       )}
-                      
+                    </div>
+                    
+                    {/* Contact Us Button and Badges - Right Side */}
+                    <div className="flex flex-col items-end gap-3">
                       {/* Contact Us Button */}
                       <Button
                         onClick={() => setShowContactModal(true)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 mt-3"
+                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2"
                       >
                         <Mail className="h-4 w-4 mr-2" />
                         Contact Us About This Media
                       </Button>
-                    </div>
-                    
-                    {/* Badges and Details - Top Right */}
-                    <div className="flex flex-col items-end gap-2">
-                      {/* Badges */}
-                      <div className="flex flex-wrap gap-2 justify-end">
+                      
+                      {/* Badges and Details */}
+                      <div className="flex flex-col items-end gap-2">
+                        {/* Badges */}
+                        <div className="flex flex-wrap gap-2 justify-end">
 
                         {media.language && (
                           <Badge variant="outline" className="bg-green-600/20 text-green-300 border-green-500">
@@ -238,6 +240,7 @@ export function VideoModal({ isOpen, onClose, mediaId }: VideoModalProps) {
                             {media.totalEpisodes && ` • ${media.totalEpisodes} Episodes`}
                           </div>
                         )}
+                        </div>
                       </div>
                     </div>
                   </div>
