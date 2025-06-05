@@ -6,7 +6,7 @@
 set -e
 
 BACKUP_DIR="/home/backups/volumes"
-VOLUME_NAME="trilogy_db_data"
+VOLUME_NAME="tdmedia_db_data"
 TIMESTAMP=$(date +%Y%m%d_%H%M%S)
 BACKUP_FILE="$BACKUP_DIR/db_volume_backup_$TIMESTAMP.tar.gz"
 

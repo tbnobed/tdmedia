@@ -7,7 +7,7 @@ set -e
 
 # Configuration
 BACKUP_DIR="/home/backups/database"
-CONTAINER_NAME="trilogy_postgres"
+CONTAINER_NAME="tdmedia-postgres-1"
 DB_USER="trilogy_user"
 DB_NAME="trilogy_db"
 RETENTION_DAYS=30

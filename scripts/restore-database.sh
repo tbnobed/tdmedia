@@ -12,7 +12,7 @@ if [ $# -eq 0 ]; then
 fi
 
 BACKUP_FILE="$1"
-CONTAINER_NAME="trilogy_postgres"
+CONTAINER_NAME="tdmedia-postgres-1"
 DB_USER="trilogy_user"
 DB_NAME="trilogy_db"
 
