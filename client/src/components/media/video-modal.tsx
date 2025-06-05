@@ -235,6 +235,17 @@ export function VideoModal({ isOpen, onClose, mediaId }: VideoModalProps) {
                           </div>
                         )}
                       </div>
+                      
+                      {/* Contact Us Button */}
+                      <div className="mt-3">
+                        <Button
+                          onClick={() => setShowContactModal(true)}
+                          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2"
+                        >
+                          <Mail className="h-4 w-4 mr-2" />
+                          Contact Us About This Media
+                        </Button>
+                      </div>
                     </div>
                   </div>
                   
@@ -250,16 +261,7 @@ export function VideoModal({ isOpen, onClose, mediaId }: VideoModalProps) {
                     </div>
                   )}
                   
-                  {/* Contact Us Button */}
-                  <div className="pt-4 border-t border-gray-600/30">
-                    <Button
-                      onClick={() => setShowContactModal(true)}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2"
-                    >
-                      <Mail className="h-4 w-4 mr-2" />
-                      Contact Us About This Media
-                    </Button>
-                  </div>
+
                 </div>
               ) : (
                 <p className="text-gray-400">Media information not available</p>
