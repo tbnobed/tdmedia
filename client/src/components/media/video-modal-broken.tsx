@@ -50,72 +50,66 @@ export function VideoModal({ isOpen, onClose, mediaId }: VideoModalProps) {
         let modalWidth = Math.min(availableWidth * 0.95, availableWidth);
         let videoHeight = (modalWidth / 16) * 9; // 16:9 aspect ratio
         
-        // Check if total height (video + media info) exceeds available height
+        // If the video would be too tall, constrain by height instead
+        const maxVideoHeight = availableHeight - mediaInfoHeight;
+        if (videoHeight > maxVideoHeight) {
+          videoHeight = maxVideoHeight;
+          modalWidth = (videoHeight * 16) / 9;
+        }
+        
         const totalHeight = videoHeight + mediaInfoHeight;
-        if (totalHeight > availableHeight) {
-          // Adjust based on available height
-          const maxVideoHeight = availableHeight - mediaInfoHeight;
-          videoHeight = Math.min(maxVideoHeight, videoHeight);
-          modalWidth = (videoHeight / 9) * 16; // Maintain 16:9 aspect ratio
-        }
         
-        // Ensure minimum dimensions
-        modalWidth = Math.max(modalWidth, 800);
-        videoHeight = Math.max(videoHeight, 450);
-        
-        const modalHeight = videoHeight + mediaInfoHeight;
-        
-        return {
-          width: `${modalWidth}px`,
-          height: `${modalHeight}px`
-        };
+        setModalDimensions({
+          width: `${Math.floor(modalWidth)}px`,
+          height: `${Math.floor(totalHeight)}px`
+        });
       };
-
-      const dimensions = calculateModalDimensions();
-      setModalDimensions(dimensions);
-
-      // Fetch video stream URL
-      const fetchVideoUrl = async () => {
-        try {
-          const response = await fetch(`/api/stream/${mediaId}`, {
-            credentials: 'include'
-          });
-          if (!response.ok) throw new Error('Failed to fetch video stream');
-          const data = await response.json();
-          setVideoUrl(data.streamUrl);
-        } catch (error) {
-          console.error('Error fetching video stream:', error);
-        }
+      
+      calculateModalDimensions();
+      window.addEventListener('resize', calculateModalDimensions);
+      
+      // Fetch the stream URL for this media
+      fetch(`/api/stream/${mediaId}`, {
+        credentials: 'include'
+      })
+      .then(res => res.json())
+      .then(data => {
+        setVideoUrl(`${window.TRILOGY_CONFIG?.apiBaseUrl || ''}${data.streamUrl}`);
+      })
+      .catch(err => console.error('Error loading video:', err));
+      
+      return () => {
+        window.removeEventListener('resize', calculateModalDimensions);
       };
-
-      fetchVideoUrl();
-
-      // Update dimensions on window resize
-      const handleResize = () => {
-        const newDimensions = calculateModalDimensions();
-        setModalDimensions(newDimensions);
-      };
-
-      window.addEventListener('resize', handleResize);
-      return () => window.removeEventListener('resize', handleResize);
+    } else {
+      setVideoUrl("");
     }
   }, [mediaId, isOpen]);
 
-  useEffect(() => {
-    if (!isOpen) {
-      setVideoUrl("");
-      setShowContactModal(false);
+  const getLanguageBadgeColor = (language: string) => {
+    switch (language?.toLowerCase()) {
+      case 'english': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
+      case 'spanish': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
+      case 'bilingual': return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300';
+      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
     }
-  }, [isOpen]);
+  };
 
-  if (!isOpen) return null;
+  const getTypeBadgeColor = (type: string) => {
+    switch (type?.toLowerCase()) {
+      case 'video': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
+      case 'audio': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
+      case 'podcast': return 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300';
+      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300';
+    }
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent 
-        className="max-w-none h-auto p-0 overflow-hidden bg-black border-gray-800"
-        style={{
-          width: modalDimensions.width,
+        className="bg-black border-gray-700 p-0 overflow-y-auto"
+        style={{ 
+          width: modalDimensions.width, 
           height: modalDimensions.height,
           maxWidth: 'none',
           maxHeight: 'none'
@@ -202,8 +196,9 @@ export function VideoModal({ isOpen, onClose, mediaId }: VideoModalProps) {
                     
                     {/* Badges and Details - Right Side */}
                     <div className="flex flex-col items-end gap-2">
-                      {/* Badges */}
-                      <div className="flex flex-wrap gap-2 justify-end">
+                        {/* Badges */}
+                        <div className="flex flex-wrap gap-2 justify-end">
+
                         {media.language && (
                           <Badge variant="outline" className="bg-green-600/20 text-green-300 border-green-500">
                             <Globe className="h-3 w-3 mr-1" />
@@ -234,6 +229,7 @@ export function VideoModal({ isOpen, onClose, mediaId }: VideoModalProps) {
                             {media.totalEpisodes && ` • ${media.totalEpisodes} Episodes`}
                           </div>
                         )}
+                        </div>
                       </div>
                     </div>
                   </div>
