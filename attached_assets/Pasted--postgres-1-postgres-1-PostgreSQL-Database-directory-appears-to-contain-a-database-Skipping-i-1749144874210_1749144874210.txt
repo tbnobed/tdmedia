@@ -1,0 +1,1772 @@
+
+postgres-1  |
+postgres-1  | PostgreSQL Database directory appears to contain a database; Skipping initialization
+postgres-1  |
+postgres-1  | 2025-06-05 08:18:57.745 UTC [1] LOG:  starting PostgreSQL 15.13 on x86_64-pc-linux-musl, compiled by gcc (Alpine 14.2.0) 14.2.0, 64-bit
+postgres-1  | 2025-06-05 08:18:57.745 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+postgres-1  | 2025-06-05 08:18:57.745 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+postgres-1  | 2025-06-05 08:18:57.762 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+app-1       | Waiting for PostgreSQL to become available...
+app-1       | Using database initialization settings: MAX_RETRIES=5, RETRY_SLEEP=3 seconds
+app-1       | postgres:5432 - accepting connections
+postgres-1  | 2025-06-05 08:18:57.786 UTC [29] LOG:  database system was shut down at 2025-06-05 08:18:42 UTC
+postgres-1  | 2025-06-05 08:18:57.806 UTC [1] LOG:  database system is ready to accept connections
+postgres-1  | 2025-06-05 08:23:57.885 UTC [27] LOG:  checkpoint starting: time
+postgres-1  | 2025-06-05 08:24:02.300 UTC [27] LOG:  checkpoint complete: wrote 46 buffers (0.3%); 0 WAL file(s) added, 0 removed, 0 recycled; write=4.335 s, sync=0.035 s, total=4.416 s; sync files=34, longest=0.012 s, average=0.002 s; distance=197 kB, estimate=197 kB
+postgres-1  | 2025-06-05 08:38:57.601 UTC [27] LOG:  checkpoint starting: time
+postgres-1  | 2025-06-05 08:38:57.974 UTC [27] LOG:  checkpoint complete: wrote 4 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.312 s, sync=0.016 s, total=0.373 s; sync files=4, longest=0.011 s, average=0.004 s; distance=10 kB, estimate=178 kB
+postgres-1  | 2025-06-05 12:22:20.074 UTC [20414] FATAL:  no PostgreSQL user name specified in startup packet
+postgres-1  | 2025-06-05 14:32:53.147 UTC [31323] FATAL:  unsupported frontend protocol 0.0: server supports 3.0 to 3.0
+postgres-1  | 2025-06-05 14:32:53.379 UTC [31324] FATAL:  unsupported frontend protocol 255.255: server supports 3.0 to 3.0
+postgres-1  | 2025-06-05 14:32:53.610 UTC [31325] FATAL:  no PostgreSQL user name specified in startup packet
+postgres-1  | 2025-06-05 15:09:05.282 UTC [27] LOG:  checkpoint starting: time
+postgres-1  | 2025-06-05 15:09:05.958 UTC [27] LOG:  checkpoint complete: wrote 7 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.612 s, sync=0.019 s, total=0.676 s; sync files=6, longest=0.014 s, average=0.004 s; distance=47 kB, estimate=165 kB
+postgres-1  | 2025-06-05 15:14:06.058 UTC [27] LOG:  checkpoint starting: time
+postgres-1  | 2025-06-05 15:14:06.931 UTC [27] LOG:  checkpoint complete: wrote 9 buffers (0.1%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.814 s, sync=0.017 s, total=0.873 s; sync files=9, longest=0.011 s, average=0.002 s; distance=16 kB, estimate=150 kB
+postgres-1  | 2025-06-05 15:24:07.126 UTC [27] LOG:  checkpoint starting: time
+postgres-1  | 2025-06-05 15:24:07.597 UTC [27] LOG:  checkpoint complete: wrote 5 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.411 s, sync=0.018 s, total=0.471 s; sync files=4, longest=0.013 s, average=0.005 s; distance=14 kB, estimate=136 kB
+postgres-1  | 2025-06-05 15:27:08.021 UTC [35892] LOG:  could not receive data from client: Connection reset by peer
+postgres-1  | 2025-06-05 15:27:14.197 UTC [35893] LOG:  invalid length of startup packet
+app-1       | PostgreSQL server is up and running!
+app-1       | Waiting for PostgreSQL authentication to be ready...
+app-1       | PostgreSQL authentication is ready!
+app-1       | PostgreSQL is fully ready!
+app-1       | Initializing database schema...
+postgres-1  | 2025-06-05 15:27:14.272 UTC [35901] LOG:  invalid length of startup packet
+app-1       | Creating session table before schema initialization...
+app-1       | NOTICE:  relation "session" already exists, skipping
+app-1       | CREATE TABLE
+app-1       | CREATE INDEX
+app-1       | NOTICE:  relation "IDX_session_expire" already exists, skipping
+app-1       | Playlists table already exists.
+app-1       | Media-playlists junction table already exists.
+app-1       | Running database schema migration...
+app-1       | [2025-06-05T08:19:03.905Z] Starting database initialization...
+app-1       | [2025-06-05T08:19:03.908Z] Configuration: Retry count=5, Retry delay=3s, Force direct creation=true
+postgres-1  | 2025-06-05 15:27:14.346 UTC [35902] FATAL:  unsupported frontend protocol 65363.19778: server supports 3.0 to 3.0
+postgres-1  | 2025-06-05 15:27:14.570 UTC [35903] FATAL:  unsupported frontend protocol 0.0: server supports 3.0 to 3.0
+postgres-1  | 2025-06-05 15:27:14.641 UTC [35905] FATAL:  unsupported frontend protocol 255.255: server supports 3.0 to 3.0
+app-1       | [2025-06-05T08:19:03.909Z] Created .drizzle directory
+app-1       | [2025-06-05T08:19:03.909Z] IMPORTANT: Executing direct SQL table creation as first step...
+app-1       | [2025-06-05T08:19:04.131Z] Direct SQL table creation executed as first step.
+app-1       | [2025-06-05T08:19:04.137Z] SUCCESS: Direct SQL creation verified - playlists table exists!
+app-1       | [2025-06-05T08:19:04.139Z] Generating SQL from schema...
+app-1       | This command is deprecated, please use updated 'generate' command (see https://orm.drizzle.team/kit-docs/upgrade-21#how-to-migrate-to-0210)
+postgres-1  | 2025-06-05 15:27:14.709 UTC [35906] FATAL:  unsupported frontend protocol 0.0: server supports 3.0 to 3.0
+app-1       | [2025-06-05T08:19:05.146Z] Pushing schema to database...
+postgres-1  | 2025-06-05 15:27:14.813 UTC [35907] FATAL:  unsupported frontend protocol 0.0: server supports 3.0 to 3.0
+app-1       | [2025-06-05T08:19:05.147Z] Created backup of drizzle configuration
+app-1       | [2025-06-05T08:19:05.148Z] Running with session table protection enabled
+app-1       |
+app-1       | > rest-express@1.0.0 db:push
+app-1       | > drizzle-kit push --force --config=./drizzle.config.ts
+app-1       |
+app-1       | Reading config file '/app/drizzle.config.ts'
+app-1       | Using 'pg' driver for database querying
+postgres-1  | 2025-06-05 15:29:07.697 UTC [27] LOG:  checkpoint starting: time
+postgres-1  | 2025-06-05 15:29:08.873 UTC [27] LOG:  checkpoint complete: wrote 12 buffers (0.1%); 0 WAL file(s) added, 0 removed, 0 recycled; write=1.114 s, sync=0.020 s, total=1.176 s; sync files=8, longest=0.014 s, average=0.003 s; distance=60 kB, estimate=129 kB
+postgres-1  | 2025-06-05 15:34:07.973 UTC [27] LOG:  checkpoint starting: time
+postgres-1  | 2025-06-05 15:34:08.346 UTC [27] LOG:  checkpoint complete: wrote 4 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.312 s, sync=0.019 s, total=0.373 s; sync files=4, longest=0.014 s, average=0.005 s; distance=10 kB, estimate=117 kB
+postgres-1  | 2025-06-05 15:44:07.547 UTC [27] LOG:  checkpoint starting: time
+app-1       | [⣷] Pulling schema from database...
+postgres-1  | 2025-06-05 15:44:09.833 UTC [27] LOG:  checkpoint complete: wrote 23 buffers (0.1%); 0 WAL file(s) added, 0 removed, 0 recycled; write=2.220 s, sync=0.021 s, total=2.286 s; sync files=14, longest=0.015 s, average=0.002 s; distance=144 kB, estimate=144 kB
+postgres-1  | 2025-06-05 15:49:07.905 UTC [27] LOG:  checkpoint starting: time
+postgres-1  | 2025-06-05 15:49:08.475 UTC [27] LOG:  checkpoint complete: wrote 6 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.510 s, sync=0.019 s, total=0.570 s; sync files=5, longest=0.015 s, average=0.004 s; distance=25 kB, estimate=132 kB
+postgres-1  | 2025-06-05 15:58:22.916 UTC [38531] FATAL:  unsupported frontend protocol 0.0: server supports 3.0 to 3.0
+postgres-1  | 2025-06-05 15:58:28.287 UTC [38539] FATAL:  unsupported frontend protocol 255.255: server supports 3.0 to 3.0
+postgres-1  | 2025-06-05 15:58:32.509 UTC [38548] FATAL:  no PostgreSQL user name specified in startup packet
+postgres-1  | 2025-06-05 16:19:08.066 UTC [27] LOG:  checkpoint starting: time
+postgres-1  | 2025-06-05 16:19:08.434 UTC [27] LOG:  checkpoint complete: wrote 4 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.311 s, sync=0.014 s, total=0.368 s; sync files=4, longest=0.010 s, average=0.004 s; distance=10 kB, estimate=120 kB
+postgres-1  | 2025-06-05 16:26:13.158 UTC [40877] FATAL:  unsupported frontend protocol 16.0: server supports 3.0 to 3.0
+postgres-1  | 2025-06-05 16:45:31.385 UTC [42491] LOG:  invalid length of startup packet
+postgres-1  | 2025-06-05 17:19:09.551 UTC [27] LOG:  checkpoint starting: time
+postgres-1  | 2025-06-05 17:19:10.526 UTC [27] LOG:  checkpoint complete: wrote 10 buffers (0.1%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.912 s, sync=0.018 s, total=0.975 s; sync files=7, longest=0.014 s, average=0.003 s; distance=34 kB, estimate=111 kB
+[⣯] Pulling schema from database...
+[⣟] Pulling schema from database...
+[✓] Pulling schema from database...
+app-1       |
+app-1       |  Warning  You are about to execute current statements:
+app-1       |
+app-1       | DROP INDEX IF EXISTS "IDX_session_expire";
+app-1       | DROP INDEX IF EXISTS "idx_media_playlists_media_id";
+app-1       | DROP INDEX IF EXISTS "idx_media_playlists_playlist_id";
+app-1       | DROP INDEX IF EXISTS "idx_media_content_type";
+app-1       | DROP INDEX IF EXISTS "idx_media_language";
+app-1       | DROP TYPE "public"."content_classification_type";
+app-1       |
+app-1       | [✓] Changes applied
+app-1       | [2025-06-05T08:19:06.693Z] Verifying schema...
+app-1       | This command is deprecated, please use updated 'introspect' command (see https://orm.drizzle.team/kit-docs/upgrade-21#how-to-migrate-to-0210)
+app-1       | [2025-06-05T08:19:07.677Z] Database schema initialization completed successfully
+app-1       | Database schema initialized successfully!
+app-1       | Applying content classification migration...
+app-1       | Content classification migration SQL file found, executing...
+app-1       | DO
+app-1       | psql:scripts/content_classification_migration.sql:15: NOTICE:  column "content_type" of relation "media" already exists, skipping
+app-1       | psql:scripts/content_classification_migration.sql:15: NOTICE:  column "year" of relation "media" already exists, skipping
+app-1       | psql:scripts/content_classification_migration.sql:15: NOTICE:  column "season_number" of relation "media" already exists, skipping
+app-1       | psql:scripts/content_classification_migration.sql:15: NOTICE:  column "total_episodes" of relation "media" already exists, skipping
+app-1       | ALTER TABLE
+app-1       | UPDATE 0
+app-1       | CREATE INDEX
+app-1       | psql:scripts/content_classification_migration.sql:33: NOTICE:  Content classification schema updates completed successfully:
+app-1       | psql:scripts/content_classification_migration.sql:33: NOTICE:  - content_type enum created
+app-1       | psql:scripts/content_classification_migration.sql:33: NOTICE:  - content_type column added to media table
+app-1       | psql:scripts/content_classification_migration.sql:33: NOTICE:  - year, season_number, and total_episodes columns added
+app-1       | psql:scripts/content_classification_migration.sql:33: NOTICE:  - content_type index created
+app-1       | DO
+app-1       | psql:scripts/content_classification_migration.sql:33: NOTICE:  - existing media set to default content_type
+app-1       | Content classification migration completed successfully!
+app-1       | Applying language field migration...
+app-1       | Language field migration SQL file found, executing...
+app-1       | DO
+app-1       | psql:scripts/language_field_migration.sql:12: NOTICE:  column "language" of relation "media" already exists, skipping
+app-1       | ALTER TABLE
+app-1       | UPDATE 0
+app-1       | CREATE INDEX
+app-1       | psql:scripts/language_field_migration.sql:29: NOTICE:  Language field schema updates completed successfully:
+app-1       | psql:scripts/language_field_migration.sql:29: NOTICE:  - media_language enum created
+app-1       | psql:scripts/language_field_migration.sql:29: NOTICE:  - language column added to media table
+app-1       | psql:scripts/language_field_migration.sql:29: NOTICE:  - existing media set to default language (EN)
+app-1       | DO
+app-1       | psql:scripts/language_field_migration.sql:29: NOTICE:  - language index created for improved query performance
+app-1       | Language field migration completed successfully!
+app-1       | ✓ Language column verified in media table.
+app-1       | Waiting for database to settle after migration (3 seconds)...
+app-1       | Verifying playlists table exists (max attempts: 5, retry delay: 3s)...
+app-1       | playlists table exists. Verification successful.
+app-1       | Verifying media_playlists table exists (max attempts: 5, retry delay: 3s)...
+app-1       | media_playlists table exists. Verification successful.
+app-1       | Playlist migration verification complete: All required tables exist.
+app-1       | Setting up default users...
+app-1       | [2025-06-05T08:19:11.333Z] Starting user setup...
+app-1       | [2025-06-05T08:19:11.390Z] Admin user already exists
+app-1       | [2025-06-05T08:19:11.394Z] Client user already exists
+app-1       | [2025-06-05T08:19:11.397Z] User setup completed successfully
+app-1       | Setting up session table for authentication...
+app-1       | Session table already exists, verifying session table structure...
+app-1       | Session table exists but index is missing. Creating index...
+app-1       | CREATE INDEX
+app-1       | Session table setup complete!
+app-1       | Setting up upload directories...
+app-1       | Upload directories setup complete
+app-1       | Setting file size limits for uploads...
+app-1       | System limits configured where allowed by container security
+app-1       | Configuring network settings for large file handling...
+app-1       | Unable to set somaxconn (normal in restricted containers)
+app-1       | Unable to set tcp_max_syn_backlog (normal in restricted containers)
+app-1       | Unable to set tcp_fin_timeout (normal in restricted containers)
+app-1       | Unable to set tcp_keepalive_time (normal in restricted containers)
+app-1       | Network settings configured where allowed by container security
+app-1       | Starting the application...
+app-1       |
+app-1       | > rest-express@1.0.0 start
+app-1       | > NODE_ENV=production node dist/index.js
+app-1       |
+app-1       | Using standard PostgreSQL client (pg) instead of Neon serverless
+app-1       | Configuring CORS with origins: *
+app-1       | Setting up authentication in production environment
+app-1       | Session secret exists: true
+app-1       | 8:19:12 AM [express] serving on port 5000
+app-1       | Session table created for connect-pg-simple
+app-1       | 8:19:17 AM [express] GET /api/user 401 in 6ms
+app-1       | Login attempt for email: admin@obedtv.com
+app-1       | Authentication failed: Invalid email or password
+app-1       | 8:19:23 AM [express] POST /api/login 401 in 113ms :: {"message":"Invalid email or password"}
+app-1       | Login attempt for email: admin@obedtv.com
+app-1       | Authentication failed: Invalid email or password
+app-1       | 8:19:29 AM [express] POST /api/login 401 in 73ms :: {"message":"Invalid email or password"}
+app-1       | Login attempt for email: admin@obedtv.com
+app-1       | Authentication failed: Invalid email or password
+app-1       | 8:19:33 AM [express] POST /api/login 401 in 70ms :: {"message":"Invalid email or password"}
+app-1       | Login attempt for email: admin@obedtv.com
+app-1       | Login successful for user ID: 1
+app-1       | 8:19:39 AM [express] POST /api/login 200 in 109ms :: {"id":1,"username":"admin","email":"admin@obedt…
+app-1       | 8:19:39 AM [express] GET /api/playlists 200 in 29ms :: [{"id":5,"name":"Films","description":"","cre…
+app-1       | Client media request params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   page: 1,
+app-1       |   itemsPerPage: 8,
+app-1       |   user: 1
+app-1       | }
+app-1       | 8:19:39 AM [express] GET /api/client/media 200 in 79ms :: {"items":[{"id":49,"title":"18 Minutes wit…
+app-1       | Admin access granted for user 1 (from session)
+app-1       | Generated stream token for user 1, media 63
+app-1       | 8:19:42 AM [express] GET /api/media/63 200 in 36ms :: {"id":63,"title":"Abraham Accords","descriptio…
+app-1       | 8:19:42 AM [express] GET /api/stream/63 200 in 38ms :: {"streamUrl":"/api/raw-stream/63?token=eyJhbG…
+app-1       | Token verification successful - User: 1, Admin: true, Media: 63
+app-1       | Admin access granted for user 1 (from session)
+app-1       | Client media request params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   page: 2,
+app-1       |   itemsPerPage: 8,
+app-1       |   user: 1
+app-1       | }
+app-1       | 8:19:51 AM [express] GET /api/client/media 200 in 23ms :: {"items":[{"id":67,"title":"Drive Thru His…
+app-1       | Client media request params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   page: 3,
+app-1       |   itemsPerPage: 8,
+app-1       |   user: 1
+app-1       | }
+app-1       | 8:19:53 AM [express] GET /api/client/media 200 in 23ms :: {"items":[{"id":79,"title":"Juneteenth Spe…
+app-1       | Client media request params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   page: 4,
+app-1       |   itemsPerPage: 8,
+app-1       |   user: 1
+app-1       | }
+app-1       | 8:19:55 AM [express] GET /api/client/media 200 in 21ms :: {"items":[{"id":54,"title":"T.D. Jakes: Cr…
+app-1       | Client media request params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   page: 5,
+app-1       |   itemsPerPage: 8,
+app-1       |   user: 1
+app-1       | }
+app-1       | 8:19:57 AM [express] GET /api/client/media 200 in 24ms :: {"items":[{"id":58,"title":"Traveling Ligh…
+app-1       | Admin access granted for user 1 (from session)
+app-1       | Generated stream token for user 1, media 56
+app-1       | 8:19:59 AM [express] GET /api/stream/56 200 in 42ms :: {"streamUrl":"/api/raw-stream/56?token=eyJhbG…
+app-1       | 8:19:59 AM [express] GET /api/media/56 200 in 88ms :: {"id":56,"title":"Your Best Life Now","descrip…
+app-1       | Token verification successful - User: 1, Admin: true, Media: 56
+app-1       | Admin access granted for user 1 (from session)
+app-1       | 8:20:20 AM [express] POST /api/logout 200 in 64ms
+app-1       | Access attempt without valid authentication
+app-1       | 8:20:20 AM [express] GET /api/client/media 401 in 9ms :: {"message":"Unauthorized - Please log in"}
+app-1       | Login attempt for email: obedtest@tbn.tv
+app-1       | Login successful for user ID: 11
+app-1       | 8:20:28 AM [express] POST /api/login 200 in 98ms :: {"id":11,"username":"obedtest","email":"obedtest…
+app-1       | Client media request params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   page: 1,
+app-1       |   itemsPerPage: 8,
+app-1       |   user: 11
+app-1       | }
+app-1       | 8:20:28 AM [express] GET /api/client/media 200 in 35ms :: {"items":[{"id":49,"title":"18 Minutes wit…
+app-1       | Media access granted for user 11 to media 63
+app-1       | Generated stream token for user 11, media 63
+app-1       | 8:20:30 AM [express] GET /api/stream/63 200 in 42ms :: {"streamUrl":"/api/raw-stream/63?token=eyJhbG…
+app-1       | Token verification successful - User: 11, Admin: false, Media: 63
+app-1       | Media access granted for user 11 to media 63
+app-1       | 8:20:45 AM [express] POST /api/logout 200 in 68ms
+app-1       | Access attempt without valid authentication
+app-1       | 8:20:45 AM [express] GET /api/client/media 401 in 9ms :: {"message":"Unauthorized - Please log in"}
+app-1       | Login attempt for email: osandoval@tbn.tv
+app-1       | Authentication failed: Invalid email or password
+app-1       | 8:20:52 AM [express] POST /api/login 401 in 81ms :: {"message":"Invalid email or password"}
+app-1       | Login attempt for email: osandoval@tbn.tv
+app-1       | Login successful for user ID: 13
+app-1       | 8:20:58 AM [express] POST /api/login 200 in 100ms :: {"id":13,"username":"Obed Sandoval","email":"os…
+app-1       | Client media request params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   page: 1,
+app-1       |   itemsPerPage: 8,
+app-1       |   user: 13
+app-1       | }
+app-1       | 8:20:58 AM [express] GET /api/client/media 200 in 26ms :: {"items":[{"id":49,"title":"18 Minutes wit…
+app-1       | 8:21:02 AM [express] GET /api/media/51 200 in 28ms :: {"id":51,"title":"Better Together","descriptio…
+app-1       | Admin access granted for user 13 (from session)
+app-1       | Generated stream token for user 13, media 51
+app-1       | 8:21:02 AM [express] GET /api/stream/51 200 in 56ms :: {"streamUrl":"/api/raw-stream/51?token=eyJhbG…
+app-1       | Token verification successful - User: 13, Admin: true, Media: 51
+app-1       | Admin access granted for user 13 (from session)
+app-1       | Token verification successful - User: 13, Admin: true, Media: 51
+app-1       | Admin access granted for user 13 (from session)
+app-1       | 8:21:03 AM [express] GET /api/raw-stream/51 206 in 30ms
+app-1       | Token verification successful - User: 13, Admin: true, Media: 51
+app-1       | Admin access granted for user 13 (from session)
+app-1       | Token verification successful - User: 13, Admin: true, Media: 51
+app-1       | Admin access granted for user 13 (from session)
+app-1       | Token verification successful - User: 13, Admin: true, Media: 51
+app-1       | Admin access granted for user 13 (from session)
+app-1       | Admin access granted for user 13 (from session)
+app-1       | Generated stream token for user 13, media 51
+app-1       | 8:38:21 AM [express] GET /api/stream/51 200 in 93ms :: {"streamUrl":"/api/raw-stream/51?token=eyJhbG…
+app-1       | Token verification successful - User: 13, Admin: true, Media: 51
+app-1       | Admin access granted for user 13 (from session)
+app-1       | Token verification successful - User: 13, Admin: true, Media: 51
+app-1       | Admin access granted for user 13 (from session)
+app-1       | 8:38:21 AM [express] GET /api/raw-stream/51 206 in 30ms
+app-1       | Token verification successful - User: 13, Admin: true, Media: 51
+app-1       | Admin access granted for user 13 (from session)
+app-1       | Token verification successful - User: 13, Admin: true, Media: 51
+app-1       | Admin access granted for user 13 (from session)
+app-1       | Token verification successful - User: 13, Admin: true, Media: 51
+app-1       | Admin access granted for user 13 (from session)
+app-1       | Token verification successful - User: 13, Admin: true, Media: 51
+app-1       | Admin access granted for user 13 (from session)
+app-1       | Token verification successful - User: 13, Admin: true, Media: 51
+app-1       | Admin access granted for user 13 (from session)
+app-1       | Token verification successful - User: 13, Admin: true, Media: 51
+app-1       | Admin access granted for user 13 (from session)
+app-1       | Token verification successful - User: 13, Admin: true, Media: 51
+app-1       | Admin access granted for user 13 (from session)
+app-1       | Token verification successful - User: 13, Admin: true, Media: 51
+app-1       | Admin access granted for user 13 (from session)
+app-1       | Token verification successful - User: 13, Admin: true, Media: 51
+app-1       | Admin access granted for user 13 (from session)
+app-1       | Admin access granted for user 13 (from session)
+app-1       | Generated stream token for user 13, media 66
+app-1       | 8:38:36 AM [express] GET /api/stream/66 200 in 88ms :: {"streamUrl":"/api/raw-stream/66?token=eyJhbG…
+app-1       | 8:38:36 AM [express] GET /api/media/66 200 in 82ms :: {"id":66,"title":"Drive Thru History | Acts to…
+app-1       | Token verification successful - User: 13, Admin: true, Media: 66
+app-1       | Admin access granted for user 13 (from session)
+app-1       | Token verification successful - User: 13, Admin: true, Media: 66
+app-1       | Admin access granted for user 13 (from session)
+app-1       | Token verification successful - User: 13, Admin: true, Media: 66
+app-1       | Admin access granted for user 13 (from session)
+app-1       | Token verification successful - User: 13, Admin: true, Media: 66
+app-1       | Admin access granted for user 13 (from session)
+app-1       | 3:07:50 PM [express] GET /api/user 304 in 14ms :: {"id":9,"username":"Jordy Gillihan","email":"jgill…
+app-1       | Client media request params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   page: 1,
+app-1       |   itemsPerPage: 8,
+app-1       |   user: 9
+app-1       | }
+app-1       | 3:07:50 PM [express] GET /api/playlists 200 in 20ms :: [{"id":5,"name":"Films","description":"","cre…
+app-1       | 3:07:50 PM [express] GET /api/client/media 200 in 36ms :: {"items":[{"id":49,"title":"18 Minutes wit…
+app-1       | 3:08:11 PM [express] GET /api/user 304 in 11ms :: {"id":9,"username":"Jordy Gillihan","email":"jgill…
+app-1       | Client media request params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   page: 1,
+app-1       |   itemsPerPage: 8,
+app-1       |   user: 9
+app-1       | }
+app-1       | 3:08:11 PM [express] GET /api/client/media 200 in 21ms :: {"items":[{"id":49,"title":"18 Minutes wit…
+app-1       | 3:08:11 PM [express] GET /api/playlists 304 in 16ms :: [{"id":5,"name":"Films","description":"","cre…
+app-1       | GET /api/media params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   user: 9,
+app-1       |   isAdmin: true
+app-1       | }
+app-1       | Fetching media for user 9, isAdmin: true, filtering by userId: none (admin view)
+app-1       | Successfully fetched 35 media items
+app-1       | 3:08:14 PM [express] GET /api/media 200 in 27ms :: [{"id":49,"title":"18 Minutes with Jesus","descri…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 49
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 63
+app-1       | 3:08:14 PM [express] GET /api/stream/49 200 in 28ms :: {"streamUrl":"/api/raw-stream/49?token=eyJhbG…
+app-1       | 3:08:14 PM [express] GET /api/stream/63 200 in 31ms :: {"streamUrl":"/api/raw-stream/63?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 64
+app-1       | 3:08:14 PM [express] GET /api/stream/64 200 in 41ms :: {"streamUrl":"/api/raw-stream/64?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 48
+app-1       | 3:08:14 PM [express] GET /api/stream/48 200 in 80ms :: {"streamUrl":"/api/raw-stream/48?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 65
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 51
+app-1       | 3:08:14 PM [express] GET /api/stream/65 200 in 100ms :: {"streamUrl":"/api/raw-stream/65?token=eyJhb…
+app-1       | 3:08:14 PM [express] GET /api/stream/51 200 in 111ms :: {"streamUrl":"/api/raw-stream/51?token=eyJhb…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 57
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 66
+app-1       | 3:08:14 PM [express] GET /api/stream/57 200 in 18ms :: {"streamUrl":"/api/raw-stream/57?token=eyJhbG…
+app-1       | 3:08:14 PM [express] GET /api/stream/66 200 in 23ms :: {"streamUrl":"/api/raw-stream/66?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 67
+app-1       | 3:08:14 PM [express] GET /api/stream/67 200 in 16ms :: {"streamUrl":"/api/raw-stream/67?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 68
+app-1       | 3:08:14 PM [express] GET /api/stream/68 200 in 16ms :: {"streamUrl":"/api/raw-stream/68?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 45
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 46
+app-1       | 3:08:14 PM [express] GET /api/stream/45 200 in 21ms :: {"streamUrl":"/api/raw-stream/45?token=eyJhbG…
+app-1       | 3:08:14 PM [express] GET /api/stream/46 200 in 19ms :: {"streamUrl":"/api/raw-stream/46?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 50
+app-1       | 3:08:14 PM [express] GET /api/stream/50 200 in 14ms :: {"streamUrl":"/api/raw-stream/50?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 69
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 70
+app-1       | 3:08:14 PM [express] GET /api/stream/69 200 in 17ms :: {"streamUrl":"/api/raw-stream/69?token=eyJhbG…
+app-1       | 3:08:14 PM [express] GET /api/stream/70 200 in 15ms :: {"streamUrl":"/api/raw-stream/70?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 71
+app-1       | 3:08:14 PM [express] GET /api/stream/71 200 in 18ms :: {"streamUrl":"/api/raw-stream/71?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 79
+app-1       | 3:08:14 PM [express] GET /api/stream/79 200 in 18ms :: {"streamUrl":"/api/raw-stream/79?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 72
+app-1       | 3:08:14 PM [express] GET /api/stream/72 200 in 21ms :: {"streamUrl":"/api/raw-stream/72?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 47
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 73
+app-1       | 3:08:14 PM [express] GET /api/stream/47 200 in 17ms :: {"streamUrl":"/api/raw-stream/47?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 75
+app-1       | 3:08:14 PM [express] GET /api/stream/73 200 in 12ms :: {"streamUrl":"/api/raw-stream/73?token=eyJhbG…
+app-1       | 3:08:14 PM [express] GET /api/stream/75 200 in 13ms :: {"streamUrl":"/api/raw-stream/75?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 52
+app-1       | 3:08:14 PM [express] GET /api/stream/52 200 in 20ms :: {"streamUrl":"/api/raw-stream/52?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 76
+app-1       | 3:08:14 PM [express] GET /api/stream/76 200 in 17ms :: {"streamUrl":"/api/raw-stream/76?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 59
+app-1       | 3:08:14 PM [express] GET /api/stream/59 200 in 20ms :: {"streamUrl":"/api/raw-stream/59?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 54
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 53
+app-1       | 3:08:14 PM [express] GET /api/stream/54 200 in 18ms :: {"streamUrl":"/api/raw-stream/54?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 77
+app-1       | 3:08:14 PM [express] GET /api/stream/53 200 in 19ms :: {"streamUrl":"/api/raw-stream/53?token=eyJhbG…
+app-1       | 3:08:14 PM [express] GET /api/stream/77 200 in 15ms :: {"streamUrl":"/api/raw-stream/77?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 62
+app-1       | 3:08:14 PM [express] GET /api/stream/62 200 in 15ms :: {"streamUrl":"/api/raw-stream/62?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 60
+app-1       | 3:08:14 PM [express] GET /api/stream/60 200 in 15ms :: {"streamUrl":"/api/raw-stream/60?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 74
+app-1       | 3:08:14 PM [express] GET /api/stream/74 200 in 12ms :: {"streamUrl":"/api/raw-stream/74?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 61
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 78
+app-1       | 3:08:14 PM [express] GET /api/stream/61 200 in 13ms :: {"streamUrl":"/api/raw-stream/61?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 58
+app-1       | 3:08:14 PM [express] GET /api/stream/78 200 in 14ms :: {"streamUrl":"/api/raw-stream/78?token=eyJhbG…
+app-1       | 3:08:14 PM [express] GET /api/stream/58 200 in 12ms :: {"streamUrl":"/api/raw-stream/58?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 55
+app-1       | 3:08:15 PM [express] GET /api/stream/55 200 in 18ms :: {"streamUrl":"/api/raw-stream/55?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 56
+app-1       | 3:08:15 PM [express] GET /api/stream/56 200 in 18ms :: {"streamUrl":"/api/raw-stream/56?token=eyJhbG…
+app-1       | 3:08:15 PM [express] GET /api/media/49/playlists 200 in 16ms :: [{"id":139,"mediaId":49,"playlistId"…
+app-1       | 3:08:15 PM [express] GET /api/media/63/playlists 200 in 11ms :: [{"id":174,"mediaId":63,"playlistId"…
+app-1       | 3:08:15 PM [express] GET /api/media/64/playlists 200 in 10ms :: [{"id":155,"mediaId":64,"playlistId"…
+app-1       | 3:08:15 PM [express] GET /api/media/51/playlists 200 in 10ms :: [{"id":141,"mediaId":51,"playlistId"…
+app-1       | 3:08:15 PM [express] GET /api/media/48/playlists 200 in 13ms :: [{"id":138,"mediaId":48,"playlistId"…
+app-1       | 3:08:15 PM [express] GET /api/media/65/playlists 200 in 14ms :: [{"id":156,"mediaId":65,"playlistId"…
+app-1       | 3:08:15 PM [express] GET /api/media/57/playlists 200 in 13ms :: [{"id":148,"mediaId":57,"playlistId"…
+app-1       | 3:08:15 PM [express] GET /api/media/66/playlists 200 in 13ms :: [{"id":157,"mediaId":66,"playlistId"…
+app-1       | 3:08:15 PM [express] GET /api/media/67/playlists 200 in 11ms :: [{"id":158,"mediaId":67,"playlistId"…
+app-1       | 3:08:15 PM [express] GET /api/media/68/playlists 200 in 10ms :: [{"id":159,"mediaId":68,"playlistId"…
+app-1       | 3:08:15 PM [express] GET /api/media/45/playlists 200 in 14ms :: [{"id":135,"mediaId":45,"playlistId"…
+app-1       | 3:08:15 PM [express] GET /api/media/46/playlists 200 in 11ms :: [{"id":136,"mediaId":46,"playlistId"…
+app-1       | 3:08:15 PM [express] GET /api/media/50/playlists 200 in 14ms :: [{"id":140,"mediaId":50,"playlistId"…
+app-1       | 3:08:15 PM [express] GET /api/media/69/playlists 200 in 13ms :: [{"id":160,"mediaId":69,"playlistId"…
+app-1       | 3:08:15 PM [express] GET /api/media/70/playlists 200 in 17ms :: [{"id":161,"mediaId":70,"playlistId"…
+app-1       | 3:08:15 PM [express] GET /api/media/71/playlists 200 in 13ms :: [{"id":162,"mediaId":71,"playlistId"…
+app-1       | 3:08:15 PM [express] GET /api/media/79/playlists 200 in 12ms :: [{"id":173,"mediaId":79,"playlistId"…
+app-1       | 3:08:15 PM [express] GET /api/media/72/playlists 200 in 11ms :: [{"id":163,"mediaId":72,"playlistId"…
+app-1       | 3:08:15 PM [express] GET /api/media/47/playlists 200 in 16ms :: [{"id":137,"mediaId":47,"playlistId"…
+app-1       | 3:08:15 PM [express] GET /api/media/73/playlists 200 in 17ms :: [{"id":164,"mediaId":73,"playlistId"…
+app-1       | 3:08:15 PM [express] GET /api/media/75/playlists 200 in 11ms :: [{"id":166,"mediaId":75,"playlistId"…
+app-1       | 3:08:15 PM [express] GET /api/media/52/playlists 200 in 14ms :: [{"id":142,"mediaId":52,"playlistId"…
+app-1       | 3:08:15 PM [express] GET /api/media/76/playlists 200 in 11ms :: [{"id":168,"mediaId":76,"playlistId"…
+app-1       | 3:08:15 PM [express] GET /api/media/59/playlists 200 in 13ms :: [{"id":150,"mediaId":59,"playlistId"…
+app-1       | 3:08:15 PM [express] GET /api/media/54/playlists 200 in 12ms :: [{"id":145,"mediaId":54,"playlistId"…
+app-1       | 3:08:15 PM [express] GET /api/media/53/playlists 200 in 12ms :: [{"id":144,"mediaId":53,"playlistId"…
+app-1       | 3:08:15 PM [express] GET /api/media/77/playlists 200 in 11ms :: [{"id":170,"mediaId":77,"playlistId"…
+app-1       | 3:08:15 PM [express] GET /api/media/62/playlists 200 in 11ms :: [{"id":153,"mediaId":62,"playlistId"…
+app-1       | 3:08:15 PM [express] GET /api/media/60/playlists 200 in 12ms :: [{"id":151,"mediaId":60,"playlistId"…
+app-1       | 3:08:15 PM [express] GET /api/media/74/playlists 200 in 12ms :: [{"id":167,"mediaId":74,"playlistId"…
+app-1       | 3:08:15 PM [express] GET /api/media/61/playlists 200 in 12ms :: [{"id":152,"mediaId":61,"playlistId"…
+app-1       | 3:08:15 PM [express] GET /api/media/78/playlists 200 in 13ms :: [{"id":171,"mediaId":78,"playlistId"…
+app-1       | 3:08:15 PM [express] GET /api/media/58/playlists 200 in 12ms :: [{"id":172,"mediaId":58,"playlistId"…
+app-1       | 3:08:15 PM [express] GET /api/media/55/playlists 200 in 15ms :: [{"id":146,"mediaId":55,"playlistId"…
+app-1       | 3:08:15 PM [express] GET /api/media/56/playlists 200 in 9ms :: [{"id":147,"mediaId":56,"playlistId":…
+app-1       | Token verification successful - User: 9, Admin: true, Media: 49
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 63
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 64
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 48
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 65
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 51
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 57
+app-1       | Admin access granted for user 9 (from session)
+app-1       | GET /api/media params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   user: 9,
+app-1       |   isAdmin: true
+app-1       | }
+app-1       | Fetching media for user 9, isAdmin: true, filtering by userId: none (admin view)
+app-1       | Successfully fetched 35 media items
+app-1       | Token verification successful - User: 9, Admin: true, Media: 66
+app-1       | Admin access granted for user 9 (from session)
+app-1       | 3:08:17 PM [express] GET /api/media 304 in 26ms :: [{"id":49,"title":"18 Minutes with Jesus","descri…
+app-1       | Token verification successful - User: 9, Admin: true, Media: 67
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Admin access granted for user 9
+app-1       | 3:08:17 PM [express] GET /api/users/clients 200 in 10ms :: [{"id":12,"username":"client","email":"cl…
+app-1       | GET /api/media params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: undefined,
+app-1       |   user: 9,
+app-1       |   isAdmin: true
+app-1       | }
+app-1       | Fetching media for user 9, isAdmin: true, filtering by userId: none (admin view)
+app-1       | Successfully fetched 35 media items
+app-1       | 3:08:17 PM [express] GET /api/media 200 in 19ms :: [{"id":79,"title":"Juneteenth Special","descripti…
+app-1       | Token verification successful - User: 9, Admin: true, Media: 68
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 45
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 46
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 50
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 69
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 70
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 71
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 79
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 72
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 47
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 73
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 75
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 52
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 76
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 59
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 54
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 53
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 77
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 62
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 60
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 74
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 61
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 78
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 58
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 55
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 56
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 51
+app-1       | Admin access granted for user 9 (from session)
+app-1       | 3:08:29 PM [express] GET /api/raw-stream/51 206 in 39ms
+app-1       | Token verification successful - User: 9, Admin: true, Media: 52
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 54
+app-1       | Admin access granted for user 9 (from session)
+app-1       | 3:08:29 PM [express] GET /api/raw-stream/54 206 in 25ms
+app-1       | Token verification successful - User: 9, Admin: true, Media: 51
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 54
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Admin access granted for user 9
+app-1       | Welcome email sent to byron@tbnafrica.org
+app-1       | 3:11:50 PM [express] POST /api/users/clients 201 in 789ms :: {"user":{"id":14,"username":"byron@tbna…
+app-1       | Admin access granted for user 9
+app-1       | 3:11:51 PM [express] GET /api/users/clients 200 in 17ms :: [{"id":14,"username":"byron@tbnafrica.org…
+app-1       | Admin access granted for user 9
+app-1       | Welcome email sent to Distribution@tbn.tv
+app-1       | 3:12:38 PM [express] POST /api/users/clients 201 in 692ms :: {"user":{"id":15,"username":"Distributi…
+app-1       | Admin access granted for user 9
+app-1       | 3:12:39 PM [express] GET /api/users/clients 200 in 16ms :: [{"id":15,"username":"Distribution@tbn.tv…
+app-1       | 3:13:10 PM [express] GET /api/user 401 in 3ms
+app-1       | 3:13:10 PM [express] GET /api/user 401 in 2ms
+app-1       | 3:13:11 PM [express] GET /api/user 401 in 1ms
+app-1       | 3:13:11 PM [express] GET /api/user 401 in 2ms
+app-1       | 3:14:00 PM [express] GET /api/user 401 in 1ms
+app-1       | 3:14:00 PM [express] GET /api/user 401 in 1ms
+app-1       | 3:18:48 PM [express] GET /api/user 401 in 2ms
+app-1       | Login attempt for email: byron@tbnafrica.org
+app-1       | Login successful for user ID: 14
+app-1       | 3:20:06 PM [express] POST /api/login 200 in 140ms :: {"id":14,"username":"byron@tbnafrica.org","emai…
+app-1       | Client media request params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   page: 1,
+app-1       |   itemsPerPage: 8,
+app-1       |   user: 14
+app-1       | }
+app-1       | 3:20:06 PM [express] GET /api/client/media 200 in 38ms :: {"items":[{"id":49,"title":"18 Minutes wit…
+app-1       | 3:20:06 PM [express] GET /api/playlists 200 in 44ms :: [{"id":5,"name":"Films","description":"","cre…
+app-1       | Client media request params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   page: 2,
+app-1       |   itemsPerPage: 8,
+app-1       |   user: 14
+app-1       | }
+app-1       | 3:20:23 PM [express] GET /api/client/media 200 in 88ms :: {"items":[{"id":67,"title":"Drive Thru His…
+app-1       | Client media request params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   page: 3,
+app-1       |   itemsPerPage: 8,
+app-1       |   user: 14
+app-1       | }
+app-1       | 3:20:36 PM [express] GET /api/client/media 200 in 68ms :: {"items":[{"id":47,"title":"Live the Let G…
+app-1       | Client media request params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   page: 4,
+app-1       |   itemsPerPage: 8,
+app-1       |   user: 14
+app-1       | }
+app-1       | 3:20:50 PM [express] GET /api/client/media 200 in 54ms :: {"items":[{"id":61,"title":"The Revolution…
+app-1       | Client media request params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   page: 3,
+app-1       |   itemsPerPage: 8,
+app-1       |   user: 14
+app-1       | }
+app-1       | 3:21:01 PM [express] GET /api/client/media 200 in 68ms :: {"items":[{"id":47,"title":"Live the Let G…
+app-1       | Client media request params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   page: 1,
+app-1       |   itemsPerPage: 8,
+app-1       |   user: 14
+app-1       | }
+app-1       | 3:21:06 PM [express] GET /api/client/media 200 in 14ms :: {"items":[{"id":49,"title":"18 Minutes wit…
+app-1       | Client media request params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   page: 1,
+app-1       |   itemsPerPage: 8,
+app-1       |   user: 14
+app-1       | }
+app-1       | 3:21:22 PM [express] GET /api/client/media 200 in 45ms :: {"items":[{"id":49,"title":"18 Minutes wit…
+app-1       | Admin access granted for user 9
+app-1       | 3:24:36 PM [express] GET /api/contacts 200 in 51ms :: []
+app-1       | Admin access granted for user 9
+app-1       | 3:24:38 PM [express] GET /api/users 200 in 16ms :: [{"id":15,"username":"Distribution@tbn.tv","email…
+app-1       | 3:24:43 PM [express] GET /api/playlists 304 in 15ms :: [{"id":5,"name":"Films","description":"","cre…
+app-1       | GET /api/media params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   user: 9,
+app-1       |   isAdmin: true
+app-1       | }
+app-1       | Fetching media for user 9, isAdmin: true, filtering by userId: none (admin view)
+app-1       | Successfully fetched 35 media items
+app-1       | 3:24:44 PM [express] GET /api/media 304 in 18ms :: [{"id":49,"title":"18 Minutes with Jesus","descri…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 63
+app-1       | 3:24:44 PM [express] GET /api/stream/63 200 in 20ms :: {"streamUrl":"/api/raw-stream/63?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 49
+app-1       | 3:24:45 PM [express] GET /api/stream/49 200 in 18ms :: {"streamUrl":"/api/raw-stream/49?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 51
+app-1       | 3:24:45 PM [express] GET /api/stream/51 200 in 22ms :: {"streamUrl":"/api/raw-stream/51?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 66
+app-1       | 3:24:45 PM [express] GET /api/stream/66 200 in 20ms :: {"streamUrl":"/api/raw-stream/66?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 64
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 65
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 48
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 57
+app-1       | 3:24:45 PM [express] GET /api/stream/64 200 in 101ms :: {"streamUrl":"/api/raw-stream/64?token=eyJhb…
+app-1       | 3:24:45 PM [express] GET /api/stream/65 200 in 100ms :: {"streamUrl":"/api/raw-stream/65?token=eyJhb…
+app-1       | 3:24:45 PM [express] GET /api/stream/48 200 in 98ms :: {"streamUrl":"/api/raw-stream/48?token=eyJhbG…
+app-1       | 3:24:45 PM [express] GET /api/stream/57 200 in 99ms :: {"streamUrl":"/api/raw-stream/57?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 67
+app-1       | 3:24:45 PM [express] GET /api/stream/67 200 in 12ms :: {"streamUrl":"/api/raw-stream/67?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 68
+app-1       | 3:24:45 PM [express] GET /api/stream/68 200 in 17ms :: {"streamUrl":"/api/raw-stream/68?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 45
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 50
+app-1       | 3:24:45 PM [express] GET /api/stream/45 200 in 25ms :: {"streamUrl":"/api/raw-stream/45?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 46
+app-1       | 3:24:45 PM [express] GET /api/stream/50 200 in 21ms :: {"streamUrl":"/api/raw-stream/50?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 69
+app-1       | 3:24:45 PM [express] GET /api/stream/46 200 in 28ms :: {"streamUrl":"/api/raw-stream/46?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 70
+app-1       | 3:24:45 PM [express] GET /api/stream/69 200 in 23ms :: {"streamUrl":"/api/raw-stream/69?token=eyJhbG…
+app-1       | 3:24:45 PM [express] GET /api/stream/70 200 in 11ms :: {"streamUrl":"/api/raw-stream/70?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 71
+app-1       | 3:24:45 PM [express] GET /api/stream/71 200 in 13ms :: {"streamUrl":"/api/raw-stream/71?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 79
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 72
+app-1       | 3:24:45 PM [express] GET /api/stream/79 200 in 25ms :: {"streamUrl":"/api/raw-stream/79?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 47
+app-1       | 3:24:45 PM [express] GET /api/stream/72 200 in 23ms :: {"streamUrl":"/api/raw-stream/72?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 73
+app-1       | 3:24:45 PM [express] GET /api/stream/47 200 in 25ms :: {"streamUrl":"/api/raw-stream/47?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 75
+app-1       | 3:24:45 PM [express] GET /api/stream/73 200 in 18ms :: {"streamUrl":"/api/raw-stream/73?token=eyJhbG…
+app-1       | 3:24:45 PM [express] GET /api/stream/75 200 in 17ms :: {"streamUrl":"/api/raw-stream/75?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 52
+app-1       | 3:24:45 PM [express] GET /api/stream/52 200 in 11ms :: {"streamUrl":"/api/raw-stream/52?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 76
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 59
+app-1       | 3:24:45 PM [express] GET /api/stream/76 200 in 23ms :: {"streamUrl":"/api/raw-stream/76?token=eyJhbG…
+app-1       | 3:24:45 PM [express] GET /api/stream/59 200 in 27ms :: {"streamUrl":"/api/raw-stream/59?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 53
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 54
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 77
+app-1       | 3:24:45 PM [express] GET /api/stream/53 200 in 22ms :: {"streamUrl":"/api/raw-stream/53?token=eyJhbG…
+app-1       | 3:24:45 PM [express] GET /api/stream/54 200 in 30ms :: {"streamUrl":"/api/raw-stream/54?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 62
+app-1       | 3:24:45 PM [express] GET /api/stream/77 200 in 20ms :: {"streamUrl":"/api/raw-stream/77?token=eyJhbG…
+app-1       | 3:24:45 PM [express] GET /api/stream/62 200 in 16ms :: {"streamUrl":"/api/raw-stream/62?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 60
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 74
+app-1       | 3:24:45 PM [express] GET /api/stream/60 200 in 17ms :: {"streamUrl":"/api/raw-stream/60?token=eyJhbG…
+app-1       | 3:24:45 PM [express] GET /api/stream/74 200 in 21ms :: {"streamUrl":"/api/raw-stream/74?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 61
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 78
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 58
+app-1       | 3:24:45 PM [express] GET /api/stream/61 200 in 17ms :: {"streamUrl":"/api/raw-stream/61?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 55
+app-1       | 3:24:45 PM [express] GET /api/stream/78 200 in 19ms :: {"streamUrl":"/api/raw-stream/78?token=eyJhbG…
+app-1       | 3:24:45 PM [express] GET /api/stream/58 200 in 21ms :: {"streamUrl":"/api/raw-stream/58?token=eyJhbG…
+app-1       | 3:24:45 PM [express] GET /api/stream/55 200 in 17ms :: {"streamUrl":"/api/raw-stream/55?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 56
+app-1       | 3:24:45 PM [express] GET /api/stream/56 200 in 17ms :: {"streamUrl":"/api/raw-stream/56?token=eyJhbG…
+app-1       | 3:24:45 PM [express] GET /api/media/49/playlists 304 in 18ms :: [{"id":139,"mediaId":49,"playlistId"…
+app-1       | 3:24:45 PM [express] GET /api/media/63/playlists 304 in 12ms :: [{"id":174,"mediaId":63,"playlistId"…
+app-1       | 3:24:45 PM [express] GET /api/media/64/playlists 304 in 14ms :: [{"id":155,"mediaId":64,"playlistId"…
+app-1       | 3:24:45 PM [express] GET /api/media/51/playlists 304 in 13ms :: [{"id":141,"mediaId":51,"playlistId"…
+app-1       | 3:24:45 PM [express] GET /api/media/48/playlists 304 in 15ms :: [{"id":138,"mediaId":48,"playlistId"…
+app-1       | 3:24:45 PM [express] GET /api/media/65/playlists 304 in 11ms :: [{"id":156,"mediaId":65,"playlistId"…
+app-1       | 3:24:45 PM [express] GET /api/media/57/playlists 304 in 14ms :: [{"id":148,"mediaId":57,"playlistId"…
+app-1       | 3:24:46 PM [express] GET /api/media/66/playlists 304 in 12ms :: [{"id":157,"mediaId":66,"playlistId"…
+app-1       | 3:24:46 PM [express] GET /api/media/67/playlists 304 in 12ms :: [{"id":158,"mediaId":67,"playlistId"…
+app-1       | 3:24:46 PM [express] GET /api/media/68/playlists 304 in 11ms :: [{"id":159,"mediaId":68,"playlistId"…
+app-1       | 3:24:46 PM [express] GET /api/media/45/playlists 304 in 10ms :: [{"id":135,"mediaId":45,"playlistId"…
+app-1       | 3:24:46 PM [express] GET /api/media/46/playlists 304 in 20ms :: [{"id":136,"mediaId":46,"playlistId"…
+app-1       | 3:24:46 PM [express] GET /api/media/50/playlists 304 in 18ms :: [{"id":140,"mediaId":50,"playlistId"…
+app-1       | 3:24:46 PM [express] GET /api/media/69/playlists 304 in 23ms :: [{"id":160,"mediaId":69,"playlistId"…
+app-1       | 3:24:46 PM [express] GET /api/media/70/playlists 304 in 23ms :: [{"id":161,"mediaId":70,"playlistId"…
+app-1       | 3:24:46 PM [express] GET /api/media/71/playlists 304 in 17ms :: [{"id":162,"mediaId":71,"playlistId"…
+app-1       | 3:24:46 PM [express] GET /api/media/79/playlists 304 in 17ms :: [{"id":173,"mediaId":79,"playlistId"…
+app-1       | 3:24:46 PM [express] GET /api/media/47/playlists 304 in 13ms :: [{"id":137,"mediaId":47,"playlistId"…
+app-1       | 3:24:46 PM [express] GET /api/media/72/playlists 304 in 17ms :: [{"id":163,"mediaId":72,"playlistId"…
+app-1       | 3:24:46 PM [express] GET /api/media/73/playlists 304 in 14ms :: [{"id":164,"mediaId":73,"playlistId"…
+app-1       | 3:24:46 PM [express] GET /api/media/75/playlists 304 in 19ms :: [{"id":166,"mediaId":75,"playlistId"…
+app-1       | 3:24:46 PM [express] GET /api/media/52/playlists 304 in 14ms :: [{"id":142,"mediaId":52,"playlistId"…
+app-1       | 3:24:46 PM [express] GET /api/media/76/playlists 304 in 14ms :: [{"id":168,"mediaId":76,"playlistId"…
+app-1       | 3:24:46 PM [express] GET /api/media/59/playlists 304 in 15ms :: [{"id":150,"mediaId":59,"playlistId"…
+app-1       | 3:24:46 PM [express] GET /api/media/54/playlists 304 in 16ms :: [{"id":145,"mediaId":54,"playlistId"…
+app-1       | 3:24:46 PM [express] GET /api/media/53/playlists 304 in 17ms :: [{"id":144,"mediaId":53,"playlistId"…
+app-1       | 3:24:46 PM [express] GET /api/media/77/playlists 304 in 17ms :: [{"id":170,"mediaId":77,"playlistId"…
+app-1       | 3:24:46 PM [express] GET /api/media/62/playlists 304 in 16ms :: [{"id":153,"mediaId":62,"playlistId"…
+app-1       | 3:24:46 PM [express] GET /api/media/60/playlists 304 in 14ms :: [{"id":151,"mediaId":60,"playlistId"…
+app-1       | 3:24:46 PM [express] GET /api/media/74/playlists 304 in 15ms :: [{"id":167,"mediaId":74,"playlistId"…
+app-1       | 3:24:46 PM [express] GET /api/media/61/playlists 304 in 15ms :: [{"id":152,"mediaId":61,"playlistId"…
+app-1       | 3:24:46 PM [express] GET /api/media/78/playlists 304 in 14ms :: [{"id":171,"mediaId":78,"playlistId"…
+app-1       | 3:24:46 PM [express] GET /api/media/55/playlists 304 in 11ms :: [{"id":146,"mediaId":55,"playlistId"…
+app-1       | 3:24:46 PM [express] GET /api/media/58/playlists 304 in 17ms :: [{"id":172,"mediaId":58,"playlistId"…
+app-1       | 3:24:46 PM [express] GET /api/media/56/playlists 304 in 15ms :: [{"id":147,"mediaId":56,"playlistId"…
+app-1       | Token verification successful - User: 9, Admin: true, Media: 49
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 63
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 51
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 64
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 66
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 65
+app-1       | Admin access granted for user 9 (from session)
+app-1       | GET /api/media params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   user: 9,
+app-1       |   isAdmin: true
+app-1       | }
+app-1       | Fetching media for user 9, isAdmin: true, filtering by userId: none (admin view)
+app-1       | Successfully fetched 35 media items
+app-1       | 3:24:47 PM [express] GET /api/media 304 in 22ms :: [{"id":49,"title":"18 Minutes with Jesus","descri…
+app-1       | Token verification successful - User: 9, Admin: true, Media: 48
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Client media request params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   page: 1,
+app-1       |   itemsPerPage: 8,
+app-1       |   user: 9
+app-1       | }
+app-1       | 3:24:48 PM [express] GET /api/client/media 200 in 20ms :: {"items":[{"id":49,"title":"18 Minutes wit…
+app-1       | Token verification successful - User: 9, Admin: true, Media: 57
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 67
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 45
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 68
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 50
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 46
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 69
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 70
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 71
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 79
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 72
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 47
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 73
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 75
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 52
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 59
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 76
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 53
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 54
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 77
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 62
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 60
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 74
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 61
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 78
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Client media request params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   page: 5,
+app-1       |   itemsPerPage: 8,
+app-1       |   user: 9
+app-1       | }
+app-1       | 3:24:55 PM [express] GET /api/client/media 200 in 20ms :: {"items":[{"id":58,"title":"Traveling Ligh…
+app-1       | Token verification successful - User: 9, Admin: true, Media: 58
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 55
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 56
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 51
+app-1       | Admin access granted for user 9 (from session)
+app-1       | 3:24:56 PM [express] GET /api/raw-stream/51 206 in 33ms
+app-1       | Token verification successful - User: 9, Admin: true, Media: 52
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 54
+app-1       | Admin access granted for user 9 (from session)
+app-1       | 3:24:57 PM [express] GET /api/raw-stream/54 206 in 18ms
+app-1       | Token verification successful - User: 9, Admin: true, Media: 51
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 54
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Client media request params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   page: 1,
+app-1       |   itemsPerPage: 8,
+app-1       |   user: 9
+app-1       | }
+app-1       | 3:24:58 PM [express] GET /api/client/media 200 in 14ms :: {"items":[{"id":49,"title":"18 Minutes wit…
+app-1       | Client media request params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   page: 2,
+app-1       |   itemsPerPage: 8,
+app-1       |   user: 9
+app-1       | }
+app-1       | 3:25:15 PM [express] GET /api/client/media 200 in 60ms :: {"items":[{"id":67,"title":"Drive Thru His…
+app-1       | Client media request params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   page: 3,
+app-1       |   itemsPerPage: 8,
+app-1       |   user: 9
+app-1       | }
+app-1       | 3:25:19 PM [express] GET /api/client/media 200 in 16ms :: {"items":[{"id":79,"title":"Juneteenth Spe…
+app-1       | Client media request params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   page: 4,
+app-1       |   itemsPerPage: 8,
+app-1       |   user: 9
+app-1       | }
+app-1       | 3:25:25 PM [express] GET /api/client/media 200 in 16ms :: {"items":[{"id":54,"title":"T.D. Jakes: Cr…
+app-1       | Client media request params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   page: 5,
+app-1       |   itemsPerPage: 8,
+app-1       |   user: 9
+app-1       | }
+app-1       | 3:25:29 PM [express] GET /api/client/media 200 in 18ms :: {"items":[{"id":58,"title":"Traveling Ligh…
+app-1       | Client media request params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   page: 4,
+app-1       |   itemsPerPage: 8,
+app-1       |   user: 9
+app-1       | }
+app-1       | 3:25:32 PM [express] GET /api/client/media 200 in 17ms :: {"items":[{"id":54,"title":"T.D. Jakes: Cr…
+app-1       | 3:25:33 PM [express] GET /api/media/62 200 in 23ms :: {"id":62,"title":"The Daniel Dilemma","descrip…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 62
+app-1       | 3:25:33 PM [express] GET /api/stream/62 200 in 20ms :: {"streamUrl":"/api/raw-stream/62?token=eyJhbG…
+app-1       | Token verification successful - User: 9, Admin: true, Media: 62
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Client media request params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   page: 3,
+app-1       |   itemsPerPage: 8,
+app-1       |   user: 9
+app-1       | }
+app-1       | 3:25:44 PM [express] GET /api/client/media 200 in 60ms :: {"items":[{"id":79,"title":"Juneteenth Spe…
+app-1       | 3:27:26 PM [express] GET /api/media/57 200 in 60ms :: {"id":57,"title":"Chase the Lion with Mark Bat…
+app-1       | Media access denied for user 14 to media 57
+app-1       | User 14 attempted to access unauthorized media 57
+app-1       | 3:27:26 PM [express] GET /api/stream/57 403 in 70ms :: {"message":"You don't have access to this med…
+app-1       | Client media request params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   page: 1,
+app-1       |   itemsPerPage: 24,
+app-1       |   user: 14
+app-1       | }
+app-1       | 3:27:44 PM [express] GET /api/client/media 200 in 65ms :: {"items":[{"id":49,"title":"18 Minutes wit…
+app-1       | 3:28:07 PM [express] GET /api/media/59 200 in 64ms :: {"id":59,"title":"Smoketown","description":"A …
+app-1       | Media access denied for user 14 to media 59
+app-1       | User 14 attempted to access unauthorized media 59
+app-1       | 3:28:08 PM [express] GET /api/stream/59 403 in 25ms :: {"message":"You don't have access to this med…
+app-1       | Media access denied for user 14 to media 49
+app-1       | User 14 attempted to access unauthorized media 49
+app-1       | 3:29:11 PM [express] GET /api/media/49 200 in 81ms :: {"id":49,"title":"18 Minutes with Jesus","desc…
+app-1       | 3:29:11 PM [express] GET /api/stream/49 403 in 87ms :: {"message":"You don't have access to this med…
+app-1       | 3:29:45 PM [express] GET /api/media/60 200 in 67ms :: {"id":60,"title":"The Omega Code","description…
+app-1       | Media access denied for user 14 to media 60
+app-1       | User 14 attempted to access unauthorized media 60
+app-1       | 3:29:45 PM [express] GET /api/stream/60 403 in 75ms :: {"message":"You don't have access to this med…
+app-1       | 3:31:29 PM [express] GET /api/media/51 200 in 79ms :: {"id":51,"title":"Better Together","descriptio…
+app-1       | Media access denied for user 14 to media 51
+app-1       | User 14 attempted to access unauthorized media 51
+app-1       | 3:31:29 PM [express] GET /api/stream/51 403 in 91ms :: {"message":"You don't have access to this med…
+app-1       | 3:31:39 PM [express] GET /api/media/64 200 in 18ms :: {"id":64,"title":"America's Hidden History","d…
+app-1       | Media access denied for user 14 to media 64
+app-1       | User 14 attempted to access unauthorized media 64
+app-1       | 3:31:39 PM [express] GET /api/stream/64 403 in 24ms :: {"message":"You don't have access to this med…
+app-1       | Media access denied for user 14 to media 63
+app-1       | User 14 attempted to access unauthorized media 63
+app-1       | 3:31:46 PM [express] GET /api/media/63 200 in 20ms :: {"id":63,"title":"Abraham Accords","descriptio…
+app-1       | 3:31:46 PM [express] GET /api/stream/63 403 in 25ms :: {"message":"You don't have access to this med…
+app-1       | Client media request params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   page: 1,
+app-1       |   itemsPerPage: 8,
+app-1       |   user: 14
+app-1       | }
+app-1       | 3:32:56 PM [express] GET /api/client/media 200 in 62ms :: {"items":[{"id":49,"title":"18 Minutes wit…
+app-1       | Client media request params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   page: 1,
+app-1       |   itemsPerPage: 24,
+app-1       |   user: 14
+app-1       | }
+app-1       | 3:33:03 PM [express] GET /api/client/media 200 in 22ms :: {"items":[{"id":49,"title":"18 Minutes wit…
+app-1       | Client media request params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   page: 2,
+app-1       |   itemsPerPage: 24,
+app-1       |   user: 14
+app-1       | }
+app-1       | 3:33:07 PM [express] GET /api/client/media 200 in 15ms :: {"items":[{"id":61,"title":"The Revolution…
+app-1       | Client media request params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   page: 1,
+app-1       |   itemsPerPage: 24,
+app-1       |   user: 14
+app-1       | }
+app-1       | 3:33:13 PM [express] GET /api/client/media 200 in 25ms :: {"items":[{"id":49,"title":"18 Minutes wit…
+app-1       | Media access denied for user 14 to media 64
+app-1       | User 14 attempted to access unauthorized media 64
+app-1       | 3:33:48 PM [express] GET /api/stream/64 403 in 67ms :: {"message":"You don't have access to this med…
+app-1       | Media access denied for user 14 to media 64
+app-1       | User 14 attempted to access unauthorized media 64
+app-1       | 3:33:59 PM [express] GET /api/stream/64 403 in 64ms :: {"message":"You don't have access to this med…
+app-1       | Media access denied for user 14 to media 51
+app-1       | User 14 attempted to access unauthorized media 51
+app-1       | 3:34:06 PM [express] GET /api/stream/51 403 in 20ms :: {"message":"You don't have access to this med…
+app-1       | GET /api/media params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   user: 9,
+app-1       |   isAdmin: true
+app-1       | }
+app-1       | Fetching media for user 9, isAdmin: true, filtering by userId: none (admin view)
+app-1       | Successfully fetched 35 media items
+app-1       | 3:40:32 PM [express] GET /api/media 304 in 61ms :: [{"id":49,"title":"18 Minutes with Jesus","descri…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 63
+app-1       | 3:40:32 PM [express] GET /api/stream/63 200 in 23ms :: {"streamUrl":"/api/raw-stream/63?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 64
+app-1       | 3:40:32 PM [express] GET /api/stream/64 200 in 17ms :: {"streamUrl":"/api/raw-stream/64?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 49
+app-1       | 3:40:32 PM [express] GET /api/stream/49 200 in 21ms :: {"streamUrl":"/api/raw-stream/49?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 66
+app-1       | 3:40:32 PM [express] GET /api/stream/66 200 in 18ms :: {"streamUrl":"/api/raw-stream/66?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 51
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 65
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 48
+app-1       | 3:40:32 PM [express] GET /api/stream/51 200 in 96ms :: {"streamUrl":"/api/raw-stream/51?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 57
+app-1       | 3:40:32 PM [express] GET /api/stream/65 200 in 97ms :: {"streamUrl":"/api/raw-stream/65?token=eyJhbG…
+app-1       | 3:40:32 PM [express] GET /api/stream/48 200 in 96ms :: {"streamUrl":"/api/raw-stream/48?token=eyJhbG…
+app-1       | 3:40:32 PM [express] GET /api/stream/57 200 in 98ms :: {"streamUrl":"/api/raw-stream/57?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 67
+app-1       | 3:40:32 PM [express] GET /api/stream/67 200 in 12ms :: {"streamUrl":"/api/raw-stream/67?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 68
+app-1       | 3:40:32 PM [express] GET /api/stream/68 200 in 14ms :: {"streamUrl":"/api/raw-stream/68?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 45
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 46
+app-1       | 3:40:32 PM [express] GET /api/stream/45 200 in 25ms :: {"streamUrl":"/api/raw-stream/45?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 50
+app-1       | 3:40:32 PM [express] GET /api/stream/46 200 in 24ms :: {"streamUrl":"/api/raw-stream/46?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 69
+app-1       | 3:40:32 PM [express] GET /api/stream/50 200 in 24ms :: {"streamUrl":"/api/raw-stream/50?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 70
+app-1       | 3:40:32 PM [express] GET /api/stream/69 200 in 24ms :: {"streamUrl":"/api/raw-stream/69?token=eyJhbG…
+app-1       | 3:40:32 PM [express] GET /api/stream/70 200 in 20ms :: {"streamUrl":"/api/raw-stream/70?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 71
+app-1       | 3:40:32 PM [express] GET /api/stream/71 200 in 12ms :: {"streamUrl":"/api/raw-stream/71?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 79
+app-1       | 3:40:32 PM [express] GET /api/stream/79 200 in 18ms :: {"streamUrl":"/api/raw-stream/79?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 72
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 47
+app-1       | 3:40:32 PM [express] GET /api/stream/72 200 in 25ms :: {"streamUrl":"/api/raw-stream/72?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 73
+app-1       | 3:40:32 PM [express] GET /api/stream/47 200 in 20ms :: {"streamUrl":"/api/raw-stream/47?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 75
+app-1       | 3:40:32 PM [express] GET /api/stream/73 200 in 15ms :: {"streamUrl":"/api/raw-stream/73?token=eyJhbG…
+app-1       | 3:40:32 PM [express] GET /api/stream/75 200 in 13ms :: {"streamUrl":"/api/raw-stream/75?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 52
+app-1       | 3:40:32 PM [express] GET /api/stream/52 200 in 11ms :: {"streamUrl":"/api/raw-stream/52?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 76
+app-1       | 3:40:32 PM [express] GET /api/stream/76 200 in 16ms :: {"streamUrl":"/api/raw-stream/76?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 54
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 59
+app-1       | 3:40:33 PM [express] GET /api/stream/54 200 in 18ms :: {"streamUrl":"/api/raw-stream/54?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 53
+app-1       | 3:40:33 PM [express] GET /api/stream/59 200 in 26ms :: {"streamUrl":"/api/raw-stream/59?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 77
+app-1       | 3:40:33 PM [express] GET /api/stream/53 200 in 20ms :: {"streamUrl":"/api/raw-stream/53?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 62
+app-1       | 3:40:33 PM [express] GET /api/stream/77 200 in 18ms :: {"streamUrl":"/api/raw-stream/77?token=eyJhbG…
+app-1       | 3:40:33 PM [express] GET /api/stream/62 200 in 12ms :: {"streamUrl":"/api/raw-stream/62?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 60
+app-1       | 3:40:33 PM [express] GET /api/stream/60 200 in 20ms :: {"streamUrl":"/api/raw-stream/60?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 74
+app-1       | 3:40:33 PM [express] GET /api/stream/74 200 in 17ms :: {"streamUrl":"/api/raw-stream/74?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 78
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 61
+app-1       | 3:40:33 PM [express] GET /api/stream/78 200 in 18ms :: {"streamUrl":"/api/raw-stream/78?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 58
+app-1       | 3:40:33 PM [express] GET /api/stream/61 200 in 22ms :: {"streamUrl":"/api/raw-stream/61?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 55
+app-1       | 3:40:33 PM [express] GET /api/stream/58 200 in 20ms :: {"streamUrl":"/api/raw-stream/58?token=eyJhbG…
+app-1       | 3:40:33 PM [express] GET /api/stream/55 200 in 18ms :: {"streamUrl":"/api/raw-stream/55?token=eyJhbG…
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Generated stream token for user 9, media 56
+app-1       | 3:40:33 PM [express] GET /api/stream/56 200 in 18ms :: {"streamUrl":"/api/raw-stream/56?token=eyJhbG…
+app-1       | 3:40:33 PM [express] GET /api/media/49/playlists 304 in 12ms :: [{"id":139,"mediaId":49,"playlistId"…
+app-1       | 3:40:33 PM [express] GET /api/media/63/playlists 304 in 13ms :: [{"id":174,"mediaId":63,"playlistId"…
+app-1       | 3:40:33 PM [express] GET /api/media/64/playlists 304 in 14ms :: [{"id":155,"mediaId":64,"playlistId"…
+app-1       | 3:40:33 PM [express] GET /api/media/51/playlists 304 in 11ms :: [{"id":141,"mediaId":51,"playlistId"…
+app-1       | 3:40:33 PM [express] GET /api/media/48/playlists 304 in 12ms :: [{"id":138,"mediaId":48,"playlistId"…
+app-1       | 3:40:33 PM [express] GET /api/media/65/playlists 304 in 11ms :: [{"id":156,"mediaId":65,"playlistId"…
+app-1       | 3:40:33 PM [express] GET /api/media/57/playlists 304 in 12ms :: [{"id":148,"mediaId":57,"playlistId"…
+app-1       | 3:40:33 PM [express] GET /api/media/66/playlists 304 in 13ms :: [{"id":157,"mediaId":66,"playlistId"…
+app-1       | 3:40:33 PM [express] GET /api/media/67/playlists 304 in 12ms :: [{"id":158,"mediaId":67,"playlistId"…
+app-1       | 3:40:33 PM [express] GET /api/media/68/playlists 304 in 13ms :: [{"id":159,"mediaId":68,"playlistId"…
+app-1       | 3:40:33 PM [express] GET /api/media/45/playlists 304 in 12ms :: [{"id":135,"mediaId":45,"playlistId"…
+app-1       | 3:40:33 PM [express] GET /api/media/46/playlists 304 in 11ms :: [{"id":136,"mediaId":46,"playlistId"…
+app-1       | 3:40:33 PM [express] GET /api/media/50/playlists 304 in 11ms :: [{"id":140,"mediaId":50,"playlistId"…
+app-1       | 3:40:33 PM [express] GET /api/media/69/playlists 304 in 12ms :: [{"id":160,"mediaId":69,"playlistId"…
+app-1       | 3:40:33 PM [express] GET /api/media/70/playlists 304 in 11ms :: [{"id":161,"mediaId":70,"playlistId"…
+app-1       | 3:40:33 PM [express] GET /api/media/79/playlists 304 in 10ms :: [{"id":173,"mediaId":79,"playlistId"…
+app-1       | 3:40:33 PM [express] GET /api/media/71/playlists 304 in 16ms :: [{"id":162,"mediaId":71,"playlistId"…
+app-1       | 3:40:33 PM [express] GET /api/media/72/playlists 304 in 13ms :: [{"id":163,"mediaId":72,"playlistId"…
+app-1       | 3:40:33 PM [express] GET /api/media/47/playlists 304 in 11ms :: [{"id":137,"mediaId":47,"playlistId"…
+app-1       | 3:40:33 PM [express] GET /api/media/75/playlists 304 in 12ms :: [{"id":166,"mediaId":75,"playlistId"…
+app-1       | 3:40:33 PM [express] GET /api/media/52/playlists 304 in 10ms :: [{"id":142,"mediaId":52,"playlistId"…
+app-1       | 3:40:33 PM [express] GET /api/media/76/playlists 304 in 10ms :: [{"id":168,"mediaId":76,"playlistId"…
+app-1       | 3:40:33 PM [express] GET /api/media/54/playlists 304 in 11ms :: [{"id":145,"mediaId":54,"playlistId"…
+app-1       | 3:40:33 PM [express] GET /api/media/73/playlists 304 in 12ms :: [{"id":164,"mediaId":73,"playlistId"…
+app-1       | 3:40:33 PM [express] GET /api/media/59/playlists 304 in 13ms :: [{"id":150,"mediaId":59,"playlistId"…
+app-1       | 3:40:33 PM [express] GET /api/media/74/playlists 304 in 12ms :: [{"id":167,"mediaId":74,"playlistId"…
+app-1       | 3:40:33 PM [express] GET /api/media/78/playlists 304 in 12ms :: [{"id":171,"mediaId":78,"playlistId"…
+app-1       | 3:40:33 PM [express] GET /api/media/62/playlists 304 in 11ms :: [{"id":153,"mediaId":62,"playlistId"…
+app-1       | 3:40:33 PM [express] GET /api/media/60/playlists 304 in 12ms :: [{"id":151,"mediaId":60,"playlistId"…
+app-1       | 3:40:33 PM [express] GET /api/media/53/playlists 304 in 12ms :: [{"id":144,"mediaId":53,"playlistId"…
+app-1       | 3:40:33 PM [express] GET /api/media/61/playlists 304 in 14ms :: [{"id":152,"mediaId":61,"playlistId"…
+app-1       | 3:40:33 PM [express] GET /api/media/77/playlists 304 in 14ms :: [{"id":170,"mediaId":77,"playlistId"…
+app-1       | 3:40:33 PM [express] GET /api/media/55/playlists 304 in 11ms :: [{"id":146,"mediaId":55,"playlistId"…
+app-1       | 3:40:33 PM [express] GET /api/media/56/playlists 304 in 10ms :: [{"id":147,"mediaId":56,"playlistId"…
+app-1       | 3:40:33 PM [express] GET /api/media/58/playlists 304 in 9ms :: [{"id":172,"mediaId":58,"playlistId":…
+app-1       | Token verification successful - User: 9, Admin: true, Media: 63
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 64
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 49
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 66
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 51
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 65
+app-1       | Admin access granted for user 9 (from session)
+app-1       | GET /api/media params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   user: 9,
+app-1       |   isAdmin: true
+app-1       | }
+app-1       | Fetching media for user 9, isAdmin: true, filtering by userId: none (admin view)
+app-1       | Successfully fetched 35 media items
+app-1       | 3:40:34 PM [express] GET /api/media 304 in 23ms :: [{"id":49,"title":"18 Minutes with Jesus","descri…
+app-1       | Token verification successful - User: 9, Admin: true, Media: 48
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Admin access granted for user 9
+app-1       | 3:40:35 PM [express] GET /api/users/clients 304 in 18ms :: [{"id":15,"username":"Distribution@tbn.tv…
+app-1       | GET /api/media params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: undefined,
+app-1       |   user: 9,
+app-1       |   isAdmin: true
+app-1       | }
+app-1       | Fetching media for user 9, isAdmin: true, filtering by userId: none (admin view)
+app-1       | Successfully fetched 35 media items
+app-1       | 3:40:35 PM [express] GET /api/media 304 in 21ms :: [{"id":79,"title":"Juneteenth Special","descripti…
+app-1       | Token verification successful - User: 9, Admin: true, Media: 57
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 67
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 68
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 45
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 46
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 50
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 69
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 70
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Admin access granted for user 9
+app-1       | 3:40:37 PM [express] GET /api/users/14/media 200 in 21ms :: []
+app-1       | Token verification successful - User: 9, Admin: true, Media: 71
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 79
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 72
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 47
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 73
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 75
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 52
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 76
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 54
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 59
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 53
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 77
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 62
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 60
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 74
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 78
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Admin access granted for user 9
+app-1       | 3:40:45 PM [express] POST /api/media-access 201 in 24ms :: {"id":31,"user_id":14,"media_id":79,"crea…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:45 PM [express] POST /api/media-access 201 in 17ms :: {"id":32,"user_id":14,"media_id":78,"crea…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:45 PM [express] GET /api/users/14/media 200 in 14ms :: [{"id":32,"media_id":78,"user_id":14,"cr…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:45 PM [express] POST /api/media-access 201 in 23ms :: {"id":33,"user_id":14,"media_id":77,"crea…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:45 PM [express] GET /api/users/14/media 200 in 13ms :: [{"id":33,"media_id":77,"user_id":14,"cr…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:45 PM [express] POST /api/media-access 201 in 18ms :: {"id":34,"user_id":14,"media_id":76,"crea…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:45 PM [express] GET /api/users/14/media 200 in 14ms :: [{"id":34,"media_id":76,"user_id":14,"cr…
+app-1       | Token verification successful - User: 9, Admin: true, Media: 61
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Admin access granted for user 9
+app-1       | 3:40:45 PM [express] POST /api/media-access 201 in 25ms :: {"id":35,"user_id":14,"media_id":75,"crea…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:45 PM [express] GET /api/users/14/media 200 in 14ms :: [{"id":35,"media_id":75,"user_id":14,"cr…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:46 PM [express] POST /api/media-access 201 in 19ms :: {"id":36,"user_id":14,"media_id":74,"crea…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:46 PM [express] GET /api/users/14/media 200 in 14ms :: [{"id":36,"media_id":74,"user_id":14,"cr…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:46 PM [express] POST /api/media-access 201 in 27ms :: {"id":37,"user_id":14,"media_id":73,"crea…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:46 PM [express] GET /api/users/14/media 200 in 16ms :: [{"id":37,"media_id":73,"user_id":14,"cr…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:46 PM [express] POST /api/media-access 201 in 17ms :: {"id":38,"user_id":14,"media_id":72,"crea…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:46 PM [express] GET /api/users/14/media 200 in 15ms :: [{"id":38,"media_id":72,"user_id":14,"cr…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:46 PM [express] POST /api/media-access 201 in 26ms :: {"id":39,"user_id":14,"media_id":71,"crea…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:46 PM [express] GET /api/users/14/media 200 in 15ms :: [{"id":39,"media_id":71,"user_id":14,"cr…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:46 PM [express] POST /api/media-access 201 in 18ms :: {"id":40,"user_id":14,"media_id":70,"crea…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:47 PM [express] GET /api/users/14/media 200 in 15ms :: [{"id":40,"media_id":70,"user_id":14,"cr…
+app-1       | Token verification successful - User: 9, Admin: true, Media: 58
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Admin access granted for user 9
+app-1       | 3:40:47 PM [express] POST /api/media-access 201 in 15ms :: {"id":41,"user_id":14,"media_id":69,"crea…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:47 PM [express] GET /api/users/14/media 200 in 15ms :: [{"id":41,"media_id":69,"user_id":14,"cr…
+app-1       | Token verification successful - User: 9, Admin: true, Media: 55
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Admin access granted for user 9
+app-1       | 3:40:47 PM [express] POST /api/media-access 201 in 21ms :: {"id":42,"user_id":14,"media_id":68,"crea…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:47 PM [express] GET /api/users/14/media 200 in 15ms :: [{"id":42,"media_id":68,"user_id":14,"cr…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:47 PM [express] POST /api/media-access 201 in 21ms :: {"id":43,"user_id":14,"media_id":67,"crea…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:47 PM [express] GET /api/users/14/media 200 in 15ms :: [{"id":43,"media_id":67,"user_id":14,"cr…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:47 PM [express] POST /api/media-access 201 in 14ms :: {"id":44,"user_id":14,"media_id":66,"crea…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:47 PM [express] GET /api/users/14/media 200 in 15ms :: [{"id":44,"media_id":66,"user_id":14,"cr…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:47 PM [express] POST /api/media-access 201 in 15ms :: {"id":45,"user_id":14,"media_id":65,"crea…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:48 PM [express] GET /api/users/14/media 200 in 14ms :: [{"id":45,"media_id":65,"user_id":14,"cr…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:48 PM [express] POST /api/media-access 201 in 14ms :: {"id":46,"user_id":14,"media_id":64,"crea…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:48 PM [express] GET /api/users/14/media 200 in 13ms :: [{"id":46,"media_id":64,"user_id":14,"cr…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:48 PM [express] POST /api/media-access 201 in 13ms :: {"id":47,"user_id":14,"media_id":63,"crea…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:48 PM [express] GET /api/users/14/media 200 in 12ms :: [{"id":47,"media_id":63,"user_id":14,"cr…
+app-1       | Token verification successful - User: 9, Admin: true, Media: 56
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Admin access granted for user 9
+app-1       | 3:40:48 PM [express] POST /api/media-access 201 in 13ms :: {"id":48,"user_id":14,"media_id":62,"crea…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:48 PM [express] GET /api/users/14/media 200 in 17ms :: [{"id":48,"media_id":62,"user_id":14,"cr…
+app-1       | Token verification successful - User: 9, Admin: true, Media: 51
+app-1       | Admin access granted for user 9 (from session)
+app-1       | 3:40:48 PM [express] GET /api/raw-stream/51 206 in 72ms
+app-1       | Admin access granted for user 9
+app-1       | 3:40:48 PM [express] POST /api/media-access 201 in 21ms :: {"id":49,"user_id":14,"media_id":61,"crea…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:48 PM [express] GET /api/users/14/media 200 in 23ms :: [{"id":49,"media_id":61,"user_id":14,"cr…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:49 PM [express] POST /api/media-access 201 in 20ms :: {"id":50,"user_id":14,"media_id":60,"crea…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:49 PM [express] GET /api/users/14/media 200 in 12ms :: [{"id":50,"media_id":60,"user_id":14,"cr…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:49 PM [express] POST /api/media-access 201 in 13ms :: {"id":51,"user_id":14,"media_id":59,"crea…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:49 PM [express] GET /api/users/14/media 200 in 16ms :: [{"id":51,"media_id":59,"user_id":14,"cr…
+app-1       | Token verification successful - User: 9, Admin: true, Media: 52
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Admin access granted for user 9
+app-1       | 3:40:49 PM [express] POST /api/media-access 201 in 27ms :: {"id":52,"user_id":14,"media_id":58,"crea…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:49 PM [express] GET /api/users/14/media 200 in 27ms :: [{"id":52,"media_id":58,"user_id":14,"cr…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:49 PM [express] POST /api/media-access 201 in 19ms :: {"id":53,"user_id":14,"media_id":57,"crea…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:49 PM [express] GET /api/users/14/media 200 in 16ms :: [{"id":53,"media_id":57,"user_id":14,"cr…
+app-1       | Token verification successful - User: 9, Admin: true, Media: 54
+app-1       | Admin access granted for user 9 (from session)
+app-1       | 3:40:49 PM [express] GET /api/raw-stream/54 206 in 20ms
+app-1       | Admin access granted for user 9
+app-1       | 3:40:50 PM [express] POST /api/media-access 201 in 19ms :: {"id":54,"user_id":14,"media_id":56,"crea…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:50 PM [express] GET /api/users/14/media 200 in 17ms :: [{"id":54,"media_id":56,"user_id":14,"cr…
+app-1       | Admin access granted for user 9
+app-1       | Admin access granted for user 9
+app-1       | 3:40:50 PM [express] POST /api/media-access 201 in 18ms :: {"id":55,"user_id":14,"media_id":55,"crea…
+app-1       | 3:40:50 PM [express] GET /api/users/14/media 200 in 17ms :: [{"id":55,"media_id":55,"user_id":14,"cr…
+app-1       | Token verification successful - User: 9, Admin: true, Media: 51
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Admin access granted for user 9
+app-1       | 3:40:50 PM [express] POST /api/media-access 201 in 16ms :: {"id":56,"user_id":14,"media_id":54,"crea…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:50 PM [express] GET /api/users/14/media 200 in 15ms :: [{"id":56,"media_id":54,"user_id":14,"cr…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:50 PM [express] POST /api/media-access 201 in 17ms :: {"id":57,"user_id":14,"media_id":53,"crea…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:50 PM [express] GET /api/users/14/media 200 in 17ms :: [{"id":57,"media_id":53,"user_id":14,"cr…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:50 PM [express] POST /api/media-access 201 in 26ms :: {"id":58,"user_id":14,"media_id":52,"crea…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:50 PM [express] GET /api/users/14/media 200 in 18ms :: [{"id":58,"media_id":52,"user_id":14,"cr…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:51 PM [express] POST /api/media-access 201 in 16ms :: {"id":59,"user_id":14,"media_id":51,"crea…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:51 PM [express] GET /api/users/14/media 200 in 15ms :: [{"id":59,"media_id":51,"user_id":14,"cr…
+app-1       | Token verification successful - User: 9, Admin: true, Media: 54
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Admin access granted for user 9
+app-1       | 3:40:51 PM [express] POST /api/media-access 201 in 18ms :: {"id":60,"user_id":14,"media_id":50,"crea…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:51 PM [express] GET /api/users/14/media 200 in 25ms :: [{"id":60,"media_id":50,"user_id":14,"cr…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:51 PM [express] POST /api/media-access 201 in 18ms :: {"id":61,"user_id":14,"media_id":49,"crea…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:51 PM [express] GET /api/users/14/media 200 in 17ms :: [{"id":61,"media_id":49,"user_id":14,"cr…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:51 PM [express] POST /api/media-access 201 in 19ms :: {"id":62,"user_id":14,"media_id":48,"crea…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:51 PM [express] GET /api/users/14/media 200 in 17ms :: [{"id":62,"media_id":48,"user_id":14,"cr…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:51 PM [express] POST /api/media-access 201 in 17ms :: {"id":63,"user_id":14,"media_id":47,"crea…
+app-1       | Admin access granted for user 9
+app-1       | Admin access granted for user 9
+app-1       | 3:40:51 PM [express] GET /api/users/14/media 200 in 24ms :: [{"id":63,"media_id":47,"user_id":14,"cr…
+app-1       | 3:40:51 PM [express] POST /api/media-access 201 in 31ms :: {"id":64,"user_id":14,"media_id":46,"crea…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:52 PM [express] GET /api/users/14/media 200 in 16ms :: [{"id":64,"media_id":46,"user_id":14,"cr…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:52 PM [express] POST /api/media-access 201 in 15ms :: {"id":65,"user_id":14,"media_id":45,"crea…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:52 PM [express] GET /api/users/14/media 200 in 16ms :: [{"id":65,"media_id":45,"user_id":14,"cr…
+app-1       | Admin access granted for user 9
+app-1       | 3:40:52 PM [express] GET /api/users/14/media 304 in 25ms :: [{"id":65,"media_id":45,"user_id":14,"cr…
+app-1       | 3:41:28 PM [express] GET /api/user 304 in 11ms :: {"id":7,"username":"Jacob User","email":"juser@tbn…
+app-1       | Client media request params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   page: 1,
+app-1       |   itemsPerPage: 8,
+app-1       |   user: 7
+app-1       | }
+app-1       | 3:41:28 PM [express] GET /api/playlists 304 in 20ms :: [{"id":5,"name":"Films","description":"","cre…
+app-1       | 3:41:28 PM [express] GET /api/client/media 200 in 25ms :: {"items":[{"id":49,"title":"18 Minutes wit…
+app-1       | Admin access granted for user 7 (from session)
+app-1       | Generated stream token for user 7, media 49
+app-1       | 3:41:29 PM [express] GET /api/stream/49 200 in 21ms :: {"streamUrl":"/api/raw-stream/49?token=eyJhbG…
+app-1       | 3:41:29 PM [express] GET /api/media/49 200 in 27ms :: {"id":49,"title":"18 Minutes with Jesus","desc…
+app-1       | Token verification successful - User: 7, Admin: true, Media: 49
+app-1       | Admin access granted for user 7 (from session)
+app-1       | GET /api/media params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   user: 9,
+app-1       |   isAdmin: true
+app-1       | }
+app-1       | Fetching media for user 9, isAdmin: true, filtering by userId: none (admin view)
+app-1       | Successfully fetched 35 media items
+app-1       | 3:42:13 PM [express] GET /api/media/63/playlists 304 in 99ms :: [{"id":174,"mediaId":63,"playlistId"…
+app-1       | 3:42:13 PM [express] GET /api/media/51/playlists 304 in 98ms :: [{"id":141,"mediaId":51,"playlistId"…
+app-1       | 3:42:13 PM [express] GET /api/media/48/playlists 304 in 104ms :: [{"id":138,"mediaId":48,"playlistId…
+app-1       | 3:42:13 PM [express] GET /api/media 304 in 109ms :: [{"id":49,"title":"18 Minutes with Jesus","descr…
+app-1       | 3:42:13 PM [express] GET /api/media/64/playlists 304 in 111ms :: [{"id":155,"mediaId":64,"playlistId…
+app-1       | 3:42:13 PM [express] GET /api/media/49/playlists 304 in 114ms :: [{"id":139,"mediaId":49,"playlistId…
+app-1       | 3:42:13 PM [express] GET /api/media/57/playlists 304 in 10ms :: [{"id":148,"mediaId":57,"playlistId"…
+app-1       | 3:42:13 PM [express] GET /api/media/65/playlists 304 in 14ms :: [{"id":156,"mediaId":65,"playlistId"…
+app-1       | 3:42:13 PM [express] GET /api/media/66/playlists 304 in 17ms :: [{"id":157,"mediaId":66,"playlistId"…
+app-1       | 3:42:13 PM [express] GET /api/media/67/playlists 304 in 15ms :: [{"id":158,"mediaId":67,"playlistId"…
+app-1       | 3:42:13 PM [express] GET /api/media/68/playlists 304 in 15ms :: [{"id":159,"mediaId":68,"playlistId"…
+app-1       | 3:42:13 PM [express] GET /api/media/45/playlists 304 in 17ms :: [{"id":135,"mediaId":45,"playlistId"…
+app-1       | 3:42:13 PM [express] GET /api/media/46/playlists 304 in 14ms :: [{"id":136,"mediaId":46,"playlistId"…
+app-1       | 3:42:13 PM [express] GET /api/media/50/playlists 304 in 16ms :: [{"id":140,"mediaId":50,"playlistId"…
+app-1       | 3:42:13 PM [express] GET /api/media/69/playlists 304 in 16ms :: [{"id":160,"mediaId":69,"playlistId"…
+app-1       | 3:42:13 PM [express] GET /api/media/70/playlists 304 in 14ms :: [{"id":161,"mediaId":70,"playlistId"…
+app-1       | 3:42:13 PM [express] GET /api/media/71/playlists 304 in 14ms :: [{"id":162,"mediaId":71,"playlistId"…
+app-1       | 3:42:13 PM [express] GET /api/media/79/playlists 304 in 15ms :: [{"id":173,"mediaId":79,"playlistId"…
+app-1       | 3:42:13 PM [express] GET /api/media/72/playlists 304 in 12ms :: [{"id":163,"mediaId":72,"playlistId"…
+app-1       | 3:42:13 PM [express] GET /api/media/47/playlists 304 in 14ms :: [{"id":137,"mediaId":47,"playlistId"…
+app-1       | 3:42:13 PM [express] GET /api/media/73/playlists 304 in 13ms :: [{"id":164,"mediaId":73,"playlistId"…
+app-1       | 3:42:13 PM [express] GET /api/media/75/playlists 304 in 12ms :: [{"id":166,"mediaId":75,"playlistId"…
+app-1       | 3:42:13 PM [express] GET /api/media/52/playlists 304 in 12ms :: [{"id":142,"mediaId":52,"playlistId"…
+app-1       | 3:42:13 PM [express] GET /api/media/76/playlists 304 in 14ms :: [{"id":168,"mediaId":76,"playlistId"…
+app-1       | 3:42:14 PM [express] GET /api/media/59/playlists 304 in 11ms :: [{"id":150,"mediaId":59,"playlistId"…
+app-1       | 3:42:14 PM [express] GET /api/media/54/playlists 304 in 15ms :: [{"id":145,"mediaId":54,"playlistId"…
+app-1       | 3:42:14 PM [express] GET /api/media/53/playlists 304 in 16ms :: [{"id":144,"mediaId":53,"playlistId"…
+app-1       | 3:42:14 PM [express] GET /api/media/77/playlists 304 in 16ms :: [{"id":170,"mediaId":77,"playlistId"…
+app-1       | 3:42:14 PM [express] GET /api/media/62/playlists 304 in 18ms :: [{"id":153,"mediaId":62,"playlistId"…
+app-1       | 3:42:14 PM [express] GET /api/media/60/playlists 304 in 15ms :: [{"id":151,"mediaId":60,"playlistId"…
+app-1       | 3:42:14 PM [express] GET /api/media/74/playlists 304 in 9ms :: [{"id":167,"mediaId":74,"playlistId":…
+app-1       | 3:42:14 PM [express] GET /api/media/61/playlists 304 in 9ms :: [{"id":152,"mediaId":61,"playlistId":…
+app-1       | 3:42:14 PM [express] GET /api/media/78/playlists 304 in 12ms :: [{"id":171,"mediaId":78,"playlistId"…
+app-1       | 3:42:14 PM [express] GET /api/media/58/playlists 304 in 11ms :: [{"id":172,"mediaId":58,"playlistId"…
+app-1       | 3:42:14 PM [express] GET /api/media/55/playlists 304 in 11ms :: [{"id":146,"mediaId":55,"playlistId"…
+app-1       | 3:42:14 PM [express] GET /api/media/56/playlists 304 in 11ms :: [{"id":147,"mediaId":56,"playlistId"…
+app-1       | Token verification successful - User: 9, Admin: true, Media: 49
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 63
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 51
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 64
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 48
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 65
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 57
+app-1       | Admin access granted for user 9 (from session)
+app-1       | GET /api/media params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   user: 9,
+app-1       |   isAdmin: true
+app-1       | }
+app-1       | Fetching media for user 9, isAdmin: true, filtering by userId: none (admin view)
+app-1       | Successfully fetched 35 media items
+app-1       | 3:42:16 PM [express] GET /api/media 304 in 24ms :: [{"id":49,"title":"18 Minutes with Jesus","descri…
+app-1       | Token verification successful - User: 9, Admin: true, Media: 66
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 67
+app-1       | Admin access granted for user 9 (from session)
+app-1       | 3:42:16 PM [express] GET /api/media/49/playlists 304 in 17ms :: [{"id":139,"mediaId":49,"playlistId"…
+app-1       | 3:42:16 PM [express] GET /api/media/63/playlists 304 in 12ms :: [{"id":174,"mediaId":63,"playlistId"…
+app-1       | 3:42:16 PM [express] GET /api/media/64/playlists 304 in 13ms :: [{"id":155,"mediaId":64,"playlistId"…
+app-1       | 3:42:16 PM [express] GET /api/media/51/playlists 304 in 11ms :: [{"id":141,"mediaId":51,"playlistId"…
+app-1       | 3:42:16 PM [express] GET /api/media/48/playlists 304 in 11ms :: [{"id":138,"mediaId":48,"playlistId"…
+app-1       | 3:42:16 PM [express] GET /api/media/65/playlists 304 in 10ms :: [{"id":156,"mediaId":65,"playlistId"…
+app-1       | 3:42:16 PM [express] GET /api/media/57/playlists 304 in 12ms :: [{"id":148,"mediaId":57,"playlistId"…
+app-1       | 3:42:16 PM [express] GET /api/media/66/playlists 304 in 12ms :: [{"id":157,"mediaId":66,"playlistId"…
+app-1       | 3:42:16 PM [express] GET /api/media/67/playlists 304 in 8ms :: [{"id":158,"mediaId":67,"playlistId":…
+app-1       | 3:42:16 PM [express] GET /api/media/68/playlists 304 in 7ms :: [{"id":159,"mediaId":68,"playlistId":…
+app-1       | 3:42:16 PM [express] GET /api/media/45/playlists 304 in 24ms :: [{"id":135,"mediaId":45,"playlistId"…
+app-1       | 3:42:16 PM [express] GET /api/media/46/playlists 304 in 18ms :: [{"id":136,"mediaId":46,"playlistId"…
+app-1       | 3:42:16 PM [express] GET /api/media/50/playlists 304 in 15ms :: [{"id":140,"mediaId":50,"playlistId"…
+app-1       | 3:42:17 PM [express] GET /api/media/69/playlists 304 in 9ms :: [{"id":160,"mediaId":69,"playlistId":…
+app-1       | 3:42:17 PM [express] GET /api/media/70/playlists 304 in 8ms :: [{"id":161,"mediaId":70,"playlistId":…
+app-1       | 3:42:17 PM [express] GET /api/media/71/playlists 304 in 11ms :: [{"id":162,"mediaId":71,"playlistId"…
+app-1       | 3:42:17 PM [express] GET /api/media/79/playlists 304 in 10ms :: [{"id":173,"mediaId":79,"playlistId"…
+app-1       | 3:42:17 PM [express] GET /api/media/72/playlists 304 in 10ms :: [{"id":163,"mediaId":72,"playlistId"…
+app-1       | 3:42:17 PM [express] GET /api/media/47/playlists 304 in 9ms :: [{"id":137,"mediaId":47,"playlistId":…
+app-1       | 3:42:17 PM [express] GET /api/media/73/playlists 304 in 14ms :: [{"id":164,"mediaId":73,"playlistId"…
+app-1       | 3:42:17 PM [express] GET /api/media/75/playlists 304 in 16ms :: [{"id":166,"mediaId":75,"playlistId"…
+app-1       | 3:42:17 PM [express] GET /api/media/52/playlists 304 in 15ms :: [{"id":142,"mediaId":52,"playlistId"…
+app-1       | 3:42:17 PM [express] GET /api/media/76/playlists 304 in 10ms :: [{"id":168,"mediaId":76,"playlistId"…
+app-1       | 3:42:17 PM [express] GET /api/media/59/playlists 304 in 10ms :: [{"id":150,"mediaId":59,"playlistId"…
+app-1       | 3:42:17 PM [express] GET /api/media/54/playlists 304 in 11ms :: [{"id":145,"mediaId":54,"playlistId"…
+app-1       | 3:42:17 PM [express] GET /api/media/53/playlists 304 in 11ms :: [{"id":144,"mediaId":53,"playlistId"…
+app-1       | 3:42:17 PM [express] GET /api/media/77/playlists 304 in 11ms :: [{"id":170,"mediaId":77,"playlistId"…
+app-1       | 3:42:17 PM [express] GET /api/media/62/playlists 304 in 11ms :: [{"id":153,"mediaId":62,"playlistId"…
+app-1       | 3:42:17 PM [express] GET /api/media/60/playlists 304 in 10ms :: [{"id":151,"mediaId":60,"playlistId"…
+app-1       | 3:42:17 PM [express] GET /api/media/74/playlists 304 in 11ms :: [{"id":167,"mediaId":74,"playlistId"…
+app-1       | 3:42:17 PM [express] GET /api/media/61/playlists 304 in 10ms :: [{"id":152,"mediaId":61,"playlistId"…
+app-1       | 3:42:17 PM [express] GET /api/media/78/playlists 304 in 11ms :: [{"id":171,"mediaId":78,"playlistId"…
+app-1       | 3:42:17 PM [express] GET /api/media/58/playlists 304 in 10ms :: [{"id":172,"mediaId":58,"playlistId"…
+app-1       | 3:42:17 PM [express] GET /api/media/55/playlists 304 in 13ms :: [{"id":146,"mediaId":55,"playlistId"…
+app-1       | 3:42:17 PM [express] GET /api/media/56/playlists 304 in 12ms :: [{"id":147,"mediaId":56,"playlistId"…
+app-1       | Token verification successful - User: 9, Admin: true, Media: 68
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 45
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 46
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 50
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 69
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 70
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 71
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 79
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 72
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 47
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 73
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 75
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 52
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 76
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 54
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 53
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 77
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 62
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 60
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 74
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 61
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 78
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 58
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 55
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 56
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 51
+app-1       | Admin access granted for user 9 (from session)
+app-1       | 3:42:25 PM [express] GET /api/raw-stream/51 206 in 21ms
+app-1       | Token verification successful - User: 9, Admin: true, Media: 52
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 54
+app-1       | Admin access granted for user 9 (from session)
+app-1       | 3:42:25 PM [express] GET /api/raw-stream/54 206 in 31ms
+app-1       | Token verification successful - User: 9, Admin: true, Media: 51
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Token verification successful - User: 9, Admin: true, Media: 54
+app-1       | Admin access granted for user 9 (from session)
+app-1       | Client media request params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   page: 1,
+app-1       |   itemsPerPage: 8,
+app-1       |   user: 9
+app-1       | }
+app-1       | 3:45:34 PM [express] GET /api/client/media 200 in 68ms :: {"items":[{"id":49,"title":"18 Minutes wit…
+app-1       | Client media request params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   page: 1,
+app-1       |   itemsPerPage: 24,
+app-1       |   user: 9
+app-1       | }
+app-1       | 4:18:13 PM [express] GET /api/client/media 200 in 61ms :: {"items":[{"id":49,"title":"18 Minutes wit…
+app-1       | 5:15:22 PM [express] GET /api/user 304 in 12ms :: {"id":13,"username":"Obed Sandoval","email":"osand…
+app-1       | Client media request params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   page: 1,
+app-1       |   itemsPerPage: 8,
+app-1       |   user: 13
+app-1       | }
+app-1       | 5:15:22 PM [express] GET /api/client/media 200 in 23ms :: {"items":[{"id":49,"title":"18 Minutes wit…
+app-1       | 5:15:22 PM [express] GET /api/playlists 304 in 27ms :: [{"id":5,"name":"Films","description":"","cre…
+app-1       | Admin access granted for user 13 (from session)
+app-1       | Generated stream token for user 13, media 49
+app-1       | 5:15:23 PM [express] GET /api/media/49 304 in 22ms :: {"id":49,"title":"18 Minutes with Jesus","desc…
+app-1       | 5:15:23 PM [express] GET /api/stream/49 200 in 29ms :: {"streamUrl":"/api/raw-stream/49?token=eyJhbG…
+app-1       | Token verification successful - User: 13, Admin: true, Media: 49
+app-1       | Admin access granted for user 13 (from session)
+app-1       | 5:17:51 PM [express] GET /api/media/68/playlists 304 in 114ms :: [{"id":159,"mediaId":68,"playlistId…
+app-1       | 5:17:51 PM [express] GET /api/media/67/playlists 304 in 123ms :: [{"id":158,"mediaId":67,"playlistId…
+app-1       | 5:17:51 PM [express] GET /api/media/45/playlists 304 in 123ms :: [{"id":135,"mediaId":45,"playlistId…
+app-1       | 5:17:51 PM [express] GET /api/media/46/playlists 304 in 125ms :: [{"id":136,"mediaId":46,"playlistId…
+app-1       | 5:17:51 PM [express] GET /api/media/50/playlists 304 in 120ms :: [{"id":140,"mediaId":50,"playlistId…
+app-1       | 5:17:51 PM [express] GET /api/media/69/playlists 304 in 122ms :: [{"id":160,"mediaId":69,"playlistId…
+app-1       | 5:17:51 PM [express] GET /api/media/70/playlists 304 in 10ms :: [{"id":161,"mediaId":70,"playlistId"…
+app-1       | GET /api/media params: {
+app-1       |   search: undefined,
+app-1       |   playlistIdParam: undefined,
+app-1       |   sort: 'a-z',
+app-1       |   user: 13,
+app-1       |   isAdmin: true
+app-1       | }
+app-1       | Fetching media for user 13, isAdmin: true, filtering by userId: none (admin view)
+app-1       | Successfully fetched 35 media items
+app-1       | 5:17:51 PM [express] GET /api/media/49/playlists 304 in 14ms :: [{"id":139,"mediaId":49,"playlistId"…
+app-1       | 5:17:51 PM [express] GET /api/media 304 in 22ms :: [{"id":49,"title":"18 Minutes with Jesus","descri…
+app-1       | 5:17:51 PM [express] GET /api/media/63/playlists 304 in 19ms :: [{"id":174,"mediaId":63,"playlistId"…
+app-1       | 5:17:51 PM [express] GET /api/media/71/playlists 304 in 11ms :: [{"id":162,"mediaId":71,"playlistId"…
+app-1       | 5:17:51 PM [express] GET /api/media/64/playlists 304 in 7ms :: [{"id":155,"mediaId":64,"playlistId":…
+app-1       | 5:17:51 PM [express] GET /api/media/51/playlists 304 in 9ms :: [{"id":141,"mediaId":51,"playlistId":…
+app-1       | 5:17:51 PM [express] GET /api/media/48/playlists 304 in 12ms :: [{"id":138,"mediaId":48,"playlistId"…
+app-1       | 5:17:51 PM [express] GET /api/media/65/playlists 304 in 14ms :: [{"id":156,"mediaId":65,"playlistId"…
+app-1       | 5:17:51 PM [express] GET /api/media/79/playlists 304 in 14ms :: [{"id":173,"mediaId":79,"playlistId"…
+app-1       | 5:17:51 PM [express] GET /api/media/57/playlists 304 in 9ms :: [{"id":148,"mediaId":57,"playlistId":…
+app-1       | 5:17:51 PM [express] GET /api/media/66/playlists 304 in 10ms :: [{"id":157,"mediaId":66,"playlistId"…
+app-1       | 5:17:51 PM [express] GET /api/media/72/playlists 304 in 10ms :: [{"id":163,"mediaId":72,"playlistId"…
+app-1       | 5:17:51 PM [express] GET /api/media/47/playlists 304 in 15ms :: [{"id":137,"mediaId":47,"playlistId"…
+app-1       | 5:17:51 PM [express] GET /api/media/73/playlists 304 in 14ms :: [{"id":164,"mediaId":73,"playlistId"…
+app-1       | 5:17:51 PM [express] GET /api/media/75/playlists 304 in 13ms :: [{"id":166,"mediaId":75,"playlistId"…
+app-1       | 5:17:51 PM [express] GET /api/media/52/playlists 304 in 10ms :: [{"id":142,"mediaId":52,"playlistId"…
+app-1       | 5:17:51 PM [express] GET /api/media/76/playlists 304 in 10ms :: [{"id":168,"mediaId":76,"playlistId"…
+app-1       | 5:17:51 PM [express] GET /api/media/59/playlists 304 in 13ms :: [{"id":150,"mediaId":59,"playlistId"…
+app-1       | 5:17:51 PM [express] GET /api/media/54/playlists 304 in 14ms :: [{"id":145,"mediaId":54,"playlistId"…
+app-1       | 5:17:51 PM [express] GET /api/media/53/playlists 304 in 16ms :: [{"id":144,"mediaId":53,"playlistId"…
+app-1       | 5:17:51 PM [express] GET /api/media/77/playlists 304 in 12ms :: [{"id":170,"mediaId":77,"playlistId"…
+app-1       | 5:17:51 PM [express] GET /api/media/62/playlists 304 in 11ms :: [{"id":153,"mediaId":62,"playlistId"…
+app-1       | 5:17:51 PM [express] GET /api/media/60/playlists 304 in 8ms :: [{"id":151,"mediaId":60,"playlistId":…
+app-1       | 5:17:51 PM [express] GET /api/media/74/playlists 304 in 12ms :: [{"id":167,"mediaId":74,"playlistId"…
+app-1       | 5:17:52 PM [express] GET /api/media/61/playlists 304 in 11ms :: [{"id":152,"mediaId":61,"playlistId"…
+app-1       | 5:17:52 PM [express] GET /api/media/78/playlists 304 in 11ms :: [{"id":171,"mediaId":78,"playlistId"…
+app-1       | 5:17:52 PM [express] GET /api/media/58/playlists 304 in 10ms :: [{"id":172,"mediaId":58,"playlistId"…
+app-1       | 5:17:52 PM [express] GET /api/media/55/playlists 304 in 13ms :: [{"id":146,"mediaId":55,"playlistId"…
+app-1       | 5:17:52 PM [express] GET /api/media/56/playlists 304 in 8ms :: [{"id":147,"mediaId":56,"playlistId":…

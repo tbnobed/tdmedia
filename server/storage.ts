@@ -244,15 +244,17 @@ export class DatabaseStorage implements IStorage {
     // For regular clients, we need to limit media to what they have access to
     if (filters.userId) {
       // If a non-admin user ID is provided, get only the media they have access to
-      let query = db.select({ id: media.id })
-        .from(media)
-        .innerJoin(mediaAccess, eq(media.id, mediaAccess.media_id))
-        .where(eq(mediaAccess.user_id, filters.userId));
+      let whereConditions = [eq(mediaAccess.user_id, filters.userId)];
       
       // Add isActive filter if specified
       if (filters.isActive !== undefined) {
-        query = query.where(eq(media.isActive, filters.isActive));
+        whereConditions.push(eq(media.isActive, filters.isActive));
       }
+      
+      let query = db.select({ id: media.id })
+        .from(media)
+        .innerJoin(mediaAccess, eq(media.id, mediaAccess.media_id))
+        .where(and(...whereConditions));
       
       const accessibleMediaIds = await query;
       
