@@ -17,9 +17,18 @@ export default function AdminPage() {
   const { user } = useAuth();
   const [, setLocation] = useLocation();
 
-  // Check for hash in URL to set active tab - needed to run whenever hash changes
+  // Check for hash and query parameters in URL to set active tab
   useEffect(() => {
-    // Remove the # character and get the tab name
+    // Check for query parameter first
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabParam = urlParams.get('tab');
+    
+    if (tabParam === 'user-access') {
+      setActiveTab('access');
+      return;
+    }
+    
+    // Fall back to hash-based navigation
     const hash = window.location.hash.substring(1);
     if (hash && ["media", "playlists", "clients", "access", "contacts", "admins"].includes(hash)) {
       setActiveTab(hash);

@@ -389,8 +389,10 @@ export default function ClientManagement() {
                           size="sm"
                           className="mr-2"
                           onClick={() => {
-                            // Navigate to user media access page
-                            window.location.href = `/admin/users/${client.id}/media`;
+                            // Store the client ID in localStorage for pre-selection
+                            localStorage.setItem('selectedClientId', client.id.toString());
+                            // Navigate to the admin page user media access tab
+                            window.location.href = '/admin?tab=user-access';
                           }}
                         >
                           Manage Access
