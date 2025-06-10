@@ -159,11 +159,11 @@ export default function ClientManagement() {
     queryFn: getQueryFn({ on401: "throw" }),
   });
 
-  // Filter media based on search query
-  const filteredMedia = allMedia?.filter(media =>
+  // Filter and sort media based on search query
+  const filteredMedia = (allMedia?.filter(media =>
     media.title.toLowerCase().includes(mediaSearchQuery.toLowerCase()) ||
     media.type.toLowerCase().includes(mediaSearchQuery.toLowerCase())
-  ) || [];
+  ) || []).sort((a, b) => a.title.localeCompare(b.title));
 
   // Form setup
   const form = useForm<CreateClientFormValues>({
