@@ -1,6 +1,6 @@
 import { db, executeRawSQL } from "@db";
 import { users, media, playlists, contacts, mediaAccess, session as sessionTable, mediaPlaylists } from "@shared/schema";
-import { eq, and, like, desc, asc, inArray, ne } from "drizzle-orm";
+import { eq, and, like, ilike, desc, asc, inArray, ne } from "drizzle-orm";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
 import { pool } from "@db";
@@ -271,7 +271,7 @@ export class DatabaseStorage implements IStorage {
       
       // Apply additional filters
       if (filters.search) {
-        mediaQuery = mediaQuery.where(like(media.title, `%${filters.search}%`));
+        mediaQuery = mediaQuery.where(sql`LOWER(${media.title}) LIKE LOWER(${`%${filters.search}%`})`);
       }
       
       if (filters.playlistId && filters.playlistId > 0) {
@@ -284,7 +284,7 @@ export class DatabaseStorage implements IStorage {
           INNER JOIN media_playlists mp ON m.id = mp.media_id
           WHERE mp.playlist_id = $1
           AND m.id = ANY($2)
-          ${filters.search ? "AND m.title LIKE $3" : ""}
+          ${filters.search ? "AND LOWER(m.title) LIKE LOWER($3)" : ""}
           ORDER BY m.created_at DESC
         `, [filters.playlistId, mediaIds, filters.search ? `%${filters.search}%` : undefined]);
         
@@ -316,7 +316,7 @@ export class DatabaseStorage implements IStorage {
       
       // Apply search filter if specified
       if (filters.search) {
-        query = query.where(like(media.title, `%${filters.search}%`));
+        query = query.where(sql`LOWER(${media.title}) LIKE LOWER(${`%${filters.search}%`})`);
       }
       
       // Apply active status filter if specified
@@ -352,7 +352,7 @@ export class DatabaseStorage implements IStorage {
         
         // Add search condition if provided
         if (filters.search) {
-          sqlQuery += ` AND m.title LIKE $${params.length + 1}`;
+          sqlQuery += ` AND LOWER(m.title) LIKE LOWER($${params.length + 1})`;
           params.push(`%${filters.search}%`);
         }
         
