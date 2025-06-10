@@ -119,14 +119,14 @@ export default function ClientManagement() {
     queryKey: ["/api/users/clients"],
     queryFn: getQueryFn({ on401: "throw" }),
   });
-  
+
   // Delete client mutation
   const deleteClientMutation = useMutation({
     mutationFn: async (clientId: number) => {
-      const response = await apiRequest("DELETE", `/api/users/clients/${clientId}`);
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => null);
-        throw new Error(errorData?.message || 'Failed to delete client');
+      const res = await apiRequest("DELETE", `/api/users/${clientId}`);
+      if (!res.ok) {
+        const error = await res.text();
+        throw new Error(error);
       }
       return clientId;
     },
@@ -187,60 +187,80 @@ export default function ClientManagement() {
         message: 'Creating client account...',
       });
 
-      // Extract the media IDs to assign
-      const { assignMedia, ...userData } = data;
-      
-      // Format data for the API
-      const requestData = {
-        ...userData,
-        mediaIds: assignMedia || [], // Pass the media IDs to assign in the request
-      };
-      
-      // Use the dedicated endpoint for client creation which handles everything
-      const createClientResponse = await apiRequest("POST", "/api/users/clients", requestData);
-      if (!createClientResponse.ok) {
-        const errorText = await createClientResponse.text();
-        try {
-          // Try to parse as JSON error
-          const errorJson = JSON.parse(errorText);
-          throw new Error(errorJson.message || 'Failed to create client');
-        } catch (e) {
-          // If not JSON, use the text directly
-          throw new Error(errorText || 'Failed to create client');
+      const userRes = await apiRequest("POST", "/api/register", {
+        username: data.username,
+        email: data.email,
+        password: data.password,
+        isAdmin: data.isAdmin,
+      });
+
+      if (!userRes.ok) {
+        const error = await userRes.text();
+        throw new Error(error);
+      }
+
+      const newUser = await userRes.json();
+
+      // Assign media if specified
+      if (data.assignMedia && data.assignMedia.length > 0) {
+        setOnboardingStatus({
+          status: 'assigning',
+          message: `Assigning ${data.assignMedia.length} media items...`,
+        });
+
+        for (const mediaId of data.assignMedia) {
+          const assignRes = await apiRequest("POST", `/api/media/${mediaId}/assign`, {
+            userId: newUser.id,
+          });
+          if (!assignRes.ok) {
+            console.warn(`Failed to assign media ${mediaId} to user ${newUser.id}`);
+          }
         }
       }
-      
-      const result = await createClientResponse.json();
-      
+
+      // Send welcome email if requested
+      if (data.sendWelcomeEmail) {
+        setOnboardingStatus({
+          status: 'emailing',
+          message: 'Sending welcome email...',
+        });
+
+        try {
+          await apiRequest("POST", "/api/send-welcome-email", {
+            userId: newUser.id,
+          });
+        } catch (emailError) {
+          console.warn("Failed to send welcome email:", emailError);
+          // Don't fail the entire operation for email issues
+        }
+      }
+
       setOnboardingStatus({
         status: 'complete',
-        message: 'Client onboarded successfully!' + 
-          (result.emailSent ? ' Welcome email has been sent.' : ''),
+        message: 'Client created successfully!',
       });
-      
-      return result.user;
+
+      return newUser;
     },
     onSuccess: () => {
-      // Invalidate queries to refresh data
+      toast({
+        title: "Client created successfully",
+        description: "The new client has been set up and can now access the system",
+      });
+      // Reset form and close dialog
+      form.reset();
+      setShowCreateDialog(false);
+      setOnboardingStatus({ status: 'idle', message: '' });
+      setMediaSearchQuery("");
+      // Refresh the client list
       queryClient.invalidateQueries({ queryKey: ["/api/users/clients"] });
-      
-      setTimeout(() => {
-        // Close dialog and reset form after showing success message
-        setShowCreateDialog(false);
-        form.reset();
-        setOnboardingStatus({
-          status: 'idle',
-          message: '',
-        });
-      }, 2000);
     },
     onError: (error: Error) => {
       setOnboardingStatus({
         status: 'error',
-        message: 'Error during onboarding',
+        message: '',
         error: error.message,
       });
-      
       toast({
         title: "Error creating client",
         description: error.message,
@@ -249,74 +269,52 @@ export default function ClientManagement() {
     },
   });
 
-  // Handle form submission
   const onSubmit = (data: CreateClientFormValues) => {
     createClientMutation.mutate(data);
   };
 
-  // Get onboarding status UI
-  const getOnboardingStatusUi = () => {
-    if (onboardingStatus.status === 'idle') return null;
-    
-    const getStatusIcon = () => {
-      switch (onboardingStatus.status) {
-        case 'creating':
-        case 'assigning':
-        case 'emailing':
-          return <Loader2 className="h-4 w-4 animate-spin mr-2" />;
-        case 'complete':
-          return <CheckCircle2 className="h-4 w-4 text-green-500 mr-2" />;
-        case 'error':
-          return <AlertCircle className="h-4 w-4 text-red-500 mr-2" />;
-        default:
-          return null;
-      }
-    };
-    
-    return (
-      <div 
-        className={`flex items-center p-4 my-4 rounded-md ${
-          onboardingStatus.status === 'error' ? 'bg-red-50 text-red-700' : 
-          onboardingStatus.status === 'complete' ? 'bg-green-50 text-green-700' : 
-          'bg-blue-50 text-blue-700'
-        }`}
-      >
-        {getStatusIcon()}
-        <div>
-          <p className="font-medium">{onboardingStatus.message}</p>
-          {onboardingStatus.error && (
-            <p className="text-sm mt-1">{onboardingStatus.error}</p>
-          )}
-        </div>
-      </div>
-    );
+  const handleDeleteClient = (client: User) => {
+    setClientToDelete(client);
+    setDeleteDialogOpen(true);
   };
 
+  const confirmDelete = () => {
+    if (clientToDelete) {
+      deleteClientMutation.mutate(clientToDelete.id);
+    }
+  };
+
+  if (clientsError) {
+    return (
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex items-center justify-center py-8">
+            <div className="flex items-center space-x-2 text-destructive">
+              <AlertCircle className="h-5 w-5" />
+              <span>Failed to load clients: {clientsError.message}</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center">
-            <Users className="mr-2 h-5 w-5" />
-            Client User Management
-          </CardTitle>
-          <CardDescription>
-            Create and manage client users
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="mb-6 flex justify-between items-center">
+          <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-medium">Client Users</h3>
-              <p className="text-sm text-muted-foreground">
-                All non-administrator users in the system
-              </p>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                Client Management
+              </CardTitle>
+              <CardDescription>
+                Manage client accounts and their media access permissions
+              </CardDescription>
             </div>
             <div className="flex items-center gap-2">
-              <Select
-                value={sortOption}
-                onValueChange={setSortOption}
-              >
+              <Select value={sortOption} onValueChange={setSortOption}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Sort by..." />
                 </SelectTrigger>
@@ -341,7 +339,9 @@ export default function ClientManagement() {
               </Button>
             </div>
           </div>
+        </CardHeader>
 
+        <CardContent>
           {isLoadingClients ? (
             <div className="py-8 flex justify-center">
               <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -384,41 +384,25 @@ export default function ClientManagement() {
                         {new Date(client.createdAt).toLocaleDateString()}
                       </TableCell>
                       <TableCell className="text-right">
-                        <div className="flex justify-end space-x-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              // Store the selected client ID in localStorage
-                              localStorage.setItem('selectedClientId', client.id.toString());
-                              
-                              // Navigate to the access tab directly
-                              // First change the hash to trigger hash change event
-                              window.location.hash = "";
-                              // Then set it to "access" to navigate properly
-                              setTimeout(() => {
-                                window.location.hash = "access";
-                              }, 50);
-                            }}
-                          >
-                            Manage Access
-                          </Button>
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            onClick={() => {
-                              setClientToDelete(client);
-                              setDeleteDialogOpen(true);
-                            }}
-                            disabled={deleteClientMutation.isPending}
-                          >
-                            {deleteClientMutation.isPending && deleteClientMutation.variables === client.id ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                              <Trash2 className="h-4 w-4" />
-                            )}
-                          </Button>
-                        </div>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="mr-2"
+                          onClick={() => {
+                            // Navigate to user media access page
+                            window.location.href = `/admin/users/${client.id}/media`;
+                          }}
+                        >
+                          Manage Access
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-destructive hover:text-destructive"
+                          onClick={() => handleDeleteClient(client)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -426,15 +410,11 @@ export default function ClientManagement() {
               </Table>
             </div>
           ) : (
-            <div className="py-8 text-center border rounded-md bg-muted/20">
-              <p className="text-muted-foreground">No client users found.</p>
-              <Button
-                variant="outline"
-                className="mt-4"
-                onClick={() => setShowCreateDialog(true)}
-              >
+            <div className="py-8 text-center">
+              <p className="text-muted-foreground mb-4">No clients found.</p>
+              <Button onClick={() => setShowCreateDialog(true)}>
                 <UserPlus className="h-4 w-4 mr-1" />
-                Add Your First Client
+                Create Your First Client
               </Button>
             </div>
           )}
@@ -442,31 +422,20 @@ export default function ClientManagement() {
       </Card>
 
       {/* Create Client Dialog */}
-      <Dialog open={showCreateDialog} onOpenChange={(open) => {
-        if (!open) {
-          // Reset onboarding status when dialog is closed
-          setOnboardingStatus({
-            status: 'idle',
-            message: '',
-          });
-        }
-        setShowCreateDialog(open);
-      }}>
-        <DialogContent className="sm:max-w-md">
+      <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Create New Client</DialogTitle>
             <DialogDescription>
-              Create a new client user account and set up their initial access.
+              Set up a new client account with media access permissions
             </DialogDescription>
           </DialogHeader>
-
-          {getOnboardingStatusUi()}
 
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <Tabs defaultValue="account" className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="account">Account</TabsTrigger>
+                  <TabsTrigger value="account">Account Details</TabsTrigger>
                   <TabsTrigger value="access">Media Access</TabsTrigger>
                 </TabsList>
                 
@@ -478,33 +447,27 @@ export default function ClientManagement() {
                       <FormItem>
                         <FormLabel>Username</FormLabel>
                         <FormControl>
-                          <Input {...field} autoComplete="off" />
+                          <Input placeholder="Enter username" {...field} />
                         </FormControl>
-                        <FormDescription>
-                          This will be used to log in to the account.
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Email Address</FormLabel>
+                        <FormLabel>Email</FormLabel>
                         <FormControl>
-                          <Input {...field} type="email" autoComplete="off" />
+                          <Input placeholder="Enter email address" type="email" {...field} />
                         </FormControl>
-                        <FormDescription>
-                          This email will be used for communications.
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name="password"
@@ -512,12 +475,30 @@ export default function ClientManagement() {
                       <FormItem>
                         <FormLabel>Password</FormLabel>
                         <FormControl>
-                          <Input {...field} type="password" autoComplete="new-password" />
+                          <Input placeholder="Enter password" type="password" {...field} />
                         </FormControl>
-                        <FormDescription>
-                          Must be at least 6 characters long.
-                        </FormDescription>
                         <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="isAdmin"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                          <FormLabel className="text-base">Admin Access</FormLabel>
+                          <FormDescription>
+                            Allow this user to manage other users and media
+                          </FormDescription>
+                        </div>
+                        <FormControl>
+                          <Switch
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
                       </FormItem>
                     )}
                   />
@@ -528,11 +509,9 @@ export default function ClientManagement() {
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                         <div className="space-y-0.5">
-                          <FormLabel className="text-base">
-                            Send Welcome Email
-                          </FormLabel>
+                          <FormLabel className="text-base">Send Welcome Email</FormLabel>
                           <FormDescription>
-                            Send an email with login credentials to the client
+                            Send login credentials and welcome message to the new client
                           </FormDescription>
                         </div>
                         <FormControl>
@@ -691,7 +670,12 @@ export default function ClientManagement() {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => setShowCreateDialog(false)}
+                  onClick={() => {
+                    setShowCreateDialog(false);
+                    form.reset();
+                    setOnboardingStatus({ status: 'idle', message: '' });
+                    setMediaSearchQuery("");
+                  }}
                   disabled={createClientMutation.isPending}
                 >
                   Cancel
@@ -703,52 +687,56 @@ export default function ClientManagement() {
                   {createClientMutation.isPending ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Creating...
+                      {onboardingStatus.status === 'creating' && 'Creating...'}
+                      {onboardingStatus.status === 'assigning' && 'Assigning Media...'}
+                      {onboardingStatus.status === 'emailing' && 'Sending Email...'}
                     </>
                   ) : (
-                    "Create Client"
+                    'Create Client'
                   )}
                 </Button>
               </DialogFooter>
+
+              {/* Onboarding Status */}
+              {onboardingStatus.status !== 'idle' && (
+                <div className="mt-4 p-4 border rounded-lg">
+                  {onboardingStatus.status === 'error' ? (
+                    <div className="flex items-center space-x-2 text-destructive">
+                      <AlertCircle className="h-4 w-4" />
+                      <span>Error: {onboardingStatus.error}</span>
+                    </div>
+                  ) : onboardingStatus.status === 'complete' ? (
+                    <div className="flex items-center space-x-2 text-green-600">
+                      <CheckCircle2 className="h-4 w-4" />
+                      <span>{onboardingStatus.message}</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center space-x-2 text-blue-600">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>{onboardingStatus.message}</span>
+                    </div>
+                  )}
+                </div>
+              )}
             </form>
           </Form>
         </DialogContent>
       </Dialog>
 
-      {/* Delete Client Confirmation Dialog */}
+      {/* Delete Confirmation Dialog */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Client</AlertDialogTitle>
             <AlertDialogDescription>
-              {clientToDelete ? (
-                <>
-                  Are you sure you want to delete client <strong>{clientToDelete.username}</strong>?
-                  <p className="mt-2">
-                    This action will remove the client account and all their media access permissions.
-                    This cannot be undone.
-                  </p>
-                </>
-              ) : (
-                'Are you sure you want to delete this client? This action cannot be undone.'
-              )}
+              Are you sure you want to delete "{clientToDelete?.username}"? This will also remove all their media access permissions. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel
-              disabled={deleteClientMutation.isPending}
-              onClick={() => setClientToDelete(null)}
-            >
-              Cancel
-            </AlertDialogCancel>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
+              onClick={confirmDelete}
               disabled={deleteClientMutation.isPending}
-              onClick={() => {
-                if (clientToDelete) {
-                  deleteClientMutation.mutate(clientToDelete.id);
-                  // Dialog will close automatically when the delete mutation succeeds
-                }
-              }}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               {deleteClientMutation.isPending ? (
@@ -757,7 +745,7 @@ export default function ClientManagement() {
                   Deleting...
                 </>
               ) : (
-                "Delete Client"
+                'Delete Client'
               )}
             </AlertDialogAction>
           </AlertDialogFooter>
