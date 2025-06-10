@@ -44,8 +44,10 @@ import {
   PlayCircle, 
   Image, 
   File, 
-  Presentation 
+  Presentation,
+  Search
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
 
 interface User {
   id: number;
@@ -75,6 +77,7 @@ export default function UserMediaAccess() {
   const [selectedUser, setSelectedUser] = useState<number | null>(null);
   const [selectedMedia, setSelectedMedia] = useState<number | null>(null);
   const [showAssignDialog, setShowAssignDialog] = useState(false);
+  const [mediaSearchQuery, setMediaSearchQuery] = useState("");
 
   // Check for pre-selected client ID from localStorage when component mounts
   useEffect(() => {
@@ -207,13 +210,20 @@ export default function UserMediaAccess() {
     }
   };
 
-  // Filter out media that's already assigned to the user
+  // Filter out media that's already assigned to the user and sort alphabetically
   const getUnassignedMedia = () => {
     if (!allMedia || !userMedia) return [];
 
     const assignedMediaIds = userMedia.map((item) => item.media_id);
-    return allMedia.filter((media) => !assignedMediaIds.includes(media.id));
+    return allMedia.filter((media) => !assignedMediaIds.includes(media.id))
+                   .sort((a, b) => a.title.localeCompare(b.title));
   };
+
+  // Filter and sort assigned media based on search query
+  const filteredUserMedia = (userMedia?.filter(access =>
+    access.media.title.toLowerCase().includes(mediaSearchQuery.toLowerCase()) ||
+    access.media.type.toLowerCase().includes(mediaSearchQuery.toLowerCase())
+  ) || []).sort((a, b) => a.media.title.localeCompare(b.media.title));
 
   // Display error if any
   if (clientsError || mediaError || userMediaError) {
@@ -297,6 +307,17 @@ export default function UserMediaAccess() {
                   </Button>
                 </div>
 
+                {/* Search input for assigned media */}
+                <div className="relative mb-4">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    placeholder="Search assigned media by title or type..."
+                    value={mediaSearchQuery}
+                    onChange={(e) => setMediaSearchQuery(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+
                 {isLoadingUserMedia ? (
                   <div className="py-8 flex justify-center">
                     <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -305,6 +326,12 @@ export default function UserMediaAccess() {
                   <div className="py-8 text-center border rounded-md bg-muted/20">
                     <p className="text-muted-foreground">
                       No media currently assigned to this user.
+                    </p>
+                  </div>
+                ) : filteredUserMedia.length === 0 ? (
+                  <div className="py-8 text-center border rounded-md bg-muted/20">
+                    <p className="text-muted-foreground">
+                      No media found matching "{mediaSearchQuery}".
                     </p>
                   </div>
                 ) : (
@@ -319,7 +346,7 @@ export default function UserMediaAccess() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {userMedia.map((access) => (
+                        {filteredUserMedia.map((access) => (
                           <TableRow key={access.id}>
                             <TableCell className="font-medium">
                               {access.media.title}
