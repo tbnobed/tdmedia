@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
-import { Loader2, UserPlus, Users, RefreshCw, CheckCircle2, AlertCircle, Trash2 } from "lucide-react";
+import { Loader2, UserPlus, Users, RefreshCw, CheckCircle2, AlertCircle, Trash2, Search, CheckSquare } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -49,6 +49,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -58,7 +60,6 @@ import {
 } from "@/components/ui/select";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { getQueryFn, apiRequest, queryClient } from "@/lib/queryClient";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -98,6 +99,7 @@ export default function ClientManagement() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [clientToDelete, setClientToDelete] = useState<User | null>(null);
   const [sortOption, setSortOption] = useState<string>("nameAsc");
+  const [mediaSearchQuery, setMediaSearchQuery] = useState("");
   const [onboardingStatus, setOnboardingStatus] = useState<{
     status: 'idle' | 'creating' | 'assigning' | 'emailing' | 'complete' | 'error';
     message: string;
@@ -156,6 +158,12 @@ export default function ClientManagement() {
     queryKey: ["/api/media"],
     queryFn: getQueryFn({ on401: "throw" }),
   });
+
+  // Filter media based on search query
+  const filteredMedia = allMedia?.filter(media =>
+    media.title.toLowerCase().includes(mediaSearchQuery.toLowerCase()) ||
+    media.type.toLowerCase().includes(mediaSearchQuery.toLowerCase())
+  ) || [];
 
   // Form setup
   const form = useForm<CreateClientFormValues>({
@@ -550,11 +558,51 @@ export default function ClientManagement() {
                             Select media items to grant access to this client
                           </FormDescription>
                         </div>
+                        
+                        {/* Search and bulk actions */}
+                        <div className="space-y-3">
+                          <div className="relative">
+                            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                            <Input
+                              placeholder="Search media by title or type..."
+                              value={mediaSearchQuery}
+                              onChange={(e) => setMediaSearchQuery(e.target.value)}
+                              className="pl-10"
+                            />
+                          </div>
+                          
+                          {filteredMedia.length > 0 && (
+                            <div className="flex items-center gap-2">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  form.setValue("assignMedia", filteredMedia.map(media => media.id));
+                                }}
+                              >
+                                <CheckSquare className="h-4 w-4 mr-1" />
+                                Assign All ({filteredMedia.length})
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => {
+                                  form.setValue("assignMedia", []);
+                                }}
+                              >
+                                Clear All
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+
                         {isLoadingMedia ? (
                           <div className="py-4 flex justify-center">
                             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                           </div>
-                        ) : allMedia && allMedia.length > 0 ? (
+                        ) : filteredMedia && filteredMedia.length > 0 ? (
                           <div className="border rounded-lg overflow-hidden">
                             <Table>
                               <TableHeader>
@@ -562,58 +610,70 @@ export default function ClientManagement() {
                                   <TableHead className="w-[50px]">
                                     <div className="flex items-center space-x-2">
                                       <Checkbox
-                                        id="select-all-media"
-                                        checked={allMedia && form.getValues("assignMedia")?.length === allMedia.length}
+                                        id="select-all-filtered-media"
+                                        checked={filteredMedia && form.getValues("assignMedia")?.length === filteredMedia.length && filteredMedia.every(media => form.getValues("assignMedia")?.includes(media.id))}
                                         onCheckedChange={(checked) => {
                                           if (checked) {
-                                            form.setValue("assignMedia", allMedia?.map(media => media.id) || []);
+                                            form.setValue("assignMedia", filteredMedia?.map(media => media.id) || []);
                                           } else {
                                             form.setValue("assignMedia", []);
                                           }
                                         }}
                                       />
-                                      <label htmlFor="select-all-media" className="text-xs font-normal">All</label>
+                                      <label htmlFor="select-all-filtered-media" className="text-xs font-normal">All</label>
                                     </div>
                                   </TableHead>
                                   <TableHead>Title</TableHead>
                                   <TableHead>Type</TableHead>
                                 </TableRow>
                               </TableHeader>
-                              <TableBody>
-                                {allMedia.map((media) => (
-                                  <TableRow key={media.id}>
-                                    <TableCell>
-                                      <FormField
-                                        control={form.control}
-                                        name="assignMedia"
-                                        render={({ field }) => (
-                                          <FormItem className="flex items-center space-x-2">
-                                            <FormControl>
-                                              <Checkbox
-                                                checked={field.value?.includes(media.id)}
-                                                onCheckedChange={(checked) => {
-                                                  if (checked) {
-                                                    field.onChange([...field.value || [], media.id]);
-                                                  } else {
-                                                    field.onChange(
-                                                      field.value?.filter(
-                                                        (value) => value !== media.id
-                                                      ) || []
-                                                    );
-                                                  }
-                                                }}
-                                              />
-                                            </FormControl>
-                                          </FormItem>
-                                        )}
-                                      />
-                                    </TableCell>
-                                    <TableCell>{media.title}</TableCell>
-                                    <TableCell className="capitalize">{media.type}</TableCell>
-                                  </TableRow>
-                                ))}
-                              </TableBody>
                             </Table>
+                            <ScrollArea className="h-[300px]">
+                              <Table>
+                                <TableBody>
+                                  {filteredMedia.map((media) => (
+                                    <TableRow key={media.id}>
+                                      <TableCell className="w-[50px]">
+                                        <FormField
+                                          control={form.control}
+                                          name="assignMedia"
+                                          render={({ field }) => (
+                                            <FormItem className="flex items-center space-x-2">
+                                              <FormControl>
+                                                <Checkbox
+                                                  checked={field.value?.includes(media.id)}
+                                                  onCheckedChange={(checked) => {
+                                                    if (checked) {
+                                                      field.onChange([...field.value || [], media.id]);
+                                                    } else {
+                                                      field.onChange(
+                                                        field.value?.filter(
+                                                          (value) => value !== media.id
+                                                        ) || []
+                                                      );
+                                                    }
+                                                  }}
+                                                />
+                                              </FormControl>
+                                            </FormItem>
+                                          )}
+                                        />
+                                      </TableCell>
+                                      <TableCell>{media.title}</TableCell>
+                                      <TableCell className="capitalize">{media.type}</TableCell>
+                                    </TableRow>
+                                  ))}
+                                </TableBody>
+                              </Table>
+                            </ScrollArea>
+                          </div>
+                        ) : mediaSearchQuery ? (
+                          <div className="py-4 text-center border rounded-md bg-muted/20">
+                            <p className="text-muted-foreground">No media found matching "{mediaSearchQuery}"</p>
+                          </div>
+                        ) : allMedia && allMedia.length > 0 ? (
+                          <div className="py-4 text-center border rounded-md bg-muted/20">
+                            <p className="text-muted-foreground">Use the search box to find media items</p>
                           </div>
                         ) : (
                           <div className="py-4 text-center border rounded-md bg-muted/20">
