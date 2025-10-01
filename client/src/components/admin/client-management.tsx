@@ -181,17 +181,18 @@ export default function ClientManagement() {
   // Create client mutation
   const createClientMutation = useMutation({
     mutationFn: async (data: CreateClientFormValues) => {
-      // First create the user
       setOnboardingStatus({
         status: 'creating',
         message: 'Creating client account...',
       });
 
-      const userRes = await apiRequest("POST", "/api/register", {
+      // Use the correct admin endpoint for client creation
+      const userRes = await apiRequest("POST", "/api/users/clients", {
         username: data.username,
         email: data.email,
         password: data.password,
-        isAdmin: data.isAdmin,
+        mediaIds: data.assignMedia, // Backend handles media assignment
+        sendWelcomeEmail: data.sendWelcomeEmail, // Backend handles email sending
       });
 
       if (!userRes.ok) {
@@ -199,48 +200,14 @@ export default function ClientManagement() {
         throw new Error(error);
       }
 
-      const newUser = await userRes.json();
-
-      // Assign media if specified
-      if (data.assignMedia && data.assignMedia.length > 0) {
-        setOnboardingStatus({
-          status: 'assigning',
-          message: `Assigning ${data.assignMedia.length} media items...`,
-        });
-
-        for (const mediaId of data.assignMedia) {
-          const assignRes = await apiRequest("POST", `/api/media/${mediaId}/assign`, {
-            userId: newUser.id,
-          });
-          if (!assignRes.ok) {
-            console.warn(`Failed to assign media ${mediaId} to user ${newUser.id}`);
-          }
-        }
-      }
-
-      // Send welcome email if requested
-      if (data.sendWelcomeEmail) {
-        setOnboardingStatus({
-          status: 'emailing',
-          message: 'Sending welcome email...',
-        });
-
-        try {
-          await apiRequest("POST", "/api/send-welcome-email", {
-            userId: newUser.id,
-          });
-        } catch (emailError) {
-          console.warn("Failed to send welcome email:", emailError);
-          // Don't fail the entire operation for email issues
-        }
-      }
+      const response = await userRes.json();
 
       setOnboardingStatus({
         status: 'complete',
         message: 'Client created successfully!',
       });
 
-      return newUser;
+      return response.user;
     },
     onSuccess: () => {
       toast({
