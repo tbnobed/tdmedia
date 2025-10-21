@@ -1,0 +1,66 @@
+netstat -tnp | grep :5432
+
+# Or use ss command
+ss -tnp | grep :5432
+
+# Check for running database tools
+ps aux | grep -E "pgadmin|dbeaver|datadog|postgres"
+
+# Check cron jobs
+crontab -l
+sudo crontab -l
+
+# Check systemd services
+systemctl list-units | grep -E "postgres|backup|monitor"
+Command 'netstat' not found, but can be installed with:
+sudo apt install net-tools
+70        235118  0.6  0.0 172916 25728 ?        Ss   05:31   0:00 postgres
+70        235283  0.0  0.0 173024  4132 ?        Ss   05:31   0:00 postgres: checkpointer
+70        235284  0.0  0.0 173028  4516 ?        Ss   05:31   0:00 postgres: background writer
+70        235286  0.0  0.0 172996  7972 ?        Ss   05:31   0:00 postgres: walwriter
+70        235287  0.0  0.0 174568  6820 ?        Ss   05:31   0:00 postgres: autovacuum launcher
+70        235288  0.0  0.0 174532  5668 ?        Ss   05:31   0:00 postgres: logical replication launcher
+ubuntu    236173  0.0  0.0   7088  1920 pts/0    S+   05:32   0:00 grep --color=auto -E pgadmin|dbeaver|datadog|postgres
+no crontab for ubuntu
+no crontab for root
+  lvm2-monitor.service                                                                                      loaded active exited    Monitoring of LVM2 mirrors, snapshots etc. using dmeventd or progress polling
+  dpkg-db-backup.timer                                                                                      loaded active waiting   Daily dpkg database backup timer
+ubuntu@tbn-medialibrary:~/tdmedia$ ^C
+ubuntu@tbn-medialibrary:~/tdmedia$ docker ps -a
+CONTAINER ID   IMAGE                COMMAND                  CREATED         STATUS                                 PORTS                                         NAMES
+f89058b16e8e   tdmedia-app          "/app/docker-entrypo…"   2 minutes ago   Up About a minute (health: starting)   0.0.0.0:5000->5000/tcp, [::]:5000->5000/tcp   tdmedia-app-1
+c649de34362d   postgres:15-alpine   "docker-entrypoint.s…"   2 minutes ago   Up 2 minutes (healthy)                 0.0.0.0:5432->5432/tcp, [::]:5432->5432/tcp   tdmedia-postgres-1
+ubuntu@tbn-medialibrary:~/tdmedia$ docker ps | grep -E 'pgadmin|adminer|phppgadmin'
+ubuntu@tbn-medialibrary:~/tdmedia$ docker logs tdmedia-app-1 --tail=100 2>&1 | grep -i 'connect\|pool\|database'
+[2025-10-21T05:31:46.978Z] Pushing schema to database...
+Using 'pg' driver for database querying
+[⣷] Pulling schema from database...
+[⣯] Pulling schema from database...
+[⣟] Pulling schema from database...
+[✓] Pulling schema from database...
+[2025-10-21T05:31:49.475Z] Database schema initialization completed successfully
+Database schema initialized successfully!
+Waiting for database to settle after migration (3 seconds)...
+Session table created for connect-pg-simple
+ubuntu@tbn-medialibrary:~/tdmedia$ docker exec tdmedia-postgres-1 psql -U trilogy_user -d trilogy_db -c "SELECT pid, usename, application_name, client_addr, state FROM pg_stat_activity;"
+ pid |   usename    | application_name | client_addr | state
+-----+--------------+------------------+-------------+--------
+  31 |              |                  |             |
+  32 | trilogy_user |                  |             |
+ 402 | trilogy_user | psql             |             | active
+  28 |              |                  |             |
+  27 |              |                  |             |
+  30 |              |                  |             |
+(6 rows)
+
+ubuntu@tbn-medialibrary:~/tdmedia$ docker exec tdmedia-postgres-1 ps aux
+PID   USER     TIME  COMMAND
+    1 postgres  0:00 postgres
+   27 postgres  0:00 postgres: checkpointer
+   28 postgres  0:00 postgres: background writer
+   30 postgres  0:00 postgres: walwriter
+   31 postgres  0:00 postgres: autovacuum launcher
+   32 postgres  0:00 postgres: logical replication launcher
+  424 postgres  0:00 postgres: postgres postgres 58.250.120.42(4590) authentication
+  425 root      0:00 ps aux
+ubuntu@tbn-medialibrary:~/tdmedia$
