@@ -32,7 +32,7 @@ echo "Using database initialization settings: MAX_RETRIES=$DB_INIT_RETRY_COUNT, 
 
 # Wait for PostgreSQL to be available
 RETRIES=30
-until pg_isready -h $PGHOST -p $PGPORT -d $PGDATABASE || [ $RETRIES -eq 0 ]; do
+until pg_isready -h $PGHOST -p $PGPORT -U $PGUSER -d $PGDATABASE || [ $RETRIES -eq 0 ]; do
   echo "Waiting for PostgreSQL server ($RETRIES retries left)..."
   RETRIES=$((RETRIES-1))
   sleep 1

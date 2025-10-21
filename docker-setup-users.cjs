@@ -86,28 +86,6 @@ async function setupUsers() {
       log('Client user already exists');
     }
     
-    // Create 'postgres' user if it doesn't exist (for external tools)
-    try {
-      const postgresUserResult = await pool.query(
-        "SELECT 1 FROM pg_roles WHERE rolname = 'postgres'"
-      );
-      
-      if (postgresUserResult.rows.length === 0) {
-        log('Creating postgres superuser role for compatibility...');
-        const postgresPassword = process.env.POSTGRES_PASSWORD || 'postgres';
-        
-        await pool.query(
-          `CREATE USER postgres WITH SUPERUSER PASSWORD '${postgresPassword}'`
-        );
-        
-        log('postgres superuser role created successfully');
-      } else {
-        log('postgres superuser role already exists');
-      }
-    } catch (postgresUserError) {
-      log(`Note: Could not create postgres user - ${postgresUserError.message}`);
-    }
-    
     // Create a default playlist if none exist
     try {
       const playlistResult = await pool.query('SELECT id FROM playlists');
